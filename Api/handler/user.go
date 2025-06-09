@@ -1,0 +1,21 @@
+package handler
+
+import (
+	"Api/client"
+	"context"
+	user "user_srv/proto_user"
+)
+
+func UserRegister(ctx context.Context, req *user.UserRegisterRequest) (*user.UserRegisterResponse, error) {
+	userClient, err := client.UserClient(ctx, func(ctx context.Context, in user.UserClient) (interface{}, error) {
+		register, err := in.UserRegister(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return register, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return userClient.(*user.UserRegisterResponse), nil
+}
