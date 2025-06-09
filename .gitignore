@@ -1,3 +1,6 @@
 go.mod
 go.work
 *.log
+go.work.sum
+tmp
+*.tmp
