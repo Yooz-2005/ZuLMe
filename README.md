@@ -69,6 +69,18 @@ ZuLMe是一个现代化的智能租车平台，提供便捷的车辆租赁服务
 
 ## 快速开始
 
+### 启动前端
+```bash
+# 进入frontend目录
+cd frontend
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm start
+```
+
 ### 前台系统
 ```bash
 # 安装依赖
@@ -103,13 +115,7 @@ npm run build
 ## 贡献指南
 欢迎提交Issue和Pull Request来帮助改进项目。
 
-## 启动前端
-# 进入frontend目录
-cd frontend
-# 安装依赖
-npm install
-# 启动开发服务器
-npm start
+
 
 ## 许可证
 MIT License

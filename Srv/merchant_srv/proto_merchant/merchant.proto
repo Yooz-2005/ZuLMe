@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package merchant;
+option go_package=".;merchant";
+
+message Request {
+  string ping = 1;
+}
+
+message Response {
+  string pong = 1;
+}
+
+service Merchant {
+  rpc Ping(Request) returns(Response);
+}
