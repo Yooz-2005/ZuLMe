@@ -55,8 +55,10 @@ ZuLMe是一个现代化的智能租车平台，提供便捷的车辆租赁服务
   - 数据备份
 
 ### 技术栈
-- 后端框架：Spring Boot/Node.js
-- 数据库：MySQL/PostgreSQL
+- 后端框架：Spring Boot/Node.js/自研
+- 数据库：MySQL/PostgreSQL/Redis/MongoDB/Elasticsearch
+- 安全认证：JWT
+- 支付集成：微信支付/支付宝支付
 - 缓存：Redis
 - 消息队列：RabbitMQ/Kafka
 - 搜索引擎：Elasticsearch
@@ -69,16 +71,16 @@ ZuLMe是一个现代化的智能租车平台，提供便捷的车辆租赁服务
 
 ## 快速开始
 
-### 前台系统
+### 启动前台
 ```bash
+# 进入frontend目录
+cd frontend
+
 # 安装依赖
 npm install
 
 # 启动开发服务器
-npm run dev
-
-# 构建生产版本
-npm run build
+npm start
 ```
 
 ### 后台系统
@@ -103,13 +105,13 @@ npm run build
 ## 贡献指南
 欢迎提交Issue和Pull Request来帮助改进项目。
 
-## 启动前端
-# 进入frontend目录
-cd frontend
-# 安装依赖
-npm install
-# 启动开发服务器
-npm start
+## 联系我们
+# 如果您有任何问题或建议，请通过以下方式联系我们：
+# 邮箱EMAIL邮箱：13212341544@163.com
+# 电话：13212341544
+# 地址：中国 上海市 浦东新区 东禄素质教育产业园
+
+
 
 ## 许可证
 MIT License
