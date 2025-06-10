@@ -19,101 +19,147 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Merchant_Ping_FullMethodName = "/merchant.Merchant/Ping"
+	MerchantService_MerchantRegister_FullMethodName = "/merchant.MerchantService/MerchantRegister"
+	MerchantService_MerchantLogin_FullMethodName    = "/merchant.MerchantService/MerchantLogin"
 )
 
-// MerchantClient is the client API for Merchant service.
+// MerchantServiceClient is the client API for MerchantService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MerchantClient interface {
-	Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+//
+// 商家服务
+type MerchantServiceClient interface {
+	// 商家注册
+	MerchantRegister(ctx context.Context, in *MerchantRegisterRequest, opts ...grpc.CallOption) (*MerchantRegisterResponse, error)
+	// 商家登录
+	MerchantLogin(ctx context.Context, in *MerchantLoginRequest, opts ...grpc.CallOption) (*MerchantLoginResponse, error)
 }
 
-type merchantClient struct {
+type merchantServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMerchantClient(cc grpc.ClientConnInterface) MerchantClient {
-	return &merchantClient{cc}
+func NewMerchantServiceClient(cc grpc.ClientConnInterface) MerchantServiceClient {
+	return &merchantServiceClient{cc}
 }
 
-func (c *merchantClient) Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+func (c *merchantServiceClient) MerchantRegister(ctx context.Context, in *MerchantRegisterRequest, opts ...grpc.CallOption) (*MerchantRegisterResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, Merchant_Ping_FullMethodName, in, out, cOpts...)
+	out := new(MerchantRegisterResponse)
+	err := c.cc.Invoke(ctx, MerchantService_MerchantRegister_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MerchantServer is the server API for Merchant service.
-// All implementations must embed UnimplementedMerchantServer
-// for forward compatibility.
-type MerchantServer interface {
-	Ping(context.Context, *Request) (*Response, error)
-	mustEmbedUnimplementedMerchantServer()
+func (c *merchantServiceClient) MerchantLogin(ctx context.Context, in *MerchantLoginRequest, opts ...grpc.CallOption) (*MerchantLoginResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MerchantLoginResponse)
+	err := c.cc.Invoke(ctx, MerchantService_MerchantLogin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-// UnimplementedMerchantServer must be embedded to have
+// MerchantServiceServer is the server API for MerchantService service.
+// All implementations must embed UnimplementedMerchantServiceServer
+// for forward compatibility.
+//
+// 商家服务
+type MerchantServiceServer interface {
+	// 商家注册
+	MerchantRegister(context.Context, *MerchantRegisterRequest) (*MerchantRegisterResponse, error)
+	// 商家登录
+	MerchantLogin(context.Context, *MerchantLoginRequest) (*MerchantLoginResponse, error)
+	mustEmbedUnimplementedMerchantServiceServer()
+}
+
+// UnimplementedMerchantServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedMerchantServer struct{}
+type UnimplementedMerchantServiceServer struct{}
 
-func (UnimplementedMerchantServer) Ping(context.Context, *Request) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+func (UnimplementedMerchantServiceServer) MerchantRegister(context.Context, *MerchantRegisterRequest) (*MerchantRegisterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MerchantRegister not implemented")
 }
-func (UnimplementedMerchantServer) mustEmbedUnimplementedMerchantServer() {}
-func (UnimplementedMerchantServer) testEmbeddedByValue()                  {}
+func (UnimplementedMerchantServiceServer) MerchantLogin(context.Context, *MerchantLoginRequest) (*MerchantLoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MerchantLogin not implemented")
+}
+func (UnimplementedMerchantServiceServer) mustEmbedUnimplementedMerchantServiceServer() {}
+func (UnimplementedMerchantServiceServer) testEmbeddedByValue()                         {}
 
-// UnsafeMerchantServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MerchantServer will
+// UnsafeMerchantServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MerchantServiceServer will
 // result in compilation errors.
-type UnsafeMerchantServer interface {
-	mustEmbedUnimplementedMerchantServer()
+type UnsafeMerchantServiceServer interface {
+	mustEmbedUnimplementedMerchantServiceServer()
 }
 
-func RegisterMerchantServer(s grpc.ServiceRegistrar, srv MerchantServer) {
-	// If the following call pancis, it indicates UnimplementedMerchantServer was
+func RegisterMerchantServiceServer(s grpc.ServiceRegistrar, srv MerchantServiceServer) {
+	// If the following call pancis, it indicates UnimplementedMerchantServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&Merchant_ServiceDesc, srv)
+	s.RegisterService(&MerchantService_ServiceDesc, srv)
 }
 
-func _Merchant_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
+func _MerchantService_MerchantRegister_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MerchantRegisterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MerchantServer).Ping(ctx, in)
+		return srv.(MerchantServiceServer).MerchantRegister(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Merchant_Ping_FullMethodName,
+		FullMethod: MerchantService_MerchantRegister_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MerchantServer).Ping(ctx, req.(*Request))
+		return srv.(MerchantServiceServer).MerchantRegister(ctx, req.(*MerchantRegisterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Merchant_ServiceDesc is the grpc.ServiceDesc for Merchant service.
+func _MerchantService_MerchantLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MerchantLoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServiceServer).MerchantLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MerchantService_MerchantLogin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServiceServer).MerchantLogin(ctx, req.(*MerchantLoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// MerchantService_ServiceDesc is the grpc.ServiceDesc for MerchantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Merchant_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "merchant.Merchant",
-	HandlerType: (*MerchantServer)(nil),
+var MerchantService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "merchant.MerchantService",
+	HandlerType: (*MerchantServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Ping",
-			Handler:    _Merchant_Ping_Handler,
+			MethodName: "MerchantRegister",
+			Handler:    _MerchantService_MerchantRegister_Handler,
+		},
+		{
+			MethodName: "MerchantLogin",
+			Handler:    _MerchantService_MerchantLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

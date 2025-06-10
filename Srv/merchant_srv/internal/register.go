@@ -6,6 +6,6 @@ import (
 	"merchant_srv/server"
 )
 
-func RegisterMerchantServer(srv *grpc.Server) {
-	merchant.RegisterMerchantServer(srv, server.ServerMerchant{})
+func RegisterMerchantServer(ser *grpc.Server) {
+	merchant.RegisterMerchantServiceServer(ser, server.ServerMerchant{})
 }

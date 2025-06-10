@@ -15,7 +15,7 @@ func main() {
 	initialize.NewNacos()
 	initialize.MysqlInit()
 	initialize.RedisInit()
-	global.DB.AutoMigrate(&model_mysql.User{})
+	global.DB.AutoMigrate(&model_mysql.User{}, &model_mysql.Merchant{})
 	grpc_user.RegisterUserGrpc(func(server *grpc.Server) {
 		internal.RegisterUserServer(server)
 	})
