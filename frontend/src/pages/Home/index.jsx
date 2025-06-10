@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Layout, 
   Carousel, 
@@ -67,6 +68,8 @@ const FeatureCard = styled(Card)`
 `;
 
 const Home = () => {
+  const navigate = useNavigate();
+
   const [searchParams, setSearchParams] = useState({
     location: '',
     dates: null,
@@ -78,6 +81,10 @@ const Home = () => {
     // TODO: Implement search functionality
   };
 
+  const handleLoginRegisterClick = () => {
+    navigate('/login-register');
+  };
+
   return (
     <StyledLayout>
       <StyledHeader>
@@ -87,8 +94,8 @@ const Home = () => {
           </Col>
           <Col>
             <Space>
-              <Button type="link">登录</Button>
-              <Button type="primary">注册</Button>
+              <Button type="link" onClick={handleLoginRegisterClick}>登录</Button>
+              <Button type="primary" onClick={handleLoginRegisterClick}>注册</Button>
             </Space>
           </Col>
         </Row>

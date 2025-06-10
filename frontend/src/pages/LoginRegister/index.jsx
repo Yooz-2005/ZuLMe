@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Card, Input, Button, Form, Row, Col, Typography, Space } from 'antd';
+import { Layout, Card, Input, Button, Form, Row, Col, Typography, Space, Tabs } from 'antd';
 import { UserOutlined, SafetyOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 
@@ -108,14 +108,15 @@ const FeatureCard = styled(Card)`
 const LoginRegister = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('login'); // 'login' or 'register'
 
   const onFinish = (values) => {
     setLoading(true);
-    console.log('Received values of form: ', values);
-    // TODO: Implement actual login/register logic here
+    console.log(`Received values of form for ${activeTab}: `, values);
+    // TODO: Implement actual login/register logic here based on activeTab
     setTimeout(() => {
       setLoading(false);
-      // Example: If login successful, redirect
+      // Example: If successful, redirect
       // history.push('/dashboard'); 
     }, 2000);
   };
@@ -126,8 +127,13 @@ const LoginRegister = () => {
       alert('请输入手机号');
       return;
     }
-    console.log('Getting verification code for:', phone);
+    console.log(`Getting verification code for ${activeTab}:`, phone);
     // TODO: Implement send verification code logic here
+  };
+
+  const onTabChange = (key) => {
+    setActiveTab(key);
+    form.resetFields(); // Reset form fields when switching tabs
   };
 
   return (
@@ -137,43 +143,105 @@ const LoginRegister = () => {
           ZuLMe
         </HeaderTitle>
         <Space>
-          <Button type="primary" style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>English</Button>
+          <Button type="link" style={{ color: '#000' }}>登录</Button>
+          <Button type="primary" style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>注册</Button>
         </Space>
       </StyledHeader>
 
       <StyledLayout>
         <LoginCard>
-          <Title level={3} style={{ marginBottom: 24 }}>登录</Title>
-          <Form
-            form={form}
-            name="login-register"
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-          >
-            <Form.Item
-              name="phone"
-              rules={[{ required: true, message: '请输入注册手机号!' }]}
-            >
-              <Input prefix={<UserOutlined />} placeholder="请输入注册手机号" />
-            </Form.Item>
+          <Tabs activeKey={activeTab} onChange={onTabChange} centered>
+            <Tabs.TabPane tab="登录" key="login">
+              <Form
+                form={form}
+                name="login-form"
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+              >
+                <Form.Item
+                  name="phone"
+                  rules={[{ required: true, message: '请输入手机号!' }]}
+                >
+                  <Input prefix={<UserOutlined />} placeholder="请输入手机号" />
+                </Form.Item>
 
-            <Form.Item
-              name="code"
-              rules={[{ required: true, message: '请输入动态验证码!' }]}
-            >
-              <Input
-                prefix={<SafetyOutlined />}
-                placeholder="请输入动态验证码"
-                addonAfter={<Button type="primary" onClick={handleGetVerificationCode} style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>获取手机动态验证码</Button>}
-              />
-            </Form.Item>
+                <Form.Item
+                  name="code"
+                  rules={[{ required: true, message: '请输入动态验证码!' }]}
+                >
+                  <Input
+                    prefix={<SafetyOutlined />}
+                    placeholder="请输入动态验证码"
+                    addonAfter={<Button type="primary" onClick={handleGetVerificationCode} style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>获取手机动态验证码</Button>}
+                  />
+                </Form.Item>
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading} block style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>
-                登录
-              </Button>
-            </Form.Item>
-          </Form>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" loading={loading} block style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>
+                    登录
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="注册" key="register">
+              <Form
+                form={form}
+                name="register-form"
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+              >
+                <Form.Item
+                  name="phone"
+                  rules={[{ required: true, message: '请输入注册手机号!' }]}
+                >
+                  <Input prefix={<UserOutlined />} placeholder="请输入注册手机号" />
+                </Form.Item>
+
+                <Form.Item
+                  name="code"
+                  rules={[{ required: true, message: '请输入动态验证码!' }]}
+                >
+                  <Input
+                    prefix={<SafetyOutlined />}
+                    placeholder="请输入动态验证码"
+                    addonAfter={<Button type="primary" onClick={handleGetVerificationCode} style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>获取手机动态验证码</Button>}
+                  />
+                </Form.Item>
+
+                {/* Additional fields for registration can be added here, e.g., password, confirm password */}
+                {/* <Form.Item
+                  name="password"
+                  rules={[{ required: true, message: '请输入密码!' }]}
+                >
+                  <Input.Password prefix={<LockOutlined />} placeholder="请输入密码" />
+                </Form.Item>
+                <Form.Item
+                  name="confirmPassword"
+                  dependencies={['password']}
+                  hasFeedback
+                  rules={[
+                    { required: true, message: '请确认密码!' },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('password') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('两次输入的密码不一致!'));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password prefix={<LockOutlined />} placeholder="请确认密码" />
+                </Form.Item> */}
+
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" loading={loading} block style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>
+                    注册
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Tabs.TabPane>
+          </Tabs>
         </LoginCard>
       </StyledLayout>
 
