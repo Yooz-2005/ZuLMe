@@ -14,12 +14,28 @@ func UserRegister(c *gin.Context) {
 		response.ResponseError(c, err.Error())
 	}
 	register, err := handler.UserRegister(c, &user.UserRegisterRequest{
-		Username: data.UserName,
-		Password: data.Password,
+		Phone: data.Phone,
+		Code:  data.Code,
 	})
 	if err != nil {
 		response.ResponseError(c, err.Error())
 		return
 	}
 	response.ResponseSuccess(c, register)
+}
+
+func SendCode(c *gin.Context) {
+	var data request.SendCodeRequest
+	if err := c.ShouldBind(&data); err != nil {
+		response.ResponseError(c, err.Error())
+	}
+	code, err := handler.SendCode(c, &user.SendCodeRequest{
+		Phone:  data.Phone,
+		Source: data.Source,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+	response.ResponseSuccess(c, code)
 }

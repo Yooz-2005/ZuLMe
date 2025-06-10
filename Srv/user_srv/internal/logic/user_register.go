@@ -3,6 +3,7 @@ package logic
 import (
 	"Common/global"
 	"Common/pkg"
+	"Common/utils"
 
 	"errors"
 	"gorm.io/gorm"
@@ -13,7 +14,7 @@ import (
 )
 
 // 生成Token响应的辅助函数
-func generateTokenResponse(userID uint64) (*user.UserRegisterResponse, error) {
+func generateTokenResponse(userID int64) (*user.UserRegisterResponse, error) {
 	j := pkg.NewJWT("2209")
 	token, err := j.CreateToken(pkg.CustomClaims{ID: uint(userID)})
 	if err != nil {
@@ -21,7 +22,7 @@ func generateTokenResponse(userID uint64) (*user.UserRegisterResponse, error) {
 	}
 
 	return &user.UserRegisterResponse{
-		UserId: strconv.FormatUint(userID, 10),
+		UserId: strconv.FormatUint(uint64(userID), 10),
 		Token:  token,
 	}, nil
 }

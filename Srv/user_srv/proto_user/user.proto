@@ -8,8 +8,7 @@ message SendCodeRequest{
   string Source = 2;
 }
 message SendCodeResponse{
-  string Code = 1;
-  string Message = 2;
+  string Message = 1;
 }
 message UserRegisterRequest {
   string Phone = 1;
@@ -18,6 +17,7 @@ message UserRegisterRequest {
 
 message UserRegisterResponse {
   string UserId = 1;
+  string token = 2;
 }
 
 

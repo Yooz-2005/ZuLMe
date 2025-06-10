@@ -1,6 +1,7 @@
 package model_mysql
 
 import (
+	"Common/global"
 	"time"
 )
 
@@ -13,6 +14,14 @@ type User struct {
 	Phone     string    `gorm:"column:phone;type:varchar(20);comment:''手机号'';default:NULL;" json:"phone"`       // ''手机号''
 }
 
-func (User) TableName() string {
+func (u *User) TableName() string {
 	return "users"
+}
+
+func (u *User) Register() error {
+	return global.DB.Create(&u).Error
+}
+
+func (u *User) Login(phone string) error {
+	return global.DB.Where("phone = ?", phone).First(&u).Error
 }

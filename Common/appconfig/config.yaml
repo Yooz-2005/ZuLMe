@@ -4,3 +4,6 @@ Nacos:
   Port: 8848
   DataId: "ZuLMe"
   GroupId: "ZuLMe"
+
+SendSms:
+  Count: 5

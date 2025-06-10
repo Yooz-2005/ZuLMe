@@ -13,6 +13,9 @@ type ViperConfData struct {
 		DataId  string
 		GroupId string
 	}
+	SendSms struct {
+		Count int64
+	}
 }
 
 var ConfData ViperConfData
