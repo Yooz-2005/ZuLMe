@@ -1,4 +1,4 @@
-package jwt
+package pkg
 
 import (
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
