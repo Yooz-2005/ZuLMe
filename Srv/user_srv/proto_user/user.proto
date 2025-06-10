@@ -3,25 +3,25 @@ syntax = "proto3";
 package user;
 option go_package=".;user";
 
+message SendCodeRequest{
+  string Phone = 1;
+  string Source = 2;
+}
+message SendCodeResponse{
+  string Code = 1;
+  string Message = 2;
+}
 message UserRegisterRequest {
-  string Username = 1;
-  string Password = 2;
+  string Phone = 1;
+  string Code = 2;
 }
 
 message UserRegisterResponse {
   string UserId = 1;
 }
 
-message UserLoginRequest {
-  string Username = 1;
-  string Password = 2;
-}
-
-message UserLoginResponse {
-  string Token = 1;
-}
 
 service User {
+  rpc SendCode(SendCodeRequest) returns(SendCodeResponse);
   rpc UserRegister(UserRegisterRequest) returns(UserRegisterResponse);
-  rpc UserLogin(UserLoginRequest) returns(UserLoginResponse);
 }
