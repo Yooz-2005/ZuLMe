@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package admin;
+option go_package=".;admin";
+
+// 审核商户请求
+message MerchantApproveRequest {
+  int64 id = 1; // 商户ID
+  int64 status = 2; // 审核状态：0-未审核，1-审核通过，2-审核失败
+}
+
+// 审核商户响应
+message MerchantApproveResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 编辑商户请求
+message MerchantUpdateRequest {
+  int64 id = 1;
+  string name = 2;
+  string phone = 3;
+  string email = 4;
+  // 可以添加更多可编辑字段
+}
+
+// 编辑商户响应
+message MerchantUpdateResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 删除商户请求
+message MerchantDeleteRequest {
+  int64 id = 1;
+}
+
+// 删除商户响应
+message MerchantDeleteResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取商户列表请求
+message MerchantListRequest {
+  int64 page = 1;
+  int64 page_size = 2;
+  string keyword = 3; // 搜索关键词，例如按名称、手机号、邮箱搜索
+  int64 status_filter = 4; // 筛选审核状态：0-未审核，1-审核通过，2-审核失败
+}
+
+// 商户信息（用于列表和详情）
+message MerchantInfo {
+  int64 id = 1;
+  string name = 2;
+  string phone = 3;
+  string email = 4;
+  int64 status = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+// 获取商户列表响应
+message MerchantListResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated MerchantInfo merchants = 3;
+  int64 total = 4; // 总记录数
+}
+
+// 获取商户详情请求
+message MerchantDetailRequest {
+  int64 id = 1;
+}
+
+// 获取商户详情响应
+message MerchantDetailResponse {
+  int64 code = 1;
+  string message = 2;
+  MerchantInfo merchant = 3;
+}
+
+service Admin {
+  // 商户管理
+  rpc MerchantApprove(MerchantApproveRequest) returns(MerchantApproveResponse);//审核
+  rpc MerchantUpdate(MerchantUpdateRequest) returns(MerchantUpdateResponse);//编辑
+  rpc MerchantDelete(MerchantDeleteRequest) returns(MerchantDeleteResponse);//删除
+  rpc MerchantList(MerchantListRequest) returns(MerchantListResponse);//获取商户列表
+  rpc MerchantDetail(MerchantDetailRequest) returns(MerchantDetailResponse);//获取商户详情
+}
