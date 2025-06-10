@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Layout, 
   Carousel, 
@@ -33,6 +34,24 @@ const StyledHeader = styled(Header)`
   z-index: 1;
   top: 0;
   left: 0;
+`;
+
+const StyledLoginRegisterButton = styled(Button)`
+  background-color: #1890ff;
+  border-color: #1890ff;
+  color: #fff;
+
+  &:hover {
+    background-color: #40a9ff !important;
+    border-color: #40a9ff !important;
+    color: #fff !important;
+  }
+
+  &:active {
+    background-color: #096dd9 !important;
+    border-color: #096dd9 !important;
+    color: #fff !important;
+  }
 `;
 
 const HeroSectionWrapper = styled.div`
@@ -73,9 +92,15 @@ const Home = () => {
     carType: undefined
   });
 
+  const navigate = useNavigate();
+
   const handleSearch = () => {
     console.log('Search params:', searchParams);
     // TODO: Implement search functionality
+  };
+
+  const handleLoginRegisterClick = () => {
+    navigate('/login-register');
   };
 
   return (
@@ -87,8 +112,7 @@ const Home = () => {
           </Col>
           <Col>
             <Space>
-              <Button type="link">登录</Button>
-              <Button type="primary">注册</Button>
+              <StyledLoginRegisterButton type="primary" onClick={handleLoginRegisterClick}>登录/注册</StyledLoginRegisterButton>
             </Space>
           </Col>
         </Row>

@@ -3,6 +3,7 @@ syntax = "proto3";
 package user;
 option go_package=".;user";
 
+//todo 短信验证码
 message SendCodeRequest{
   string Phone = 1;
   string Source = 2;
@@ -11,6 +12,8 @@ message SendCodeResponse{
   string Code = 1;
   string Message = 2;
 }
+
+//todo 用户注册登录
 message UserRegisterRequest {
   string Phone = 1;
   string Code = 2;
@@ -18,10 +21,11 @@ message UserRegisterRequest {
 
 message UserRegisterResponse {
   string UserId = 1;
+  string Token = 2;
 }
 
 
 service User {
-  rpc SendCode(SendCodeRequest) returns(SendCodeResponse);
-  rpc UserRegister(UserRegisterRequest) returns(UserRegisterResponse);
+  rpc SendCode(SendCodeRequest) returns(SendCodeResponse);//todo 短信验证码
+  rpc UserRegister(UserRegisterRequest) returns(UserRegisterResponse); //todo 用户注册登录
 }
