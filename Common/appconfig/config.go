@@ -13,7 +13,7 @@ type ViperConfData struct {
 		DataId  string
 		GroupId string
 	}
-	MaxSend struct {
+	SendSms struct {
 		Count int64
 	}
 }

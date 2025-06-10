@@ -3,19 +3,21 @@ package logic
 import (
 	"Common/appconfig"
 	"errors"
-	"golang.org/x/exp/rand"
+	"math/rand"
 	"models/model_redis"
 	"strconv"
 	user "user_srv/proto_user"
 )
 
-// todo 生成五位数随机邀请码
 func generateCode() string {
-	return strconv.Itoa(rand.Intn(1000) + 9000)
+	return strconv.Itoa(1000 + rand.Intn(9000))
 }
 
 func SendCode(in *user.SendCodeRequest) (*user.SendCodeResponse, error) {
+	// 2. 生成验证码
 	code := generateCode()
+
+	//短信发送
 	//_, err := pkg.SendSms(code, in.Phone)
 	//if err != nil {
 	//	log.Println("短信发送失败")
@@ -25,20 +27,22 @@ func SendCode(in *user.SendCodeRequest) (*user.SendCodeResponse, error) {
 	//	log.Println("短信发送失败")
 	//	return nil, errors.New(*sms.Body.Message)
 	//}
-	//存储验证码
+
+	//存储验证码（5分钟有效期）
 	err := model_redis.SaveVerificationCode(in.Source, in.Phone, code)
 	if err != nil {
 		return nil, errors.New("验证码存储失败")
 	}
 
-	// 增加发送次数
+	//增加发送次数（24小时内有效）
 	count, err := model_redis.IncrementSMSCount(in.Phone, in.Source)
 	if err != nil {
 		return nil, errors.New("系统错误")
 	}
-	//判断发送次数是否超过限制
-	if count > appconfig.ConfData.MaxSend.Count {
-		return nil, errors.New("发送次数过多,请稍后再试")
+
+	//检查是否超过限制5次
+	if count > appconfig.ConfData.SendSms.Count {
+		return nil, errors.New("发送次数过多，请5分钟后再试")
 	}
 	return &user.SendCodeResponse{
 		Message: "验证码发送成功",

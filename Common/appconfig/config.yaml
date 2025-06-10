@@ -5,5 +5,5 @@ Nacos:
   DataId: "ZuLMe"
   GroupId: "ZuLMe"
 
-MaxSend:
+SendSms:
   Count: 5

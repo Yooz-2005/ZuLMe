@@ -22,11 +22,11 @@ func UserRegister(ctx context.Context, req *user.UserRegisterRequest) (*user.Use
 
 func SendCode(ctx context.Context, req *user.SendCodeRequest) (*user.SendCodeResponse, error) {
 	userClient, err := client.UserClient(ctx, func(ctx context.Context, in user.UserClient) (interface{}, error) {
-		sendCode, err := in.SendCode(ctx, req)
+		code, err := in.SendCode(ctx, req)
 		if err != nil {
 			return nil, err
 		}
-		return sendCode, nil
+		return code, nil
 	})
 	if err != nil {
 		return nil, err
