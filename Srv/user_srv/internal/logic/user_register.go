@@ -3,6 +3,7 @@ package logic
 import (
 	"Common/global"
 	"Common/pkg"
+
 	"errors"
 	"gorm.io/gorm"
 	"models/model_mysql"
@@ -64,5 +65,5 @@ func UserRegister(in *user.UserRegisterRequest) (*user.UserRegisterResponse, err
 		return nil, errors.New("验证码删除失败")
 	}
 	return generateTokenResponse(newUser.Id)
-		
+
 }
