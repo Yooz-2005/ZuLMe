@@ -42,7 +42,7 @@ func UserRegister(in *user.UserRegisterRequest) (*user.UserRegisterResponse, err
 	err = existingUser.Login(in.Phone)
 	if err == nil {
 		// 用戶已存在，生成 token
-		return generateTokenResponse(existingUser.Id)
+		return generateTokenResponse(int64(existingUser.Id))
 	}
 	// 创建新用户和用户资料
 	newUser := &model_mysql.User{
