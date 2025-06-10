@@ -42,6 +42,7 @@ func SendCode(in *user.SendCodeRequest) (*user.SendCodeResponse, error) {
 
 	//检查是否超过限制5次
 	if count > appconfig.ConfData.SendSms.Count {
+
 		return nil, errors.New("发送次数过多，请5分钟后再试")
 	}
 	return &user.SendCodeResponse{

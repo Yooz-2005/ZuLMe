@@ -42,6 +42,7 @@ func IncrementSMSCount(phone string, source string) (int64, error) {
 	`
 	// 执行Lua脚本（参数1：过期时间秒数）
 	result, err := global.Rdb.Eval(ctx, script, []string{countKey}, int64(5)).Result()
+
 	if err != nil {
 		return 0, fmt.Errorf("执行Lua脚本失败: %v", err)
 	}

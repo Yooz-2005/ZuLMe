@@ -36,6 +36,24 @@ const StyledHeader = styled(Header)`
   left: 0;
 `;
 
+const StyledLoginRegisterButton = styled(Button)`
+  background-color: #1890ff;
+  border-color: #1890ff;
+  color: #fff;
+
+  &:hover {
+    background-color: #40a9ff !important;
+    border-color: #40a9ff !important;
+    color: #fff !important;
+  }
+
+  &:active {
+    background-color: #096dd9 !important;
+    border-color: #096dd9 !important;
+    color: #fff !important;
+  }
+`;
+
 const HeroSectionWrapper = styled.div`
   position: relative;
   height: 700px; /* 增加英雄区域的高度 */
@@ -68,13 +86,13 @@ const FeatureCard = styled(Card)`
 `;
 
 const Home = () => {
-  const navigate = useNavigate();
-
   const [searchParams, setSearchParams] = useState({
     location: '',
     dates: null,
     carType: undefined
   });
+
+  const navigate = useNavigate();
 
   const handleSearch = () => {
     console.log('Search params:', searchParams);
@@ -94,8 +112,9 @@ const Home = () => {
           </Col>
           <Col>
             <Space>
-              <Button type="link" onClick={handleLoginRegisterClick}>登录</Button>
-              <Button type="primary" onClick={handleLoginRegisterClick}>注册</Button>
+
+              <StyledLoginRegisterButton type="primary" onClick={handleLoginRegisterClick}>登录/注册</StyledLoginRegisterButton>
+
             </Space>
           </Col>
         </Row>
