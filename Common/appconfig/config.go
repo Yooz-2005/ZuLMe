@@ -13,9 +13,6 @@ type ViperConfData struct {
 		DataId  string
 		GroupId string
 	}
-	MaxSend struct {
-		Count int64
-	}
 }
 
 var ConfData ViperConfData
