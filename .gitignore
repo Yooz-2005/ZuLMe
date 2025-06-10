@@ -4,3 +4,4 @@ go.work
 go.work.sum
 tmp
 *.tmp
+node_modules

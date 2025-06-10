@@ -1,11 +1,26 @@
 package model_mysql
 
-import "gorm.io/gorm"
+import (
+	"Common/global"
+	"time"
+)
 
 type User struct {
-	gorm.Model
-	Username string `gorm:"type:varchar(20);not null;not null;comment:'用户名'"`
-	Password string `gorm:"type:varchar(20);not null;comment:'密码'"`
-	Email    string `gorm:"type:varchar(50);not null;comment:'邮箱'"`
-	Phone    string `gorm:"type:varchar(20);not null;comment:'手机号'"`
+	Id        uint64    `gorm:"column:id;type:bigint UNSIGNED;primaryKey;not null;" json:"id"`
+	CreatedAt time.Time `gorm:"column:created_at;type:datetime(3);default:NULL;" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;type:datetime(3);default:NULL;" json:"updated_at"`
+	DeletedAt time.Time `gorm:"column:deleted_at;type:datetime(3);default:NULL;" json:"deleted_at"`
+	Phone     string    `gorm:"column:phone;type:varchar(20);comment:''''手机号'''';default:NULL;" json:"phone"` // ''''手机号''''
+}
+
+func (u *User) TableName() string {
+	return "users"
+}
+
+func (u *User) Register() error {
+	return global.DB.Create(&u).Error
+}
+
+func (u *User) Login(phone string) error {
+	return global.DB.Where("phone = ?", phone).First(&u).Error
 }
