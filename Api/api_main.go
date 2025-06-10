@@ -8,5 +8,6 @@ import (
 func main() {
 	r := gin.Default()
 	router.LoadUser(r)
+	router.RegisterMerchantRoutes(r)
 	r.Run(":8888")
 }

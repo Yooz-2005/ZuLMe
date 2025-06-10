@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package merchant;
+option go_package=".;merchant";
+
+// 商家注册请求
+message MerchantRegisterRequest {
+    string name = 1;
+    string phone = 2;
+    string email = 3;
+    string password = 4;
+    string confirm_pass = 5;
+}
+
+// 商家注册响应
+message MerchantRegisterResponse {
+    int32 code = 1;
+    string message = 2;
+}
+
+// 商家登录请求
+message MerchantLoginRequest {
+    string phone = 1;
+    string password = 2;
+}
+
+// 商家登录响应
+message MerchantLoginResponse {
+    int32 code = 1;
+    string message = 2;
+    string token = 3; // 登录成功后返回的token
+}
+
+// 商家服务
+service MerchantService {
+    // 商家注册
+    rpc MerchantRegister(MerchantRegisterRequest) returns (MerchantRegisterResponse);
+    // 商家登录
+    rpc MerchantLogin(MerchantLoginRequest) returns (MerchantLoginResponse);
+}
