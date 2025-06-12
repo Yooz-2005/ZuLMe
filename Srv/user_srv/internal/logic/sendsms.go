@@ -3,6 +3,7 @@ package logic
 import (
 	"Common/appconfig"
 	"errors"
+	"log"
 	"math/rand"
 	"models/model_redis"
 	"strconv"
@@ -10,10 +11,12 @@ import (
 )
 
 func generateCode() string {
-	return strconv.Itoa(1000 + rand.Intn(9000))
+	return strconv.Itoa(100000 + rand.Intn(900000))
 }
 
 func SendCode(in *user.SendCodeRequest) (*user.SendCodeResponse, error) {
+	log.Println("SendCode: Received request for phone:", in.Phone) // Log entry
+
 	// 2. 生成验证码
 	code := generateCode()
 
