@@ -108,6 +108,56 @@ const HeroSectionWrapper = styled.div`
   height: 700px; /* 增加英雄区域的高度 */
   margin-top: 70px; /* 补偿固定导航栏的高度 */
   overflow: hidden; /* 防止内容溢出 */
+
+  .ant-carousel {
+    height: 100%;
+
+    .ant-carousel-inner {
+      height: 100%;
+    }
+
+    .slick-slide {
+      height: 700px;
+
+      > div {
+        height: 100%;
+
+        img {
+          width: 100% !important;
+          height: 700px !important;
+          object-fit: cover !important;
+          object-position: center !important;
+          display: block !important;
+        }
+      }
+    }
+
+    .slick-dots {
+      bottom: 20px;
+      z-index: 10;
+
+      li button {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        width: 12px;
+        height: 12px;
+        border: none;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+      }
+
+      li.slick-active button {
+        background: #fff;
+        opacity: 1;
+        transform: scale(1.2);
+      }
+
+      li button:hover {
+        background: #fff;
+        opacity: 0.9;
+      }
+    }
+  }
 `;
 
 const StyledTitle = styled(Title)`
@@ -166,20 +216,21 @@ const Home = () => {
           {/* 顶部轮播图 */}
           <Carousel autoplay dotPosition="bottom" style={{ height: '100%' }}>
             <div>
-              <img src="/images/banner1.jpg" alt="banner1" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src="/images/banner1.png" alt="banner1" />
             </div>
             <div>
-              <img src="/images/banner2.jpg" alt="banner2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src="/images/banner2.png" alt="banner2" />
             </div>
             <div>
-              <img src="/images/banner3.jpg" alt="banner3" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src="/images/banner4.png" alt="banner3" />
             </div>
             <div>
-              <img src="/images/banner4.jpg" alt="banner4" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src="/images/banner5.png" alt="banner4" />
+            </div>
+            <div>
+              <img src="/images/banner6.png" alt="banner5" />
             </div>
           </Carousel>
-
-
         </HeroSectionWrapper>
 
         <div style={{ padding: '50px 50px' }}>

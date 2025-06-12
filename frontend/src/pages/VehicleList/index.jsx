@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Layout, 
-  Row, 
-  Col, 
-  Typography, 
-  Spin, 
-  Alert, 
+import {
+  Layout,
+  Row,
+  Col,
+  Typography,
+  Spin,
+  Alert,
   Pagination,
   Button,
   Space,
   Breadcrumb
 } from 'antd';
-import { HomeOutlined, CarOutlined } from '@ant-design/icons';
+import { HomeOutlined, CarOutlined, DashboardOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import VehicleCard from '../../components/VehicleCard';
@@ -48,6 +48,48 @@ const SearchSection = styled.div`
   margin-bottom: 30px;
 `;
 
+const StyledNavButton = styled(Button)`
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 24px;
+  height: 40px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: 1px solid #667eea !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+
+    &:before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+`;
+
 const VehicleList = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,8 +99,13 @@ const VehicleList = () => {
     pageSize: PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
     total: 0
   });
-  
+
   const navigate = useNavigate();
+
+  // 检查用户是否已登录
+  const userPhone = localStorage.getItem('userPhone');
+  const token = localStorage.getItem('token');
+  const isLoggedIn = userPhone && token;
 
   // 获取车辆列表
   const fetchVehicles = async (page = 1, pageSize = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE) => {
@@ -133,7 +180,18 @@ const VehicleList = () => {
           </Col>
           <Col>
             <Space>
-              <Button onClick={() => navigate('/')}>返回首页</Button>
+              {isLoggedIn && (
+                <StyledNavButton
+                  icon={<DashboardOutlined />}
+                  onClick={() => navigate('/dashboard')}
+                >
+                  返回Dashboard
+                </StyledNavButton>
+              )}
+              <StyledNavButton onClick={() => navigate('/')}>
+                <HomeOutlined style={{ marginRight: 8 }} />
+                返回首页
+              </StyledNavButton>
             </Space>
           </Col>
         </Row>
