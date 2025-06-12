@@ -2,12 +2,15 @@ package logic
 
 import (
 	"Common/global"
+	"Common/services"
 	admin "admin_srv/proto_admin"
 	"context"
 	"errors"
-	"gorm.io/gorm"
+	"fmt"
 	"models/model_mysql"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // MerchantApprove 审核商户
@@ -50,7 +53,31 @@ func MerchantUpdate(ctx context.Context, in *admin.MerchantUpdateRequest) (*admi
 	if in.Email != "" {
 		merchant.Email = in.Email
 	}
-	// 可以添加更多字段的更新逻辑
+	if in.Location != "" {
+		merchant.Location = in.Location
+
+		// 如果地址发生变化，重新获取经纬度
+		if in.Longitude == 0 && in.Latitude == 0 {
+			// 调用高德API获取经纬度
+			amapService := services.NewAmapService()
+			coords, err := amapService.GetCoordinatesByAddress(in.Location)
+			if err != nil {
+				fmt.Printf("更新商家时获取坐标失败: %v, 地址: %s\n", err, in.Location)
+				// 坐标获取失败不影响更新，保持原有坐标
+			} else {
+				merchant.Longitude = coords.Longitude
+				merchant.Latitude = coords.Latitude
+				fmt.Printf("更新商家坐标成功: 经度=%f, 纬度=%f, 地址=%s\n", coords.Longitude, coords.Latitude, in.Location)
+			}
+		} else {
+			// 使用提供的经纬度
+			merchant.Longitude = in.Longitude
+			merchant.Latitude = in.Latitude
+		}
+	}
+	if in.BusinessTime != "" {
+		merchant.BusinessTime = in.BusinessTime
+	}
 
 	result = global.DB.Save(&merchant)
 	if result.Error != nil {
@@ -112,13 +139,17 @@ func MerchantList(ctx context.Context, in *admin.MerchantListRequest) (*admin.Me
 	var merchantInfos []*admin.MerchantInfo
 	for _, m := range merchants {
 		merchantInfos = append(merchantInfos, &admin.MerchantInfo{
-			Id:         int64(m.ID),
-			Name:       m.Name,
-			Phone:      m.Phone,
-			Email:      m.Email,
-			Status:     int64(m.Status), // 映射Status字段
-			CreatedAt:  m.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:  m.UpdatedAt.Format(time.RFC3339),
+			Id:           int64(m.ID),
+			Name:         m.Name,
+			Phone:        m.Phone,
+			Email:        m.Email,
+			Status:       int64(m.Status), // 映射Status字段
+			CreatedAt:    m.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:    m.UpdatedAt.Format(time.RFC3339),
+			Location:     m.Location,
+			BusinessTime: m.BusinessTime,
+			Longitude:    m.Longitude,
+			Latitude:     m.Latitude,
 		})
 	}
 
@@ -143,13 +174,17 @@ func MerchantDetail(ctx context.Context, in *admin.MerchantDetailRequest) (*admi
 
 	// 将数据库模型转换为响应结构
 	merchantInfo := &admin.MerchantInfo{
-		Id:         int64(merchant.ID),
-		Name:       merchant.Name,
-		Phone:      merchant.Phone,
-		Email:      merchant.Email,
-		Status:     int64(merchant.Status), // 映射Status字段
-		CreatedAt:  merchant.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:  merchant.UpdatedAt.Format(time.RFC3339),
+		Id:           int64(merchant.ID),
+		Name:         merchant.Name,
+		Phone:        merchant.Phone,
+		Email:        merchant.Email,
+		Status:       int64(merchant.Status), // 映射Status字段
+		CreatedAt:    merchant.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:    merchant.UpdatedAt.Format(time.RFC3339),
+		Location:     merchant.Location,
+		BusinessTime: merchant.BusinessTime,
+		Longitude:    merchant.Longitude,
+		Latitude:     merchant.Latitude,
 	}
 
 	return &admin.MerchantDetailResponse{

@@ -37,6 +37,15 @@ func CreateVehicle(ctx context.Context, in *vehicle.CreateVehicleRequest) (*vehi
 		return &vehicle.CreateVehicleResponse{Code: 404, Message: "车辆类型不存在"}, nil
 	}
 
+	// 验证商家是否存在
+	var merchant model_mysql.Merchant
+	if err := global.DB.Where("id =?", in.MerchantId).Limit(1).Find(&merchant).Error; err != nil {
+		return &vehicle.CreateVehicleResponse{Code: 500, Message: "数据库查询失败"}, err
+	}
+	if merchant.ID == 0 {
+		return &vehicle.CreateVehicleResponse{Code: 404, Message: "商家不存在"}, nil
+	}
+
 	// 创建车辆实例
 	newVehicle := model_mysql.Vehicle{
 		MerchantID:  in.MerchantId,
@@ -50,7 +59,7 @@ func CreateVehicle(ctx context.Context, in *vehicle.CreateVehicleRequest) (*vehi
 		Status:      in.Status,
 		Description: strings.TrimSpace(in.Description),
 		Images:      strings.TrimSpace(in.Images),
-		Location:    strings.TrimSpace(in.Location),
+		Location:    strings.TrimSpace(merchant.Location),
 		Contact:     strings.TrimSpace(in.Contact),
 	}
 

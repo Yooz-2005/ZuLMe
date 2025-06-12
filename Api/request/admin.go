@@ -8,10 +8,14 @@ type MerchantApproveRequest struct {
 
 // MerchantUpdateRequest 编辑商户请求
 type MerchantUpdateRequest struct {
-	ID    int64  `json:"id" form:"id" binding:"required"`
-	Name  string `json:"name" form:"name"`
-	Phone string `json:"phone" form:"phone"`
-	Email string `json:"email" form:"email" binding:"omitempty,email"`
+	ID           int64   `json:"id" form:"id" binding:"required"`
+	Name         string  `json:"name" form:"name"`
+	Phone        string  `json:"phone" form:"phone"`
+	Email        string  `json:"email" form:"email" binding:"omitempty,email"`
+	Location     string  `json:"location" form:"location"`           // 网点地址
+	BusinessTime string  `json:"business_time" form:"business_time"` // 营业时间
+	Longitude    float64 `json:"longitude" form:"longitude"`         // 经度（可选，如果不提供会自动获取）
+	Latitude     float64 `json:"latitude" form:"latitude"`           // 纬度（可选，如果不提供会自动获取）
 }
 
 // MerchantDeleteRequest 删除商户请求
@@ -21,9 +25,9 @@ type MerchantDeleteRequest struct {
 
 // MerchantListRequest 获取商户列表请求
 type MerchantListRequest struct {
-	Page        int64  `json:"page" form:"page"`
-	PageSize    int64  `json:"page_size" form:"page_size"`
-	Keyword     string `json:"keyword" form:"keyword"`             // 搜索关键词
+	Page         int64  `json:"page" form:"page"`
+	PageSize     int64  `json:"page_size" form:"page_size"`
+	Keyword      string `json:"keyword" form:"keyword"`             // 搜索关键词
 	StatusFilter int64  `json:"status_filter" form:"status_filter"` // 筛选审核状态：0-未审核，1-审核通过，2-审核失败
 }
 

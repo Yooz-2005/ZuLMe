@@ -2,11 +2,13 @@ package logic
 
 import (
 	"Common/global"
+	"Common/services"
 	"context"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	merchant "merchant_srv/proto_merchant"
 	"models/model_mysql"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func MerchantRegister(ctx context.Context, in *merchant.MerchantRegisterRequest) (*merchant.MerchantRegisterResponse, error) {
@@ -34,12 +36,40 @@ func MerchantRegister(ctx context.Context, in *merchant.MerchantRegisterRequest)
 		return &merchant.MerchantRegisterResponse{Code: 500, Message: "密码哈希失败"}, err
 	}
 
-	// 4. 保存到数据库
+	// 4. 获取经纬度坐标
+	var longitude, latitude float64
+	if in.Location != "" {
+		// 如果前端没有提供经纬度，则调用高德API获取
+		if in.Longitude == 0 && in.Latitude == 0 {
+			amapService := services.NewAmapService()
+			coords, err := amapService.GetCoordinatesByAddress(in.Location)
+			if err != nil {
+				fmt.Printf("获取坐标失败: %v, 地址: %s\n", err, in.Location)
+				// 坐标获取失败不影响注册，使用默认值
+				longitude = 0
+				latitude = 0
+			} else {
+				longitude = coords.Longitude
+				latitude = coords.Latitude
+				fmt.Printf("获取坐标成功: 经度=%f, 纬度=%f, 地址=%s\n", longitude, latitude, in.Location)
+			}
+		} else {
+			// 使用前端提供的经纬度
+			longitude = in.Longitude
+			latitude = in.Latitude
+		}
+	}
+
+	// 5. 保存到数据库
 	newMerchant := model_mysql.Merchant{
-		Name:     in.Name,
-		Phone:    in.Phone,
-		Email:    in.Email,
-		Password: string(hashedPassword),
+		Name:         in.Name,
+		Phone:        in.Phone,
+		Email:        in.Email,
+		Password:     string(hashedPassword),
+		Location:     in.Location,
+		BusinessTime: in.BusinessTime,
+		Longitude:    longitude,
+		Latitude:     latitude,
 	}
 
 	result = global.DB.Create(&newMerchant)

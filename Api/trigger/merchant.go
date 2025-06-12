@@ -4,8 +4,9 @@ import (
 	"Api/handler"
 	"Api/request"
 	"Api/response"
-	"github.com/gin-gonic/gin"
 	merchant "merchant_srv/proto_merchant"
+
+	"github.com/gin-gonic/gin"
 )
 
 func MerchantRegisterHandler(c *gin.Context) {
@@ -16,11 +17,15 @@ func MerchantRegisterHandler(c *gin.Context) {
 	}
 
 	registerRes, err := handler.MerchantRegister(c, &merchant.MerchantRegisterRequest{
-		Name:        req.Name,
-		Phone:       req.Phone,
-		Email:       req.Email,
-		Password:    req.Password,
-		ConfirmPass: req.ConfirmPass,
+		Name:         req.Name,
+		Phone:        req.Phone,
+		Email:        req.Email,
+		Password:     req.Password,
+		ConfirmPass:  req.ConfirmPass,
+		Location:     req.Location,
+		BusinessTime: req.BusinessTime,
+		Longitude:    req.Longitude,
+		Latitude:     req.Latitude,
 	})
 	if err != nil {
 		response.ResponseError(c, err.Error())

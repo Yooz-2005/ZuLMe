@@ -2,6 +2,7 @@ package router
 
 import (
 	"Api/trigger"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,5 +12,11 @@ func RegisterMerchantRoutes(r *gin.Engine) {
 	{
 		merchantGroup.POST("/register", trigger.MerchantRegisterHandler)
 		merchantGroup.POST("/login", trigger.MerchantLoginHandler)
+	}
+
+	// 地理编码相关路由
+	geocodeGroup := r.Group("/geocode")
+	{
+		geocodeGroup.POST("/coordinates", trigger.GetCoordinates)
 	}
 }

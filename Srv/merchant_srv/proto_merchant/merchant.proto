@@ -10,6 +10,10 @@ message MerchantRegisterRequest {
     string email = 3;
     string password = 4;
     string confirm_pass = 5;
+    string location = 6;        // 网点地址
+    string business_time = 7;   // 营业时间
+    double longitude = 8;       // 经度
+    double latitude = 9;        // 纬度
 }
 
 // 商家注册响应
