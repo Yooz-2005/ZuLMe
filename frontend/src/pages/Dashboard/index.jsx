@@ -1,78 +1,175 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Layout, 
-  Carousel, 
-  Card, 
-  Input, 
-  DatePicker, 
-  Button, 
-  Row, 
+import {
+  Layout,
+  Carousel,
+  Card,
+  Button,
+  Row,
   Col,
   Typography,
-  Space,
-  Select
+  Space
 } from 'antd';
-import { SearchOutlined, CarOutlined, SafetyOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { CarOutlined, SafetyOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
-const { RangePicker } = DatePicker;
-const { Option } = Select;
 
 const StyledLayout = styled(Layout)`
   min-height: 100vh;
 `;
 
 const StyledHeader = styled(Header)`
-  background: #fff;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
   padding: 0 50px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.15);
   position: fixed;
   width: 100%;
-  z-index: 1;
+  z-index: 1000;
   top: 0;
   left: 0;
+  height: 70px;
+  line-height: 70px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
-const StyledLoginRegisterButton = styled(Button)`
-  background-color: #1890ff;
-  border-color: #1890ff;
+const StyledNavButton = styled(Button)`
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 24px;
+  height: 40px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    transition: left 0.5s;
+  }
 
   &:hover {
-    background-color: #40a9ff !important;
-    border-color: #40a9ff !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: 1px solid #667eea !important;
     color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+
+    &:before {
+      left: 100%;
+    }
   }
 
   &:active {
-    background-color: #096dd9 !important;
-    border-color: #096dd9 !important;
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+`;
+
+const StyledUserButton = styled(Button)`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 24px;
+  height: 40px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+  &:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
     color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
   }
 `;
 
 const HeroSectionWrapper = styled.div`
   position: relative;
   height: 700px; /* 增加英雄区域的高度 */
-  margin-top: 64px; /* 补偿固定导航栏的高度 */
+  margin-top: 70px; /* 补偿固定导航栏的高度 */
   overflow: hidden; /* 防止内容溢出 */
+
+  .ant-carousel {
+    height: 100%;
+
+    .ant-carousel-inner {
+      height: 100%;
+    }
+
+    .slick-slide {
+      height: 700px;
+
+      > div {
+        height: 100%;
+
+        img {
+          width: 100% !important;
+          height: 700px !important;
+          object-fit: cover !important;
+          object-position: center !important;
+          display: block !important;
+        }
+      }
+    }
+
+    .slick-dots {
+      bottom: 20px;
+      z-index: 10;
+
+      li button {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        width: 12px;
+        height: 12px;
+        border: none;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+      }
+
+      li.slick-active button {
+        background: #fff;
+        opacity: 1;
+        transform: scale(1.2);
+      }
+
+      li button:hover {
+        background: #fff;
+        opacity: 0.9;
+      }
+    }
+  }
 `;
 
-const SearchContainer = styled.div`
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  width: 80%;
-  max-width: 1000px;
-  position: absolute; /* 绝对定位 */
-  bottom: 50px; /* 距离底部50px */
-  left: 50%; /* 水平居中 */
-  transform: translateX(-50%);
-  z-index: 2; /* 确保在轮播图之上 */
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1); /* 添加阴影效果 */
+const StyledTitle = styled(Title)`
+  margin: 0 !important;
+  color: #fff !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
 
 const FeatureCard = styled(Card)`
@@ -86,44 +183,36 @@ const FeatureCard = styled(Card)`
 `;
 
 const Dashboard = () => {
-  const [searchParams, setSearchParams] = useState({
-    location: '',
-    dates: null,
-    carType: undefined
-  });
-
   const navigate = useNavigate();
-
-  const handleSearch = () => {
-    console.log('Search params:', searchParams);
-    // TODO: Implement search functionality
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('userPhone'); // 移除保存的手机号
+    localStorage.removeItem('userPhone');
     navigate('/login-register');
   };
 
-  const userPhone = localStorage.getItem('userPhone'); // 从 localStorage 获取手机号
+  const userPhone = localStorage.getItem('userPhone');
 
   return (
     <StyledLayout>
       <StyledHeader>
-        <Row justify="space-between" align="middle">
+        <Row justify="space-between" align="middle" style={{ height: '100%' }}>
           <Col>
-            <Title level={3} style={{ margin: 0 }}>ZuLMe</Title>
+            <StyledTitle level={3}>ZuLMe</StyledTitle>
           </Col>
           <Col>
-            <Space>
+            <Space size="large">
+              <StyledNavButton onClick={() => navigate('/vehicles')}>
+                租豪车
+              </StyledNavButton>
               {userPhone ? (
                 <>
-                  <Button type="link" style={{ color: '#000' }}>{userPhone}</Button>
-                  <Button type="primary" onClick={() => navigate('/personal-center')}>我的</Button>
-                  <Button type="default" onClick={handleLogout}>退出</Button>
+                  <StyledUserButton type="link" style={{ color: '#fff' }}>{userPhone}</StyledUserButton>
+                  <StyledUserButton onClick={() => navigate('/personal-center')}>我的</StyledUserButton>
+                  <StyledUserButton onClick={handleLogout}>退出</StyledUserButton>
                 </>
               ) : (
-                <StyledLoginRegisterButton type="primary" onClick={() => navigate('/login-register')}>登录/注册</StyledLoginRegisterButton>
+                <StyledUserButton onClick={() => navigate('/login-register')}>登录/注册</StyledUserButton>
               )}
             </Space>
           </Col>
@@ -133,60 +222,22 @@ const Dashboard = () => {
       <Content>
         <HeroSectionWrapper>
           {/* 顶部轮播图 */}
-          <Carousel autoplay dotPosition="bottom" style={{ height: '50%' }}>
+          <Carousel autoplay dotPosition="bottom" style={{ height: '100%' }}>
             <div>
-              <img src="/images/banner1.jpg" alt="banner1" style={{ width: '100%', height: '50%', objectFit: 'cover' }} />
+              <img src="/images/banner5.png" alt="banner5" />
             </div>
             <div>
-              <img src="/images/banner2.jpg" alt="banner2" style={{ width: '100%', height: '50%', objectFit: 'cover' }} />
+              <img src="/images/banner6.png" alt="banner6" />
             </div>
             <div>
-              <img src="/images/banner3.jpg" alt="banner3" style={{ width: '100%', height: '50%', objectFit: 'cover' }} />
+              <img src="/images/banner7.png" alt="banner7" />
             </div>
             <div>
-              <img src="/images/banner4.jpg" alt="banner4" style={{ width: '100%', height: '50%', objectFit: 'cover' }} />
+              <img src="/images/banner8.png" alt="banner8" />
             </div>
           </Carousel>
 
-          {/* 搜索框 */}
-          <SearchContainer>
-            <Title level={2} style={{ textAlign: 'center', marginBottom: 24 }}>
-              找到您的理想座驾
-            </Title>
-            <Row gutter={16}>
-              <Col span={8}>
-                <Input
-                  placeholder="取车地点"
-                  prefix={<SearchOutlined />}
-                  value={searchParams.location}
-                  onChange={e => setSearchParams({...searchParams, location: e.target.value})}
-                />
-              </Col>
-              <Col span={8}>
-                <RangePicker
-                  style={{ width: '100%' }}
-                  onChange={dates => setSearchParams({...searchParams, dates})}
-                />
-              </Col>
-              <Col span={4}>
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="车型"
-                  onChange={value => setSearchParams({...searchParams, carType: value})}
-                >
-                  <Option value="economy">经济型</Option>
-                  <Option value="comfort">舒适型</Option>
-                  <Option value="luxury">豪华型</Option>
-                  <Option value="suv">SUV</Option>
-                </Select>
-              </Col>
-              <Col span={4}>
-                <Button type="primary" block onClick={handleSearch}>
-                  搜索
-                </Button>
-              </Col>
-            </Row>
-          </SearchContainer>
+
         </HeroSectionWrapper>
 
         <div style={{ padding: '50px 50px' }}>
@@ -233,6 +284,8 @@ const Dashboard = () => {
               <Card
                 hoverable
                 cover={<img alt="car" src="/images/my-car-a.jpg" />}
+                onClick={() => navigate('/vehicles')}
+                style={{ cursor: 'pointer' }}
               >
                 <Card.Meta
                   title="经济轿跑"
@@ -244,6 +297,8 @@ const Dashboard = () => {
               <Card
                 hoverable
                 cover={<img alt="car" src="/images/my-car-b.jpg" />}
+                onClick={() => navigate('/vehicles')}
+                style={{ cursor: 'pointer' }}
               >
                 <Card.Meta
                   title="舒适轿跑"
@@ -255,6 +310,8 @@ const Dashboard = () => {
               <Card
                 hoverable
                 cover={<img alt="car" src="/images/my-car-c.jpg" />}
+                onClick={() => navigate('/vehicles')}
+                style={{ cursor: 'pointer' }}
               >
                 <Card.Meta
                   title="豪华轿跑"
@@ -265,11 +322,13 @@ const Dashboard = () => {
             <Col span={6} key="car-d">
               <Card
                 hoverable
-                cover={<img alt="car" src="/images/my-car-d.jpg" />}
+                cover={<img alt="car" src="/images/my-car-e.jpg" />}
+                onClick={() => navigate('/vehicles')}
+                style={{ cursor: 'pointer' }}
               >
                 <Card.Meta
-                  title="SUV"
-                  description="¥1299/天起"
+                  title="豪华车型"
+                  description="¥2999/天起"
                 />
               </Card>
             </Col>
@@ -277,8 +336,8 @@ const Dashboard = () => {
         </div>
       </Content>
 
-      <Footer style={{ textAlign: 'center', background: '#001529', color: '#fff', padding: '24px 50px' }}>
-        ZuLMe ©2023 Created by Ant Design
+      <Footer style={{ textAlign: 'center' }}>
+        ZuLMe ©2024 Created by Your Company
       </Footer>
     </StyledLayout>
   );

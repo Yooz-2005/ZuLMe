@@ -1,4 +1,4 @@
-go.mod
+  go.mod
 go.work
 *.log
 go.work.sum

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Select, Button, DatePicker, Typography, Space, Checkbox, message, Row, Col } from 'antd';
+import { Form, Input, Select, Button, DatePicker, Typography, Space, message } from 'antd';
 import moment from 'moment';
 import instance from '../../../utils/axiosConfig'; // 導入配置好的 axios 實例，修正路徑
 
@@ -24,7 +24,7 @@ const MyInfoPage = () => {
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedCity, setSelectedCity] = useState(null);
 
-    console.log('手機號碼從 localStorage 獲取:', localStorage.getItem('phoneNumber'));
+    console.log('手機號碼從 localStorage 獲取:', localStorage.getItem('userPhone'));
 
     const handleProvinceChange = (value) => {
         setSelectedProvince(value);
@@ -96,7 +96,6 @@ const MyInfoPage = () => {
             district: values.district,
             emergency_name: values.emergencyName,
             emergency_phone: values.emergencyPhone,
-            emailSubscription: values.emailSubscription,
         };
         console.log('發送到後端的 payload:', payload); // 添加 payload 日誌
 
@@ -122,7 +121,6 @@ const MyInfoPage = () => {
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 16 }}
             initialValues={{
-                emailSubscription: false,
                 realName: null,
                 idType: null,
                 idNumber: null,
@@ -164,7 +162,7 @@ const MyInfoPage = () => {
 
             <Form.Item label="手机号码">
                 <Space>
-                    <Text>{localStorage.getItem('phoneNumber') ? localStorage.getItem('phoneNumber').replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : ''}</Text>
+                    <Text>{localStorage.getItem('userPhone') ? localStorage.getItem('userPhone').replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : ''}</Text>
                     <Button type="link">修改</Button>
                 </Space>
             </Form.Item>
@@ -216,15 +214,6 @@ const MyInfoPage = () => {
 
             <Form.Item label="联系电话" name="emergencyPhone">
                 <Input placeholder="请输入紧急联系人电话" />
-            </Form.Item>
-
-            <Form.Item label="邮件订阅" name="emailSubscription" valuePropName="checked">
-                <Checkbox>
-                    为您推送租借优惠活动信息
-                </Checkbox>
-                {form.getFieldValue('emailSubscription') && (
-                    <Text type="success" style={{ marginLeft: '16px' }}>已订阅</Text>
-                )}
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
