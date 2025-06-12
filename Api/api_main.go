@@ -10,5 +10,6 @@ func main() {
 	router.LoadUser(r)
 	router.RegisterMerchantRoutes(r)
 	router.RegisterAdminRoutes(r)
+	router.LoadOrder(r)
 	r.Run(":8888")
 }

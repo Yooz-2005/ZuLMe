@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package order;
+option go_package=".;order";
+
+message CreateOrderRequest {
+  string ping = 1;
+}
+
+message CreateOrderResponse {
+  string pong = 1;
+}
+
+service Order {
+  rpc CreateOrder(CreateOrderRequest) returns(CreateOrderResponse);
+}
