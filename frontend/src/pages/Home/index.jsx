@@ -1,60 +1,178 @@
-import React, { useState } from 'react';
-import { 
-  Layout, 
-  Carousel, 
-  Card, 
-  Input, 
-  DatePicker, 
-  Button, 
-  Row, 
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Layout,
+  Carousel,
+  Card,
+  Button,
+  Row,
   Col,
   Typography,
-  Space,
-  Select
+  Space
 } from 'antd';
-import { SearchOutlined, CarOutlined, SafetyOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { CarOutlined, SafetyOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
-const { RangePicker } = DatePicker;
-const { Option } = Select;
 
 const StyledLayout = styled(Layout)`
   min-height: 100vh;
 `;
 
 const StyledHeader = styled(Header)`
-  background: #fff;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
   padding: 0 50px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.15);
   position: fixed;
   width: 100%;
-  z-index: 1;
+  z-index: 1000;
   top: 0;
   left: 0;
+  height: 70px;
+  line-height: 70px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const StyledNavButton = styled(Button)`
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 24px;
+  height: 40px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: 1px solid #667eea !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+
+    &:before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+`;
+
+const StyledLoginRegisterButton = styled(Button)`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 24px;
+  height: 40px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+  &:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
 `;
 
 const HeroSectionWrapper = styled.div`
   position: relative;
   height: 700px; /* 增加英雄区域的高度 */
-  margin-top: 64px; /* 补偿固定导航栏的高度 */
+  margin-top: 70px; /* 补偿固定导航栏的高度 */
   overflow: hidden; /* 防止内容溢出 */
+
+  .ant-carousel {
+    height: 100%;
+
+    .ant-carousel-inner {
+      height: 100%;
+    }
+
+    .slick-slide {
+      height: 700px;
+
+      > div {
+        height: 100%;
+
+        img {
+          width: 100% !important;
+          height: 700px !important;
+          object-fit: cover !important;
+          object-position: center !important;
+          display: block !important;
+        }
+      }
+    }
+
+    .slick-dots {
+      bottom: 20px;
+      z-index: 10;
+
+      li button {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        width: 12px;
+        height: 12px;
+        border: none;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+      }
+
+      li.slick-active button {
+        background: #fff;
+        opacity: 1;
+        transform: scale(1.2);
+      }
+
+      li button:hover {
+        background: #fff;
+        opacity: 0.9;
+      }
+    }
+  }
 `;
 
-const SearchContainer = styled.div`
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  width: 80%;
-  max-width: 1000px;
-  position: absolute; /* 绝对定位 */
-  bottom: 50px; /* 距离底部50px */
-  left: 50%; /* 水平居中 */
-  transform: translateX(-50%);
-  z-index: 2; /* 确保在轮播图之上 */
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1); /* 添加阴影效果 */
+const StyledTitle = styled(Title)`
+  margin: 0 !important;
+  color: #fff !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
+
+
 
 const FeatureCard = styled(Card)`
   text-align: center;
@@ -67,28 +185,27 @@ const FeatureCard = styled(Card)`
 `;
 
 const Home = () => {
-  const [searchParams, setSearchParams] = useState({
-    location: '',
-    dates: null,
-    carType: undefined
-  });
+  const navigate = useNavigate();
 
-  const handleSearch = () => {
-    console.log('Search params:', searchParams);
-    // TODO: Implement search functionality
+  const handleLoginRegisterClick = () => {
+    navigate('/login-register');
   };
 
   return (
     <StyledLayout>
       <StyledHeader>
-        <Row justify="space-between" align="middle">
+        <Row justify="space-between" align="middle" style={{ height: '100%' }}>
           <Col>
-            <Title level={3} style={{ margin: 0 }}>ZuLMe</Title>
+            <StyledTitle level={3}>ZuLMe</StyledTitle>
           </Col>
           <Col>
-            <Space>
-              <Button type="link">登录</Button>
-              <Button type="primary">注册</Button>
+            <Space size="large">
+              <StyledNavButton onClick={() => navigate('/vehicles')}>
+                租豪车
+              </StyledNavButton>
+              <StyledLoginRegisterButton onClick={handleLoginRegisterClick}>
+                登录/注册
+              </StyledLoginRegisterButton>
             </Space>
           </Col>
         </Row>
@@ -97,60 +214,23 @@ const Home = () => {
       <Content>
         <HeroSectionWrapper>
           {/* 顶部轮播图 */}
-          <Carousel autoplay dotPosition="bottom" style={{ height: '50%' }}>
+          <Carousel autoplay dotPosition="bottom" style={{ height: '100%' }}>
             <div>
-              <img src="/images/banner1.jpg" alt="banner1" style={{ width: '100%', height: '50%', objectFit: 'cover' }} />
+              <img src="/images/banner1.png" alt="banner1" />
             </div>
             <div>
-              <img src="/images/banner2.jpg" alt="banner2" style={{ width: '100%', height: '50%', objectFit: 'cover' }} />
+              <img src="/images/banner2.png" alt="banner2" />
             </div>
             <div>
-              <img src="/images/banner3.jpg" alt="banner3" style={{ width: '100%', height: '50%', objectFit: 'cover' }} />
+              <img src="/images/banner4.png" alt="banner3" />
             </div>
             <div>
-              <img src="/images/banner4.jpg" alt="banner4" style={{ width: '100%', height: '50%', objectFit: 'cover' }} />
+              <img src="/images/banner5.png" alt="banner4" />
+            </div>
+            <div>
+              <img src="/images/banner6.png" alt="banner5" />
             </div>
           </Carousel>
-
-          {/* 搜索框 */}
-          <SearchContainer>
-            <Title level={2} style={{ textAlign: 'center', marginBottom: 24 }}>
-              找到您的理想座驾
-            </Title>
-            <Row gutter={16}>
-              <Col span={8}>
-                <Input
-                  placeholder="取车地点"
-                  prefix={<SearchOutlined />}
-                  value={searchParams.location}
-                  onChange={e => setSearchParams({...searchParams, location: e.target.value})}
-                />
-              </Col>
-              <Col span={8}>
-                <RangePicker
-                  style={{ width: '100%' }}
-                  onChange={dates => setSearchParams({...searchParams, dates})}
-                />
-              </Col>
-              <Col span={4}>
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="车型"
-                  onChange={value => setSearchParams({...searchParams, carType: value})}
-                >
-                  <Option value="economy">经济型</Option>
-                  <Option value="comfort">舒适型</Option>
-                  <Option value="luxury">豪华型</Option>
-                  <Option value="suv">SUV</Option>
-                </Select>
-              </Col>
-              <Col span={4}>
-                <Button type="primary" block onClick={handleSearch}>
-                  搜索
-                </Button>
-              </Col>
-            </Row>
-          </SearchContainer>
         </HeroSectionWrapper>
 
         <div style={{ padding: '50px 50px' }}>
@@ -197,6 +277,8 @@ const Home = () => {
               <Card
                 hoverable
                 cover={<img alt="car" src="/images/my-car-a.jpg" />}
+                onClick={() => navigate('/vehicles')}
+                style={{ cursor: 'pointer' }}
               >
                 <Card.Meta
                   title="经济轿跑"
@@ -208,6 +290,8 @@ const Home = () => {
               <Card
                 hoverable
                 cover={<img alt="car" src="/images/my-car-b.jpg" />}
+                onClick={() => navigate('/vehicles')}
+                style={{ cursor: 'pointer' }}
               >
                 <Card.Meta
                   title="舒适轿跑"
@@ -219,6 +303,8 @@ const Home = () => {
               <Card
                 hoverable
                 cover={<img alt="car" src="/images/my-car-c.jpg" />}
+                onClick={() => navigate('/vehicles')}
+                style={{ cursor: 'pointer' }}
               >
                 <Card.Meta
                   title="豪华轿跑"
@@ -230,6 +316,8 @@ const Home = () => {
               <Card
                 hoverable
                 cover={<img alt="car" src="/images/my-car-e.jpg" />}
+                onClick={() => navigate('/vehicles')}
+                style={{ cursor: 'pointer' }}
               >
                 <Card.Meta
                   title="豪华车型"

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Layout, Card, Input, Button, Form, Row, Col, Typography, Space } from 'antd';
-import { UserOutlined, SafetyOutlined } from '@ant-design/icons';
+import { Layout, Card, Input, Button, Form, Row, Col, Typography, Space, message } from 'antd';
+import { UserOutlined, SafetyOutlined, MobileOutlined, LockOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
+import instance from '../../utils/axiosConfig';
+import { useNavigate } from 'react-router-dom';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
@@ -20,10 +22,60 @@ const LoginCard = styled(Card)`
   width: 400px;
   text-align: center;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 20px; /* 增加内边距 */
+
+  // General height for all inputs and buttons
+  .ant-input,
+  .ant-btn {
+    height: 45px;
+  }
+
+  // Apply border-radius and overflow hidden to input wrappers
+  .ant-input-affix-wrapper, // For input with prefix/suffix
+  .ant-input-group-wrapper { // For input with addonBefore/addonAfter
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  // Styles specifically for Input with addonAfter to make it seamless
+  .ant-input-group {
+    display: flex;
+    width: 100%;
+    border: none; // Remove default border from the input group
+    box-shadow: none; // Remove default shadow from the input group
+  }
+
+  .ant-input-group .ant-input {
+    flex: 1; // Allow input to expand and take available space
+    border-right: none; // Remove the border between input and addon
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .ant-input-group-addon {
+    background-color: transparent !important; // Ensure addon background is transparent
+    border: none !important; // Remove default border from addon
+    padding: 0 !important; // Remove default padding from addon
+    display: flex !important; // Make addon a flex container for its button
+    align-items: stretch !important; // Stretch button to full height
+    white-space: nowrap !important; // Prevent text wrapping
+    flex-shrink: 0 !important; // Prevent addon from shrinking
+    min-width: fit-content !important; // Ensure addon has minimum width to fit content
+  }
+
+  .ant-input-group-addon .ant-btn {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-left: none !important; // Remove border from button side touching input
+    margin-left: -1px !important; // Small negative margin to correct subpixel rendering gaps
+    height: 100% !important; // Ensure button fills addon height
+    width: auto !important; // Allow button to take natural width based on content
+    padding: 0 15px !important; // Add some horizontal padding to ensure text is visible
+  }
 `;
 
 const StyledHeader = styled(Header)`
-  background: #fff;
+  background: #000;
   padding: 0 50px;
   height: 64px;
   line-height: 64px;
@@ -39,10 +91,16 @@ const StyledHeader = styled(Header)`
 
 const HeaderTitle = styled(Title)`
   && { /* Use && to increase specificity */
-    color: #000;
+    color: #fff;
     margin: 0;
     display: flex;
     align-items: center;
+    cursor: pointer;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: #1890ff;
+    }
   }
 `;
 
@@ -108,32 +166,88 @@ const FeatureCard = styled(Card)`
 const LoginRegister = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const navigate = useNavigate();
 
-  const onFinish = (values) => {
-    setLoading(true);
-    console.log('Received values of form: ', values);
-    // TODO: Implement actual login/register logic here
-    setTimeout(() => {
-      setLoading(false);
-      // Example: If login successful, redirect
-      // history.push('/dashboard'); 
-    }, 2000);
+  // 处理点击ZuLMe标题返回首页
+  const handleLogoClick = () => {
+    navigate('/');
   };
 
-  const handleGetVerificationCode = () => {
-    const phone = form.getFieldValue('phone');
-    if (!phone) {
-      alert('请输入手机号');
-      return;
+  // 發送驗證碼
+  const handleGetVerificationCode = async () => {
+    try {
+      const phone = form.getFieldValue('phone');
+      if (!phone) {
+        message.error('請輸入手機號碼');
+        return;
+      }
+
+      // 驗證手機號碼格式
+      if (!/^1[3-9]\d{9}$/.test(phone)) {
+        message.error('請輸入正確的手機號碼格式');
+        return;
+      }
+
+      setSendingCode(true);
+      const response = await instance.post('/user/sendCode', { phone, source: "register" });
+      
+      if (response.data.code === 200) {
+        message.success('驗證碼已發送');
+        // 開始倒計時
+        setCountdown(60);
+        const timer = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        message.error(response.data.message || '發送驗證碼失敗');
+      }
+    } catch (error) {
+      message.error(error.response?.data?.message || '發送驗證碼失敗，請稍後重試');
+    } finally {
+      setSendingCode(false);
     }
-    console.log('Getting verification code for:', phone);
-    // TODO: Implement send verification code logic here
+  };
+
+  // 提交表單
+  const onFinish = async (values) => {
+    try {
+      setLoading(true);
+      const response = await instance.post('/user/register', {
+        phone: values.phone,
+        code: values.code,
+        source: "register"
+      });
+
+      if (response.data.code === 200) {
+        message.success('登入成功！');
+        console.log('登入成功，後端返回數據:', response.data);
+        console.log('準備儲存的 Token 值:', response.data.data.token);
+        localStorage.setItem('token', response.data.data.token);
+        console.log('登入成功後，localStorage 中的 token:', localStorage.getItem('token'));
+        localStorage.setItem('userPhone', values.phone);
+        navigate('/dashboard');
+      } else {
+        message.error(response.data.msg || '登入失敗，請重試。');
+      }
+    } catch (error) {
+      message.error(error.response?.data?.msg || '登入失敗，請稍後重試');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Layout>
       <StyledHeader>
-        <HeaderTitle level={3}>
+        <HeaderTitle level={3} onClick={handleLogoClick}>
           ZuLMe
         </HeaderTitle>
         <Space>
@@ -143,7 +257,7 @@ const LoginRegister = () => {
 
       <StyledLayout>
         <LoginCard>
-          <Title level={3} style={{ marginBottom: 24 }}>登录</Title>
+          <Title level={3} style={{ marginBottom: 24 }}>登入</Title>
           <Form
             form={form}
             name="login-register"
@@ -152,25 +266,41 @@ const LoginRegister = () => {
           >
             <Form.Item
               name="phone"
-              rules={[{ required: true, message: '请输入注册手机号!' }]}
+              rules={[
+                { required: true, message: '請輸入手機號碼!' },
+                { pattern: /^1[3-9]\d{9}$/, message: '請輸入正確的手機號碼格式!' }
+              ]}
             >
-              <Input prefix={<UserOutlined />} placeholder="请输入注册手机号" />
+              <Input prefix={<UserOutlined />} placeholder="請輸入手機號碼" />
             </Form.Item>
 
             <Form.Item
               name="code"
-              rules={[{ required: true, message: '请输入动态验证码!' }]}
+              rules={[
+                { required: true, message: '請輸入驗證碼!' },
+                { len: 6, message: '驗證碼應為6位數字!' }
+              ]}
             >
               <Input
                 prefix={<SafetyOutlined />}
-                placeholder="请输入动态验证码"
-                addonAfter={<Button type="primary" onClick={handleGetVerificationCode} style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>获取手机动态验证码</Button>}
+                placeholder="請輸入驗證碼"
+                addonAfter={
+                  <Button 
+                    type="primary" 
+                    onClick={handleGetVerificationCode} 
+                    loading={sendingCode}
+                    disabled={countdown > 0}
+                    style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}
+                  >
+                    {countdown > 0 ? `${countdown}秒後重試` : '獲取驗證碼'}
+                  </Button>
+                }
               />
             </Form.Item>
 
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={loading} block style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}>
-                登录
+                登入
               </Button>
             </Form.Item>
           </Form>
@@ -215,7 +345,7 @@ const LoginRegister = () => {
               </Paragraph>
             </FeatureCard>
           </Col>
-        </Row>
+        </Row>  
       </FeatureSection>
 
     </Layout>

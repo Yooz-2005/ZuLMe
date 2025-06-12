@@ -8,8 +8,7 @@ message SendCodeRequest{
   string Source = 2;
 }
 message SendCodeResponse{
-  string Code = 1;
-  string Message = 2;
+  string Message = 1;
 }
 message UserRegisterRequest {
   string Phone = 1;
@@ -18,10 +17,41 @@ message UserRegisterRequest {
 
 message UserRegisterResponse {
   string UserId = 1;
+  string token = 2;
 }
 
+//todo 修改用户个人信息
+message UpdateUserProfileRequest {
+  int64 UserId = 1;
+  string RealName = 2;
+  string idType = 3;
+  string idNumber = 4;
+  string id_expire_date = 5;
+  string email = 6;
+  string province = 7;
+  string city = 8;
+  string district = 9;
+  string emergency_name = 10;
+  string emergency_phone = 11;
+}
 
+message UpdateUserProfileResponse {
+  int64 UserId = 1;
+  string Message = 2;
+}
+
+//todo 修改用户手机号
+message UpdateUserPhoneRequest {
+  int64 UserId = 1;
+  string Phone = 2;
+}
+message UpdateUserPhoneResponse {
+  int64 UserId = 1;
+  string Message = 2;
+}
 service User {
-  rpc SendCode(SendCodeRequest) returns(SendCodeResponse);
-  rpc UserRegister(UserRegisterRequest) returns(UserRegisterResponse);
+  rpc SendCode(SendCodeRequest) returns(SendCodeResponse);//todo 短信验证码
+  rpc UserRegister(UserRegisterRequest) returns(UserRegisterResponse); //todo 用户注册登录
+  rpc UpdateUserProfile(UpdateUserProfileRequest) returns(UpdateUserProfileResponse); //todo 修改用户个人信息
+  rpc UpdateUserPhone(UpdateUserPhoneRequest) returns(UpdateUserPhoneResponse); //todo 修改用户手机号
 }
