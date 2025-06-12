@@ -13,7 +13,6 @@ type CreateVehicleRequest struct {
 	Status      int64   `json:"status" form:"status"`
 	Description string  `json:"description" form:"description"`
 	Images      string  `json:"images" form:"images"`
-	Location    string  `json:"location" form:"location"`
 	Contact     string  `json:"contact" form:"contact"`
 }
 

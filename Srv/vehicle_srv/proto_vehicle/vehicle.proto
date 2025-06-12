@@ -44,8 +44,7 @@ message CreateVehicleRequest {
   int64 status = 9;
   string description = 10;
   string images = 11;
-  string location = 12;
-  string contact = 13;
+  string contact = 12;
 }
 
 // 创建车辆响应

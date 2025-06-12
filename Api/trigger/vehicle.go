@@ -33,7 +33,6 @@ func CreateVehicleHandler(c *gin.Context) {
 		Status:      req.Status,
 		Description: req.Description,
 		Images:      req.Images,
-		Location:    req.Location,
 		Contact:     req.Contact,
 	})
 	if err != nil {
