@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Select, Button, DatePicker, Typography, Space, message } from 'antd';
+import { Form, Input, Select, Button, DatePicker, Typography, Space, message, Modal } from 'antd';
 import moment from 'moment';
 import instance from '../../../utils/axiosConfig'; // 導入配置好的 axios 實例，修正路徑
 
@@ -19,10 +19,12 @@ const citiesData = {
     // 您可以在此處添加更多省份和城市數據
 };
 
-const MyInfoPage = () => {
+const MyInfoPage = ({ onPhoneUpdate }) => {
     const [form] = Form.useForm();
+    const [updatePhoneForm] = Form.useForm(); // 新增用於手機號碼修改的表單實例
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedCity, setSelectedCity] = useState(null);
+    const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false); // 控制手機號碼修改模態框的可見性
 
     console.log('手機號碼從 localStorage 獲取:', localStorage.getItem('userPhone'));
 
@@ -113,116 +115,215 @@ const MyInfoPage = () => {
         }
     };
 
+    // 顯示手機號碼修改模態框
+    const showPhoneModal = () => {
+        setIsPhoneModalVisible(true);
+    };
+
+    // 隱藏手機號碼修改模態框
+    const handlePhoneModalCancel = () => {
+        setIsPhoneModalVisible(false);
+        updatePhoneForm.resetFields(); // 清空表單欄位
+    };
+
+    // 發送手機驗證碼
+    const sendPhoneCode = async () => {
+        try {
+            const newPhoneNumber = updatePhoneForm.getFieldValue('newPhoneNumber');
+            if (!newPhoneNumber) {
+                message.error('請輸入手機號碼');
+                return;
+            }
+            // 調用發送驗證碼的後端接口
+            const response = await instance.post('/user/sendCode', { phone: newPhoneNumber, source: "updatePhone" });
+            if (response.data.code === 200) {
+                message.success('驗證碼已發送');
+            } else {
+                message.error(response.data.msg || '驗證碼發送失敗');
+            }
+        } catch (error) {
+            console.error('發送驗證碼時出錯:', error);
+            message.error(error.response?.data?.msg || '驗證碼發送失敗，請稍後重試。');
+        }
+    };
+
+    // 提交手機號碼修改
+    const onFinishUpdatePhone = async (values) => {
+        console.log('Received values for phone update:', values);
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                message.error('未檢測到登入憑證，請重新登入。');
+                return;
+            }
+            // 調用修改手機號碼的後端接口
+            const response = await instance.post('/user/phone', {
+                phone: values.newPhoneNumber,
+                code: values.verificationCode,
+            });
+
+            if (response.data.code === 200) {
+                message.success('手機號碼修改成功！');
+                localStorage.setItem('userPhone', values.newPhoneNumber); // 更新本地存儲的手機號碼
+                if (onPhoneUpdate) {
+                    onPhoneUpdate(values.newPhoneNumber); // 通知父組件手機號碼已更新
+                }
+                setIsPhoneModalVisible(false); // 隱藏模態框
+                updatePhoneForm.resetFields(); // 清空表單欄位
+            } else {
+                message.error(response.data.msg || '手機號碼修改失敗，請重試。');
+            }
+        } catch (error) {
+            console.error('修改手機號碼時出錯:', error);
+            message.error(error.response?.data?.msg || '修改手機號碼失敗，請稍後重試。');
+        }
+    };
+
     return (
-        <Form
-            form={form}
-            layout="horizontal"
-            onFinish={onFinish}
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={{
-                realName: null,
-                idType: null,
-                idNumber: null,
-                idExpireDate: null,
-                email: null,
-                province: null,
-                city: null,
-                district: null,
-                emergencyName: null,
-                emergencyPhone: null,
-            }}
-            style={{ maxWidth: '800px', margin: '0 auto', padding: '24px', background: '#fff', borderRadius: '8px' }}
-        >
-            <Title level={4} style={{ marginBottom: '24px', textAlign: 'center' }}>我的信息</Title>
+        <>
+            <Form
+                form={form}
+                layout="horizontal"
+                onFinish={onFinish}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 16 }}
+                initialValues={{
+                    realName: null,
+                    idType: null,
+                    idNumber: null,
+                    idExpireDate: null,
+                    email: null,
+                    province: null,
+                    city: null,
+                    district: null,
+                    emergencyName: null,
+                    emergencyPhone: null,
+                }}
+                style={{ maxWidth: '800px', margin: '0 auto', padding: '24px', background: '#fff', borderRadius: '8px' }}
+            >
+                <Title level={4} style={{ marginBottom: '24px', textAlign: 'center' }}>我的信息</Title>
 
-            <Form.Item label="姓名" name="realName">
-                <Input placeholder="请输入真实姓名" />
-            </Form.Item>
+                <Form.Item label="姓名" name="realName">
+                    <Input placeholder="请输入真实姓名" />
+                </Form.Item>
 
-            <Form.Item label="证件">
-                <Space>
-                    <Form.Item name="idType" noStyle>
-                        <Select placeholder="请选择证件类型" style={{ width: 180 }}>
-                            <Option value="1">身份证</Option>
-                            <Option value="2">台湾居民来往大陆通行证</Option>
-                            <Option value="3">港澳居民来往大陆通行证</Option>
-                            <Option value="4">外籍护照</Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item name="idNumber" noStyle>
-                        <Input placeholder="请输入证件号码" style={{ flex: 1 }} />
-                    </Form.Item>
-                </Space>
-            </Form.Item>
+                <Form.Item label="证件">
+                    <Space>
+                        <Form.Item name="idType" noStyle>
+                            <Select placeholder="请选择证件类型" style={{ width: 180 }}>
+                                <Option value="1">身份证</Option>
+                                <Option value="2">台湾居民来往大陆通行证</Option>
+                                <Option value="3">港澳居民来往大陆通行证</Option>
+                                <Option value="4">外籍护照</Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item name="idNumber" noStyle>
+                            <Input placeholder="请输入证件号码" style={{ flex: 1 }} />
+                        </Form.Item>
+                    </Space>
+                </Form.Item>
 
-            <Form.Item label="有效期" name="idExpireDate">
-                <DatePicker placeholder="请选择有效期" style={{ width: '100%' }} />
-            </Form.Item>
+                <Form.Item label="有效期" name="idExpireDate">
+                    <DatePicker placeholder="请选择有效期" style={{ width: '100%' }} />
+                </Form.Item>
 
-            <Form.Item label="手机号码">
-                <Space>
-                    <Text>{localStorage.getItem('userPhone') ? localStorage.getItem('userPhone').replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : ''}</Text>
-                    <Button type="link">修改</Button>
-                </Space>
-            </Form.Item>
+                <Form.Item label="手机号码">
+                    <Space>
+                        <Text>{localStorage.getItem('userPhone') ? localStorage.getItem('userPhone').replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : ''}</Text>
+                        <Button type="link" onClick={showPhoneModal}>修改</Button>
+                    </Space>
+                </Form.Item>
 
-            <Form.Item label="电子邮箱" name="email">
-                <Space style={{ width: '100%' }}>
-                    <Input placeholder="请输入常用邮箱" style={{ flex: 1 }} />
-                    <Button>验证</Button>
-                </Space>
-            </Form.Item>
+                <Form.Item label="电子邮箱" name="email">
+                    <Input placeholder="请输入常用邮箱" style={{ width: '100%' }} />
+                </Form.Item>
 
-            <Form.Item label="通讯地址">
-                <Space style={{ width: '100%' }}>
-                    <Form.Item name="province" noStyle>
-                        <Select
-                            placeholder="请选择省"
-                            style={{ width: 120 }}
-                            onChange={handleProvinceChange}
-                        >
-                            {Object.keys(citiesData).map(province => (
-                                <Option key={province} value={province}>{province}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    {selectedProvince && (
-                        <Form.Item name="city" noStyle>
+                <Form.Item label="通讯地址">
+                    <Space style={{ width: '100%' }}>
+                        <Form.Item name="province" noStyle>
                             <Select
-                                placeholder="请选择市"
+                                placeholder="请选择省"
                                 style={{ width: 120 }}
-                                onChange={handleCityChange}
+                                onChange={handleProvinceChange}
                             >
-                                {citiesData[selectedProvince] && Object.keys(citiesData[selectedProvince]).map(city => (
-                                    <Option key={city} value={city}>{city}</Option>
+                                {Object.keys(citiesData).map(province => (
+                                    <Option key={province} value={province}>{province}</Option>
                                 ))}
                             </Select>
                         </Form.Item>
-                    )}
-                    {selectedCity && (
-                        <Form.Item name="district" noStyle>
-                            <Input placeholder="无需重复写省市" style={{ flex: 1 }} />
-                        </Form.Item>
-                    )}
-                </Space>
-            </Form.Item>
+                        {selectedProvince && (
+                            <Form.Item name="city" noStyle>
+                                <Select
+                                    placeholder="请选择市"
+                                    style={{ width: 120 }}
+                                    onChange={handleCityChange}
+                                >
+                                    {citiesData[selectedProvince] && Object.keys(citiesData[selectedProvince]).map(city => (
+                                        <Option key={city} value={city}>{city}</Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        )}
+                        {selectedCity && (
+                            <Form.Item name="district" noStyle>
+                                <Input placeholder="无需重复写省市" style={{ flex: 1 }} />
+                            </Form.Item>
+                        )}
+                    </Space>
+                </Form.Item>
 
-            <Form.Item label="紧急联系人" name="emergencyName">
-                <Input placeholder="请输入紧急联系人姓名" />
-            </Form.Item>
+                <Form.Item label="紧急联系人" name="emergencyName">
+                    <Input placeholder="请输入紧急联系姓名" />
+                </Form.Item>
 
-            <Form.Item label="联系电话" name="emergencyPhone">
-                <Input placeholder="请输入紧急联系人电话" />
-            </Form.Item>
+                <Form.Item label="联系电话" name="emergencyPhone">
+                    <Input placeholder="请输入紧急联系人电话" />
+                </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-                <Button type="primary" htmlType="submit">
-                    保存
-                </Button>
-            </Form.Item>
-        </Form>
+                <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+                    <Button type="primary" htmlType="submit">
+                        保存
+                    </Button>
+                </Form.Item>
+            </Form>
+
+            <Modal
+                title="修改手機號碼"
+                visible={isPhoneModalVisible}
+                onCancel={handlePhoneModalCancel}
+                footer={null} // 移除預設的 footer 按鈕，我們將自定義按鈕
+            >
+                <Form
+                    form={updatePhoneForm}
+                    layout="vertical"
+                    onFinish={onFinishUpdatePhone}
+                >
+                    <Form.Item
+                        label="新手机号码"
+                        name="newPhoneNumber"
+                        rules={[{ required: true, message: '请输入新手机号码' }]}
+                    >
+                        <Input placeholder="请输入新手机号码" />
+                    </Form.Item>
+                    <Form.Item
+                        label="验证码"
+                        name="verificationCode"
+                        rules={[{ required: true, message: '请输入验证码' }]}
+                    >
+                        <Space>
+                            <Input placeholder="请输入验证码" />
+                            <Button onClick={sendPhoneCode}>发送验证码</Button>
+                        </Space>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+                            确认修改
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
+        </>
     );
 };
 
-export default MyInfoPage; 
+export default MyInfoPage;

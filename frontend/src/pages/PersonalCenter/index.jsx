@@ -1,23 +1,142 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Card, Typography, Row, Col, Input, Space, Tabs } from 'antd';
 import { UserOutlined, FileTextOutlined, AccountBookOutlined, WalletOutlined, MailOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import MyInfoPage from './components/MyInfoPage'; // 导入 MyInfoPage
+import styled from 'styled-components';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout; // 添加 Footer
 const { Title, Text } = Typography;
 const { Search } = Input;
 const { TabPane } = Tabs;
 
+// 定义 styled-components
+const StyledLayout = styled(Layout)`
+  min-height: 100vh;
+`;
+
+const StyledHeader = styled(Header)`
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 0 50px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  height: 70px;
+  line-height: 70px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const StyledTitle = styled(Title)`
+  margin: 0 !important;
+  color: #fff !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
+
+const StyledNavButton = styled(Button)`
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 24px;
+  height: 40px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: 1px solid #667eea !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+
+    &:before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+`;
+
+const StyledUserButton = styled(Button)`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 24px;
+  height: 40px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+  &:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+`;
+
 const PersonalCenter = () => {
     const navigate = useNavigate();
-    const phoneNumber = localStorage.getItem('userPhone'); // 从 localStorage 获取手机号
+    const [currentPhoneNumber, setCurrentPhoneNumber] = useState(localStorage.getItem('userPhone')); // 将手机号作为状态管理
     const [selectedContentKey, setSelectedContentKey] = useState('my_orders_short_term'); // 新增状态来管理右侧内容
+
+    // 监听 localStorage 中的 userPhone 变化，并更新 state
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setCurrentPhoneNumber(localStorage.getItem('userPhone'));
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('userPhone');
+        setCurrentPhoneNumber(null); // 清空手机号状态
         navigate('/login-register'); // 返回登录/注册页面
+    };
+
+    const handlePhoneUpdate = (newPhoneNumber) => {
+        setCurrentPhoneNumber(newPhoneNumber);
     };
 
     const renderContent = () => {
@@ -72,7 +191,7 @@ const PersonalCenter = () => {
                     </Card>
                 );
             case 'my_account_info':
-                return <MyInfoPage />;
+                return <MyInfoPage onPhoneUpdate={handlePhoneUpdate} />;
             // 可以添加更多 case 来渲染其他内容
             default:
                 return null;
@@ -80,39 +199,31 @@ const PersonalCenter = () => {
     };
 
     return (
-        <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-            <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: '0 50px', borderBottom: '1px solid #f0f0f0' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Title level={3} style={{ margin: 0, marginRight: '20px', whiteSpace: 'nowrap' }}>ZuLMe</Title>
-                    {/* 移除右側的導航連結 */}
-                    
-                    <Menu
-                        mode="horizontal"
-                        defaultSelectedKeys={['home']}
-                        style={{ borderBottom: 'none', lineHeight: '64px' }}
-                        items={[
-                            {
-                                key: 'home',
-                                label: '首页',
-                                onClick: () => navigate('/dashboard'),
-                            },
-                        ]}
-                    />
-                    
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {/* <Text style={{ marginRight: '16px', whiteSpace: 'nowrap' }}>400-616-6666</Text> */}
-                    <Button type="link" style={{ marginRight: '8px' }}>English</Button>
-                    {phoneNumber && (
-                        <Space>
-                            <Text style={{ marginRight: '8px', whiteSpace: 'nowrap' }}>{phoneNumber ? phoneNumber.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : ''}</Text>
-                            <Button type="primary" onClick={() => navigate('/personal-center')}>我的</Button>
-                            <Button onClick={handleLogout}>退出</Button>
+        <StyledLayout>
+            <StyledHeader>
+                <Row justify="space-between" align="middle" style={{ height: '100%' }}>
+                    <Col>
+                        <StyledTitle level={3}>ZuLMe</StyledTitle>
+                    </Col>
+                    <Col>
+                        <Space size="large">
+                            <StyledNavButton onClick={() => navigate('/dashboard')}>
+                                首页
+                            </StyledNavButton>
+                            {currentPhoneNumber ? (
+                                <>
+                                    <StyledUserButton type="link" style={{ color: '#fff' }}>{currentPhoneNumber}</StyledUserButton>
+                                    <StyledUserButton onClick={() => navigate('/personal-center')}>我的</StyledUserButton>
+                                    <StyledUserButton onClick={handleLogout}>退出</StyledUserButton>
+                                </>
+                            ) : (
+                                <StyledUserButton onClick={() => navigate('/login-register')}>登录/注册</StyledUserButton>
+                            )}
                         </Space>
-                    )}
-                </div>
-            </Header>
-            <Content style={{ padding: '24px 50px' }}>
+                    </Col>
+                </Row>
+            </StyledHeader>
+            <Content style={{ padding: '24px 50px', marginTop: '70px' }}> {/* 添加 marginTop 以避免被固定 Header 遮挡 */}
                 <Layout style={{ background: '#fff' }}>
                     <Sider width={200} style={{ background: '#fff', borderRight: '1px solid #f0f0f0' }}>
                         <Menu
@@ -234,7 +345,7 @@ const PersonalCenter = () => {
                     </Content>
                 </Layout>
             </Content>
-        </Layout>
+        </StyledLayout>
     );
 };
 
