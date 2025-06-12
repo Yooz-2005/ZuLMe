@@ -23,7 +23,7 @@ const LoginCard = styled(Card)`
 `;
 
 const StyledHeader = styled(Header)`
-  background: #fff;
+  background: #000;
   padding: 0 50px;
   height: 64px;
   line-height: 64px;
@@ -39,7 +39,7 @@ const StyledHeader = styled(Header)`
 
 const HeaderTitle = styled(Title)`
   && { /* Use && to increase specificity */
-    color: #000;
+    color: #fff;
     margin: 0;
     display: flex;
     align-items: center;
