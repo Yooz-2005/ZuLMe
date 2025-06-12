@@ -75,7 +75,7 @@ const LoginCard = styled(Card)`
 `;
 
 const StyledHeader = styled(Header)`
-  background: #fff;
+  background: #000;
   padding: 0 50px;
   height: 64px;
   line-height: 64px;
@@ -91,10 +91,16 @@ const StyledHeader = styled(Header)`
 
 const HeaderTitle = styled(Title)`
   && { /* Use && to increase specificity */
-    color: #000;
+    color: #fff;
     margin: 0;
     display: flex;
     align-items: center;
+    cursor: pointer;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: #1890ff;
+    }
   }
 `;
 
@@ -164,6 +170,11 @@ const LoginRegister = () => {
   const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
 
+  // 处理点击ZuLMe标题返回首页
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   // 發送驗證碼
   const handleGetVerificationCode = async () => {
     try {
@@ -218,10 +229,10 @@ const LoginRegister = () => {
       if (response.data.code === 200) {
         message.success('登入成功！');
         console.log('登入成功，後端返回數據:', response.data);
-        console.log('準備儲存的 Token 值:', response.data.data.Token);
-        localStorage.setItem('token', response.data.data.Token);
+        console.log('準備儲存的 Token 值:', response.data.data.token);
+        localStorage.setItem('token', response.data.data.token);
         console.log('登入成功後，localStorage 中的 token:', localStorage.getItem('token'));
-        localStorage.setItem('phoneNumber', values.phone);
+        localStorage.setItem('userPhone', values.phone);
         navigate('/dashboard');
       } else {
         message.error(response.data.msg || '登入失敗，請重試。');
@@ -236,7 +247,7 @@ const LoginRegister = () => {
   return (
     <Layout>
       <StyledHeader>
-        <HeaderTitle level={3}>
+        <HeaderTitle level={3} onClick={handleLogoClick}>
           ZuLMe
         </HeaderTitle>
         <Space>

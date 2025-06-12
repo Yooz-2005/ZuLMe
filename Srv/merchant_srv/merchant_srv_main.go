@@ -2,14 +2,12 @@ package main
 
 import (
 	"Common/appconfig"
-	"Common/global"
 	"Common/initialize"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"merchant_srv/grpc_merchant"
-	"models/model_mysql"
 	"net"
 )
 
@@ -18,12 +16,7 @@ func main() {
 	initialize.NewNacos()
 	initialize.MysqlInit()
 	initialize.RedisInit()
-
-	// 自动迁移 Merchant 模型到数据库
-	err := global.DB.AutoMigrate(&model_mysql.Merchant{})
-	if err != nil {
-		panic(fmt.Sprintf("Failed to auto migrate Merchant model: %v", err))
-	}
+	initialize.InitES()
 
 	// 创建 gRPC 服务器
 	gServer := grpc.NewServer()
@@ -33,6 +26,8 @@ func main() {
 
 	// 注册商家服务
 	grpc_merchant.RegisterMerchantServices(gServer)
+
+	//global.DB.AutoMigrate(&model_mysql.Vehicle{}, &model_mysql.VehicleType{})
 
 	// 监听端口
 	lis, err := net.Listen("tcp", ":8002") // 假设商家服务运行在8002端口

@@ -11,12 +11,12 @@ const { TabPane } = Tabs;
 
 const PersonalCenter = () => {
     const navigate = useNavigate();
-    const phoneNumber = localStorage.getItem('phoneNumber'); // 从 localStorage 获取手机号
+    const phoneNumber = localStorage.getItem('userPhone'); // 从 localStorage 获取手机号
     const [selectedContentKey, setSelectedContentKey] = useState('my_orders_short_term'); // 新增状态来管理右侧内容
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('phoneNumber');
+        localStorage.removeItem('userPhone');
         navigate('/login-register'); // 返回登录/注册页面
     };
 

@@ -35,9 +35,6 @@ func MerchantLogin(ctx context.Context, in *merchant.MerchantLoginRequest) (*mer
 	claims := jwt.CustomClaims{ID: existingMerchant.ID}
 	token, err := jwt.NewJWT("merchant").CreateToken(claims)
 	if err != nil {
-		return nil, err
-	}
-	if err != nil {
 		return &merchant.MerchantLoginResponse{Code: 500, Message: "生成Token失败"}, err
 	}
 

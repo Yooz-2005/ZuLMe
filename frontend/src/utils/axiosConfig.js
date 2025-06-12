@@ -15,7 +15,7 @@ instance.interceptors.request.use(
         const token = localStorage.getItem('token');
         console.log('Axios 請求攔截器中獲取的 token:', token); // 添加日誌
         if (token) {
-            config.headers['X-Token'] = token; // 將 Authorization 改為 X-Token，並移除 Bearer 前綴
+            config.headers['x-token'] = token; // 將 Authorization 改為 x-token，並移除 Bearer 前綴
         }
         return config;
     },

@@ -3,17 +3,13 @@ syntax = "proto3";
 package user;
 option go_package=".;user";
 
-//todo 短信验证码
 message SendCodeRequest{
   string Phone = 1;
   string Source = 2;
 }
 message SendCodeResponse{
-  string Code = 1;
-  string Message = 2;
+  string Message = 1;
 }
-
-//todo 用户注册登录
 message UserRegisterRequest {
   string Phone = 1;
   string Code = 2;
@@ -21,7 +17,7 @@ message UserRegisterRequest {
 
 message UserRegisterResponse {
   string UserId = 1;
-  string Token = 2;
+  string token = 2;
 }
 
 //todo 修改用户个人信息

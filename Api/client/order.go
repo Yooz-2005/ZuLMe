@@ -9,7 +9,7 @@ import (
 type HandlerOrder func(ctx context.Context, in order.OrderClient) (interface{}, error)
 
 func OrderClient(ctx context.Context, handlerOrder HandlerOrder) (interface{}, error) {
-	dial, err := grpc.Dial("127.0.0.1:8004", grpc.WithInsecure())
+	dial, err := grpc.Dial("127.0.0.1:8005", grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}

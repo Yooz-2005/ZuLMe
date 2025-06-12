@@ -11,7 +11,7 @@ import (
 
 func RegisterOrderGrpc(call func(grpc *grpc.Server)) {
 	// 1.监听
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s", "127.0.0.1:8004"))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s", "127.0.0.1:8005"))
 	if err != nil {
 		fmt.Printf("监听异常:%s\n", err)
 	}

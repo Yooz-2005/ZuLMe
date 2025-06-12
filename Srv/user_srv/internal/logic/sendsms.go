@@ -17,8 +17,23 @@ func generateCode() string {
 func SendCode(in *user.SendCodeRequest) (*user.SendCodeResponse, error) {
 	log.Println("SendCode: Received request for phone:", in.Phone) // Log entry
 
+	// 1. 检查当前发送次数是否超过限制
+	currentCount, err := model_redis.GetSMSCount(in.Phone, in.Source)
+	if err != nil {
+		log.Printf("SendCode: Failed to get SMS count for phone %s: %v", in.Phone, err)
+		return nil, errors.New("系统错误")
+	}
+
+	log.Printf("SendCode: Current SMS count for phone %s: %d, limit: %d", in.Phone, currentCount, appconfig.ConfData.SendSms.Count)
+
+	if currentCount >= appconfig.ConfData.SendSms.Count {
+		log.Printf("SendCode: SMS limit exceeded for phone %s", in.Phone)
+		return nil, errors.New("发送次数过多，请24小时后再试")
+	}
+
 	// 2. 生成验证码
 	code := generateCode()
+	log.Printf("SendCode: Generated verification code for phone %s: %s", in.Phone, code)
 
 	//短信发送
 	//_, err := pkg.SendSms(code, in.Phone)
@@ -31,22 +46,22 @@ func SendCode(in *user.SendCodeRequest) (*user.SendCodeResponse, error) {
 	//	return nil, errors.New(*sms.Body.Message)
 	//}
 
-	//存储验证码（5分钟有效期）
-	err := model_redis.SaveVerificationCode(in.Source, in.Phone, code)
+	// 3. 存储验证码（5分钟有效期）
+	err = model_redis.SaveVerificationCode(in.Source, in.Phone, code)
 	if err != nil {
+		log.Printf("SendCode: Failed to save verification code for phone %s: %v", in.Phone, err)
 		return nil, errors.New("验证码存储失败")
 	}
+	log.Printf("SendCode: Verification code saved for phone %s", in.Phone)
 
-	//增加发送次数（24小时内有效）
-	count, err := model_redis.IncrementSMSCount(in.Phone, in.Source)
+	// 4. 增加发送次数（24小时内有效）
+	newCount, err := model_redis.IncrementSMSCount(in.Phone, in.Source)
 	if err != nil {
+		log.Printf("SendCode: Failed to increment SMS count for phone %s: %v", in.Phone, err)
 		return nil, errors.New("系统错误")
 	}
+	log.Printf("SendCode: SMS count incremented for phone %s, new count: %d", in.Phone, newCount)
 
-	//检查是否超过限制5次
-	if count > appconfig.ConfData.MaxSend.Count {
-		return nil, errors.New("发送次数过多，请5分钟后再试")
-	}
 	return &user.SendCodeResponse{
 		Message: "验证码发送成功",
 	}, nil
