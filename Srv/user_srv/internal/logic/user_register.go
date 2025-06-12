@@ -42,7 +42,7 @@ func UserRegister(in *user.UserRegisterRequest) (*user.UserRegisterResponse, err
 	err = existingUser.Login(in.Phone)
 	if err == nil {
 		// 用戶已存在，生成 token
-		return generateTokenResponse(int64(existingUser.Id))
+		return generateTokenResponse(existingUser.Id)
 	}
 	// 创建新用户和用户资料
 	newUser := &model_mysql.User{
@@ -65,6 +65,6 @@ func UserRegister(in *user.UserRegisterRequest) (*user.UserRegisterResponse, err
 	if err != nil {
 		return nil, errors.New("验证码删除失败")
 	}
-	return generateTokenResponse(int64(newUser.Id))
+	return generateTokenResponse(newUser.Id)
 
 }

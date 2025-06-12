@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import Home from './pages/Home';
+import LoginRegister from './pages/LoginRegister';
+import Dashboard from './pages/Dashboard';
+import PersonalCenter from './pages/PersonalCenter';
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
@@ -26,6 +29,9 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login-register" element={<LoginRegister />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/personal-center" element={<PersonalCenter />} />
         </Routes>
       </Router>
     </ConfigProvider>
