@@ -1,0 +1,225 @@
+syntax = "proto3";
+
+package vehicle;
+option go_package=".;vehicle";
+
+message Request {
+  string ping = 1;
+}
+
+message Response {
+  string pong = 1;
+}
+
+// 车辆信息
+message VehicleInfo {
+  int64 id = 1;
+  int64 merchant_id = 2;
+  int64 type_id = 3;
+  string brand = 4;
+  string style = 5;
+  int64 year = 6;
+  string color = 7;
+  int64 mileage = 8;
+  double price = 9;
+  int64 status = 10;
+  string description = 11;
+  string images = 12;
+  string location = 13;
+  string contact = 14;
+  string created_at = 15;
+  string updated_at = 16;
+}
+
+// 创建车辆请求
+message CreateVehicleRequest {
+  int64 merchant_id = 1;
+  int64 type_id = 2;
+  string brand = 3;
+  string style = 4;
+  int64 year = 5;
+  string color = 6;
+  int64 mileage = 7;
+  double price = 8;
+  int64 status = 9;
+  string description = 10;
+  string images = 11;
+  string location = 12;
+  string contact = 13;
+}
+
+// 创建车辆响应
+message CreateVehicleResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleInfo vehicle = 3;
+}
+
+// 更新车辆请求
+message UpdateVehicleRequest {
+  int64 id = 1;
+  int64 merchant_id = 2;
+  int64 type_id = 3;
+  string brand = 4;
+  string style = 5;
+  int64 year = 6;
+  string color = 7;
+  int64 mileage = 8;
+  double price = 9;
+  int64 status = 10;
+  string description = 11;
+  string images = 12;
+  string location = 13;
+  string contact = 14;
+}
+
+// 更新车辆响应
+message UpdateVehicleResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleInfo vehicle = 3;
+}
+
+// 删除车辆请求
+message DeleteVehicleRequest {
+  int64 id = 1;
+}
+
+// 删除车辆响应
+message DeleteVehicleResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取车辆详情请求
+message GetVehicleRequest {
+  int64 id = 1;
+}
+
+// 获取车辆详情响应
+message GetVehicleResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleInfo vehicle = 3;
+}
+
+// 获取车辆列表请求
+message ListVehiclesRequest {
+  int64 page = 1;
+  int64 page_size = 2;
+  string keyword = 3; // 搜索关键词，按品牌、型号等搜索
+  int64 merchant_id = 4; // 按商家筛选
+  int64 type_id = 5; // 按类型筛选
+  int64 status = 6; // 按状态筛选
+  double price_min = 7; // 最低价格
+  double price_max = 8; // 最高价格
+  int64 year_min = 9; // 最早年份
+  int64 year_max = 10; // 最晚年份
+}
+
+// 获取车辆列表响应
+message ListVehiclesResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated VehicleInfo vehicles = 3;
+  int64 total = 4; // 总记录数
+}
+
+// 车辆类型信息
+message VehicleTypeInfo {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  int64 status = 4;
+  int64 sort = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+// 创建车辆类型请求
+message CreateVehicleTypeRequest {
+  string name = 1;
+  string description = 2;
+  int64 status = 3;
+  int64 sort = 4;
+}
+
+// 创建车辆类型响应
+message CreateVehicleTypeResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleTypeInfo vehicle_type = 3;
+}
+
+// 更新车辆类型请求
+message UpdateVehicleTypeRequest {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  int64 status = 4;
+  int64 sort = 5;
+}
+
+// 更新车辆类型响应
+message UpdateVehicleTypeResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleTypeInfo vehicle_type = 3;
+}
+
+// 删除车辆类型请求
+message DeleteVehicleTypeRequest {
+  int64 id = 1;
+}
+
+// 删除车辆类型响应
+message DeleteVehicleTypeResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取车辆类型详情请求
+message GetVehicleTypeRequest {
+  int64 id = 1;
+}
+
+// 获取车辆类型详情响应
+message GetVehicleTypeResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleTypeInfo vehicle_type = 3;
+}
+
+// 获取车辆类型列表请求
+message ListVehicleTypesRequest {
+  int64 page = 1;
+  int64 page_size = 2;
+  string keyword = 3; // 搜索关键词，按名称搜索
+  int64 status = 4; // 按状态筛选
+}
+
+// 获取车辆类型列表响应
+message ListVehicleTypesResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated VehicleTypeInfo vehicle_types = 3;
+  int64 total = 4; // 总记录数
+}
+
+service Vehicle {
+  rpc Ping(Request) returns(Response);
+
+  // 车辆管理
+  rpc CreateVehicle(CreateVehicleRequest) returns(CreateVehicleResponse); // 创建车辆
+  rpc UpdateVehicle(UpdateVehicleRequest) returns(UpdateVehicleResponse); // 更新车辆
+  rpc DeleteVehicle(DeleteVehicleRequest) returns(DeleteVehicleResponse); // 删除车辆
+  rpc GetVehicle(GetVehicleRequest) returns(GetVehicleResponse); // 获取车辆详情
+  rpc ListVehicles(ListVehiclesRequest) returns(ListVehiclesResponse); // 获取车辆列表
+
+  // 车辆类型管理
+  rpc CreateVehicleType(CreateVehicleTypeRequest) returns(CreateVehicleTypeResponse); // 创建车辆类型
+  rpc UpdateVehicleType(UpdateVehicleTypeRequest) returns(UpdateVehicleTypeResponse); // 更新车辆类型
+  rpc DeleteVehicleType(DeleteVehicleTypeRequest) returns(DeleteVehicleTypeResponse); // 删除车辆类型
+  rpc GetVehicleType(GetVehicleTypeRequest) returns(GetVehicleTypeResponse); // 获取车辆类型详情
+  rpc ListVehicleTypes(ListVehicleTypesRequest) returns(ListVehicleTypesResponse); // 获取车辆类型列表
+}
