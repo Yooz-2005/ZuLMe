@@ -18,10 +18,12 @@ func (u *User) TableName() string {
 	return "users"
 }
 
+// todo注册
 func (u *User) Register() error {
 	return global.DB.Create(&u).Error
 }
 
+// todo登录
 func (u *User) Login(phone string) error {
 	return global.DB.Where("phone = ?", phone).First(&u).Error
 }

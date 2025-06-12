@@ -25,6 +25,7 @@ func JWTAuth(secretKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 我们这里jwt鉴权取头部信息 x-token 登录时回返回token信息 这里前端需要把token存储到cookie或者本地localSstorage中 不过需要跟后端协商过期时间 可以约定刷新令牌或者重新登录
 		token := c.Request.Header.Get("x-token")
+		println("JWTAuth: 從請求頭獲取的 Token:", token)
 		if token == "" {
 			c.JSON(http.StatusUnauthorized, map[string]string{
 				"msg": "请登录",
@@ -36,6 +37,7 @@ func JWTAuth(secretKey string) gin.HandlerFunc {
 		// parseToken 解析token包含的信息
 		claims, err := j.ParseToken(token)
 		if err != nil {
+			println("JWTAuth: 解析 Token 錯誤:", err.Error())
 			if err == TokenExpired {
 				if err == TokenExpired {
 					c.JSON(http.StatusUnauthorized, map[string]string{
@@ -50,6 +52,7 @@ func JWTAuth(secretKey string) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		println("JWTAuth: claims.ID:", claims.ID, "claims.NickName:", claims.NickName)
 		c.Set("claims", claims)
 		c.Set("userId", claims.ID)
 		c.Next()
