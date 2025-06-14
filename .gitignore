@@ -1,7 +1,9 @@
-  go.mod
+go.mod
 go.work
+go.sum
 *.log
 go.work.sum
 tmp
 *.tmp
 node_modules
+.exe
