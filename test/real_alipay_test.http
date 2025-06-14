@@ -1,0 +1,173 @@
+# 真实支付宝SDK测试
+
+@baseUrl = http://localhost:8888
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-user-token
+
+### ========== 使用真实支付宝SDK的完整流程 ==========
+
+### 1. 创建预订
+POST {{baseUrl}}/vehicle-inventory/reservation/create
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "vehicle_id": 1,
+  "start_date": "2024-01-15",
+  "end_date": "2024-01-20",
+  "notes": "需要儿童座椅"
+}
+
+### 预期结果：获取 reservation_id
+
+### 2. 基于预订创建订单（获取真实支付宝支付链接）
+POST {{baseUrl}}/order/create-from-reservation
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "reservation_id": 123,
+  "pickup_location_id": 1,
+  "return_location_id": 2,
+  "notes": "下午3点取车",
+  "payment_method": 1,
+  "expected_total_amount": 1500.00
+}
+
+### 预期结果：
+# {
+#   "code": 200,
+#   "message": "订单创建成功",
+#   "data": {
+#     "order_id": 1,
+#     "order_sn": "ORD1703123456",
+#     "total_amount": 1500.00,
+#     "payment_url": "https://openapi.alipay.com/gateway.do?app_id=9021000142691060&method=alipay.trade.wap.pay&charset=utf-8&sign_type=RSA2&timestamp=2024-01-15%2015%3A30%3A00&version=1.0&notify_url=http%3A%2F%2F7651f135.r27.cpolar.top%2Fpayment%2Falipay%2Fnotify&return_url=http%3A%2F%2Flocalhost%3A3000%2Fpayment%2Fsuccess&biz_content=%7B%22out_trade_no%22%3A%22ORD1703123456%22%2C%22total_amount%22%3A%221500.00%22%2C%22subject%22%3A%22%E7%A7%9F%E8%BD%A6%E8%AE%A2%E5%8D%95-%E8%B1%AA%E5%8D%8E%E8%BD%BF%E8%BD%A6%22%2C%22product_code%22%3A%22QUICK_WAP_WAY%22%7D&sign=...",
+#     "status": "待支付"
+#   }
+# }
+
+### 3. 真实支付宝异步通知（由支付宝服务器发送）
+# 注意：这个请求是由支付宝服务器自动发送的，不需要手动调用
+# 当用户在支付宝页面完成支付后，支付宝会自动调用您的回调地址
+
+POST {{baseUrl}}/payment/alipay/notify
+Content-Type: application/x-www-form-urlencoded
+
+# 真实的支付宝通知参数示例（包含签名验证）
+app_id=9021000142691060&auth_app_id=9021000142691060&buyer_id=2088102177846880&buyer_logon_id=csq***@sandbox.com&buyer_pay_amount=1500.00&charset=utf-8&gmt_create=2024-01-15 15:30:00&gmt_payment=2024-01-15 15:30:05&invoice_amount=1500.00&notify_id=2024011500222153005046880501294714&notify_time=2024-01-15 15:30:06&notify_type=trade_status_sync&out_trade_no=ORD1703123456&point_amount=0.00&receipt_amount=1500.00&seller_email=test@example.com&seller_id=2088101122136241&subject=租车订单-豪华轿车&total_amount=1500.00&trade_no=2024011522001446880501294714&trade_status=TRADE_SUCCESS&version=1.0&sign=...
+
+### 预期结果：success
+
+### 4. 验证订单状态（应该已支付）
+GET {{baseUrl}}/order/detail/1
+Authorization: Bearer {{userToken}}
+
+### 预期结果：订单状态为"已支付"
+
+### ========== 支付宝配置说明 ==========
+
+# 当前配置（位于 ZuLMe/Common/payment/alipay.go）：
+# - AppID: 9021000142691060 （您的真实应用ID）
+# - PrivateKey: 您的RSA应用私钥
+# - NotifyURL: http://7651f135.r27.cpolar.top/payment/alipay/notify （您的回调地址）
+# - ReturnURL: http://localhost:3000/payment/success （前端成功页面）
+
+# 真实支付链接格式：
+# https://openapi.alipay.com/gateway.do?app_id={应用ID}&method=alipay.trade.wap.pay&...&sign={RSA签名}
+
+### ========== 退款测试 ==========
+
+### 5. 测试退款功能（需要先有成功的支付）
+POST {{baseUrl}}/order/refund
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "order_sn": "ORD1703123456",
+  "refund_amount": "500.00",
+  "refund_reason": "用户主动取消订单"
+}
+
+### 预期结果：退款成功
+
+### ========== 错误处理测试 ==========
+
+### 6. 测试无效签名的通知
+POST {{baseUrl}}/payment/alipay/notify
+Content-Type: application/x-www-form-urlencoded
+
+# 无效签名的通知
+app_id=9021000142691060&out_trade_no=ORD1703123456&trade_no=2024011522001446880501294714&trade_status=TRADE_SUCCESS&total_amount=1500.00&sign=invalid_signature
+
+### 预期结果：400 Bad Request - "验证失败"
+
+### 7. 测试缺少必要参数的通知
+POST {{baseUrl}}/payment/alipay/notify
+Content-Type: application/x-www-form-urlencoded
+
+# 缺少必要参数
+app_id=9021000142691060&trade_status=TRADE_SUCCESS
+
+### 预期结果：400 Bad Request
+
+### ========== 支付宝SDK功能说明 ==========
+
+# 使用的SDK：github.com/smartwalle/alipay/v3
+# 主要功能：
+# 1. TradeWapPay - 手机网站支付
+# 2. VerifySign - 验证支付宝签名
+# 3. TradeRefund - 退款
+# 4. 自动处理RSA签名和验签
+
+### ========== 生产环境部署注意事项 ==========
+
+# 1. 确保回调地址可以被支付宝服务器访问
+#    - 使用公网域名，不能是localhost
+#    - 支持HTTPS（推荐）
+#    - 端口80或443
+
+# 2. 配置正确的RSA密钥对
+#    - 应用私钥：用于签名请求
+#    - 支付宝公钥：用于验证支付宝的响应
+
+# 3. 处理异步通知的幂等性
+#    - 支付宝可能会多次发送同一个通知
+#    - 需要根据out_trade_no去重处理
+
+# 4. 日志记录
+#    - 记录所有支付相关的操作
+#    - 便于问题排查和对账
+
+### ========== 测试环境 vs 生产环境 ==========
+
+# 测试环境（沙箱）：
+# - Gateway: https://openapi.alipaydev.com/gateway.do
+# - 使用沙箱账号和密钥
+# - 可以模拟支付，不会产生真实资金流动
+
+# 生产环境：
+# - Gateway: https://openapi.alipay.com/gateway.do
+# - 使用真实的应用ID和密钥
+# - 产生真实的资金流动
+
+# 当前配置使用的是生产环境网关，请确保：
+# 1. 应用ID和密钥是真实有效的
+# 2. 已完成支付宝开放平台的应用审核
+# 3. 回调地址已在支付宝后台配置
+
+### ========== 常见问题排查 ==========
+
+# 1. 支付链接无法打开
+#    - 检查应用ID是否正确
+#    - 检查私钥格式是否正确
+#    - 检查签名是否正确
+
+# 2. 异步通知验证失败
+#    - 检查支付宝公钥是否正确
+#    - 检查通知URL是否可访问
+#    - 检查参数解析是否正确
+
+# 3. 退款失败
+#    - 检查交易号是否正确
+#    - 检查退款金额是否超过原交易金额
+#    - 检查应用是否有退款权限

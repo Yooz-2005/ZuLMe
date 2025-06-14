@@ -1,0 +1,23 @@
+# 验证类型转换错误修复
+
+### 测试获取库存报表接口（修复后）
+GET http://localhost:8888/vehicle-inventory/report?merchant_id=2&start_date=2024-01-01&end_date=2024-01-31
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzQxNzI4MDAsImlhdCI6MTczNDA4NjQwMCwiaXNzIjoiWnVMTWUiLCJzdWIiOiJtZXJjaGFudCIsInVzZXJJZCI6Mn0.your-merchant-token
+
+### 预期结果：
+# 应该返回正常的JSON响应，不再出现panic错误
+# {
+#   "code": 200,
+#   "message": "获取成功",
+#   "data": {
+#     "message": "获取成功",
+#     "total_vehicles": 10,
+#     "total_days": 31,
+#     "total_capacity": 310,
+#     "reservations": 0,
+#     "rentals": 0,
+#     "maintenances": 0,
+#     "used_capacity": 0,
+#     "utilization_rate": 0.0
+#   }
+# }

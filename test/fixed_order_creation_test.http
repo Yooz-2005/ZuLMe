@@ -1,0 +1,82 @@
+### 修复后的订单创建流程测试
+### 测试完整的预订到订单流程
+
+### 1. 用户登录获取token
+POST http://localhost:8888/user/login
+Content-Type: application/json
+
+{
+  "mobile": "13800138000",
+  "password": "123456"
+}
+
+### 2. 检查车辆可用性
+POST http://localhost:8888/vehicle-inventory/check-availability
+Content-Type: application/json
+
+{
+  "vehicle_id": 1,
+  "start_date": "2024-01-25",
+  "end_date": "2024-01-30"
+}
+
+### 3. 创建预订
+POST http://localhost:8888/vehicle-inventory/create-reservation
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "vehicle_id": 1,
+  "start_date": "2024-01-25",
+  "end_date": "2024-01-30",
+  "notes": "测试预订 - 修复后"
+}
+
+### 4. 基于预订创建订单（修复后的版本）
+POST http://localhost:8888/order/create-from-reservation
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "reservation_id": {{reservation_id}},
+  "pickup_location_id": 1,
+  "return_location_id": 2,
+  "notes": "测试订单创建 - 修复后",
+  "payment_method": 1,
+  "expected_total_amount": 1500.00
+}
+
+### 5. 验证订单是否真的创建成功 - 根据订单ID查询
+GET http://localhost:8888/order/detail/{{order_id}}
+Authorization: Bearer {{user_token}}
+
+### 6. 验证订单是否真的创建成功 - 根据订单号查询
+GET http://localhost:8888/order/detail-by-sn/{{order_sn}}
+Authorization: Bearer {{user_token}}
+
+### 7. 查看用户订单列表
+GET http://localhost:8888/order/list
+Authorization: Bearer {{user_token}}
+
+### 8. 模拟支付宝支付成功通知
+POST http://localhost:8888/payment/alipay/notify
+Content-Type: application/x-www-form-urlencoded
+
+out_trade_no={{order_sn}}&trade_no=2024012522001234567890&trade_status=TRADE_SUCCESS&total_amount={{total_amount}}&gmt_payment=2024-01-25 15:30:00
+
+### 9. 再次查询订单状态确认支付成功
+GET http://localhost:8888/order/detail/{{order_id}}
+Authorization: Bearer {{user_token}}
+
+### 测试说明：
+### 1. 使用真实的用户token进行测试
+### 2. 确保车辆ID=1存在且可用
+### 3. 替换{{user_token}}、{{reservation_id}}、{{order_id}}、{{order_sn}}、{{total_amount}}为实际值
+### 4. 检查数据库中orders表是否真的创建了订单记录
+### 5. 检查vehicle_inventories表中order_id是否正确关联
+
+### 预期结果：
+### - 预订创建成功
+### - 订单创建成功，数据库中有对应记录
+### - 预订记录的order_id正确关联到订单ID
+### - 支付成功后状态正确更新

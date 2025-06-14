@@ -1,0 +1,244 @@
+# 订单API完整测试 - 独立的订单模块
+
+@baseUrl = http://localhost:8888
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-user-token
+@merchantToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-merchant-token
+
+### ========== 用户订单操作 ==========
+
+### 1. 基于预订创建订单
+POST {{baseUrl}}/order/create-from-reservation
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "reservation_id": 123,
+  "pickup_location_id": 1,
+  "return_location_id": 2,
+  "notes": "下午3点取车，需要提前准备儿童座椅",
+  "payment_method": 1,
+  "expected_total_amount": 1500.00
+}
+
+### 预期结果：
+# {
+#   "code": 200,
+#   "message": "订单创建成功",
+#   "data": {
+#     "message": "订单创建成功",
+#     "order_id": 1,
+#     "order_sn": "ORD1703123456",
+#     "total_amount": 1500.00,
+#     "payment_url": "https://openapi.alipay.com/gateway.do?...",
+#     "status": "待支付"
+#   }
+# }
+
+### 2. 获取订单详情（通过订单ID）
+GET {{baseUrl}}/order/detail/1
+Authorization: Bearer {{userToken}}
+
+### 预期结果：
+# {
+#   "code": 200,
+#   "message": "获取成功",
+#   "data": {
+#     "message": "获取成功",
+#     "order": {
+#       "id": 1,
+#       "user_id": 1,
+#       "vehicle_id": 1,
+#       "reservation_id": 123,
+#       "order_sn": "ORD1703123456",
+#       "pickup_location_id": 1,
+#       "return_location_id": 2,
+#       "pickup_time": "2024-01-15T00:00:00Z",
+#       "return_time": "2024-01-20T00:00:00Z",
+#       "rental_days": 5,
+#       "daily_rate": 300.00,
+#       "total_amount": 1500.00,
+#       "status": 1,
+#       "payment": 1,
+#       "payment_status": 1,
+#       "payment_url": "https://openapi.alipay.com/gateway.do?...",
+#       "alipay_trade_no": "",
+#       "notes": "下午3点取车，需要提前准备儿童座椅",
+#       "created_at": "2024-01-15T10:30:00Z",
+#       "updated_at": "2024-01-15T10:30:00Z"
+#     }
+#   }
+# }
+
+### 3. 获取订单详情（通过订单号）
+GET {{baseUrl}}/order/detail-by-sn/ORD1703123456
+Authorization: Bearer {{userToken}}
+
+### 4. 更新订单状态
+PUT {{baseUrl}}/order/status/1
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "status": 3,
+  "reason": "用户主动取消"
+}
+
+### 5. 获取用户订单列表
+GET {{baseUrl}}/order/list?page=1&limit=10&status=1
+Authorization: Bearer {{userToken}}
+
+### ========== 商家订单管理 ==========
+
+### 6. 获取商家订单列表
+GET {{baseUrl}}/merchant/order/list?page=1&limit=10&status=2
+Authorization: Bearer {{merchantToken}}
+
+### 7. 商家更新订单状态
+PUT {{baseUrl}}/merchant/order/status/1
+Content-Type: application/json
+Authorization: Bearer {{merchantToken}}
+
+{
+  "status": 5,
+  "reason": "用户已取车"
+}
+
+### 8. 获取订单统计
+GET {{baseUrl}}/merchant/order/statistics?start_date=2024-01-01&end_date=2024-01-31
+Authorization: Bearer {{merchantToken}}
+
+### ========== 支付相关 ==========
+
+### 9. 支付宝异步通知
+POST {{baseUrl}}/payment/alipay/notify
+Content-Type: application/x-www-form-urlencoded
+
+out_trade_no=ORD1703123456&trade_no=2024011522001234567890&trade_status=TRADE_SUCCESS&total_amount=1500.00&gmt_payment=2024-01-15 15:30:00
+
+### 预期结果：success
+
+### 10. 支付宝同步返回
+GET {{baseUrl}}/payment/alipay/return?out_trade_no=ORD1703123456&trade_no=2024011522001234567890
+
+### 预期结果：重定向到前端支付成功页面
+
+### 11. 微信支付异步通知（预留）
+POST {{baseUrl}}/payment/wechat/notify
+Content-Type: application/json
+
+{
+  "appid": "wx1234567890",
+  "mch_id": "1234567890",
+  "out_trade_no": "ORD1703123456",
+  "transaction_id": "4200001234567890",
+  "trade_state": "SUCCESS",
+  "total_fee": 150000
+}
+
+### ========== 管理员订单管理 ==========
+
+### 12. 获取所有订单列表
+GET {{baseUrl}}/admin/order/list?page=1&limit=20&status=all
+
+### 13. 导出订单数据
+GET {{baseUrl}}/admin/order/export?start_date=2024-01-01&end_date=2024-01-31&format=excel
+
+### 14. 删除订单（软删除）
+DELETE {{baseUrl}}/admin/order/1
+
+### ========== 错误测试用例 ==========
+
+### 15. 无效的预订ID创建订单
+POST {{baseUrl}}/order/create-from-reservation
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "reservation_id": 99999,
+  "pickup_location_id": 1,
+  "return_location_id": 2,
+  "notes": "无效预订ID测试",
+  "payment_method": 1,
+  "expected_total_amount": 1500.00
+}
+
+### 预期结果：400 Bad Request
+
+### 16. 未登录用户访问订单详情
+GET {{baseUrl}}/order/detail/1
+
+### 预期结果：401 Unauthorized
+
+### 17. 用户访问其他用户的订单
+GET {{baseUrl}}/order/detail/999
+Authorization: Bearer {{userToken}}
+
+### 预期结果：400 Bad Request - "无权查看此订单"
+
+### 18. 无效的订单状态更新
+PUT {{baseUrl}}/order/status/1
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "status": 999,
+  "reason": "无效状态测试"
+}
+
+### 预期结果：400 Bad Request
+
+### ========== 完整业务流程测试 ==========
+
+### 场景：用户完整租车流程
+# 1. 用户登录 → 获取token
+# 2. 创建预订 → 获取reservation_id
+# 3. 基于预订创建订单 → 获取order_id和payment_url
+# 4. 用户支付 → 支付宝回调
+# 5. 查看订单详情 → 确认支付成功
+# 6. 商家确认取车 → 更新订单状态为"已取车"
+# 7. 用户还车 → 更新订单状态为"已还车"
+# 8. 订单完成 → 更新订单状态为"已完成"
+
+### ========== API接口说明 ==========
+
+# 用户订单接口：
+# POST   /order/create-from-reservation  - 基于预订创建订单
+# GET    /order/detail/:order_id         - 获取订单详情
+# GET    /order/detail-by-sn/:order_sn   - 根据订单号获取详情
+# PUT    /order/status/:order_id         - 更新订单状态
+# GET    /order/list                     - 获取用户订单列表
+
+# 商家订单接口：
+# GET    /merchant/order/list            - 获取商家订单列表
+# PUT    /merchant/order/status/:order_id - 商家更新订单状态
+# GET    /merchant/order/statistics      - 获取订单统计
+
+# 支付接口：
+# POST   /payment/alipay/notify          - 支付宝异步通知
+# GET    /payment/alipay/return          - 支付宝同步返回
+# POST   /payment/wechat/notify          - 微信支付异步通知
+
+# 管理员接口：
+# GET    /admin/order/list               - 获取所有订单列表
+# GET    /admin/order/export             - 导出订单数据
+# DELETE /admin/order/:order_id          - 删除订单
+
+### ========== 状态码说明 ==========
+
+# 订单状态 (status):
+# 1 - 待支付
+# 2 - 已支付
+# 3 - 已取消
+# 4 - 已完成
+# 5 - 已取车
+# 6 - 已还车
+
+# 支付状态 (payment_status):
+# 1 - 待支付
+# 2 - 已支付
+# 3 - 已取消
+# 4 - 已完成
+
+# 支付方式 (payment_method):
+# 1 - 支付宝
+# 2 - 微信支付
