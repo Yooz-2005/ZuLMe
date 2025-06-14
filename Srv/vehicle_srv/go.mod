@@ -1,4 +1,4 @@
-module vehicle_srv
+module ZuLMe/ZuLMe/Srv/vehicle_srv
 
 go 1.24
 
