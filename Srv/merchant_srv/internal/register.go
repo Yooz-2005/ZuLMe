@@ -1,9 +1,9 @@
 package internal
 
 import (
+	merchant "ZuLMe/ZuLMe/Srv/merchant_srv/proto_merchant"
+	"ZuLMe/ZuLMe/Srv/merchant_srv/server"
 	"google.golang.org/grpc"
-	merchant "merchant_srv/proto_merchant"
-	"merchant_srv/server"
 )
 
 func RegisterMerchantServer(ser *grpc.Server) {

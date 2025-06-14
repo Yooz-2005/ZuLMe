@@ -1,12 +1,12 @@
 package logic
 
 import (
-	"Common/global"
+	"ZuLMe/ZuLMe/Common/global"
+	vehicle "ZuLMe/ZuLMe/Srv/vehicle_srv/proto_vehicle"
+	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
-	"models/model_mysql"
 	"strings"
 	"time"
-	vehicle "vehicle_srv/proto_vehicle"
 )
 
 // CreateVehicleType 创建车辆类型

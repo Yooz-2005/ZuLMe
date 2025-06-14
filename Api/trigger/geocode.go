@@ -1,8 +1,8 @@
 package trigger
 
 import (
-	"Api/handler"
-	"Api/request"
+	"ZuLMe/ZuLMe/Api/handler"
+	"ZuLMe/ZuLMe/Api/request"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

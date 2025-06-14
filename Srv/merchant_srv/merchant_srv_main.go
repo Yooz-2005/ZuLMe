@@ -1,12 +1,12 @@
 package main
 
 import (
-	"Common/appconfig"
-	"Common/global"
-	"Common/initialize"
+	"ZuLMe/ZuLMe/Common/appconfig"
+	"ZuLMe/ZuLMe/Common/global"
+	"ZuLMe/ZuLMe/Common/initialize"
+	"ZuLMe/ZuLMe/Srv/merchant_srv/grpc_merchant"
+	"ZuLMe/ZuLMe/models/model_mysql"
 	"fmt"
-	"merchant_srv/grpc_merchant"
-	"models/model_mysql"
 	"net"
 
 	"google.golang.org/grpc"

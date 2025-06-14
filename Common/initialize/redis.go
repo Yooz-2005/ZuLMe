@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"Common/global"
+	"ZuLMe/ZuLMe/Common/global"
 	"fmt"
 	"github.com/go-redis/redis/v8"
 )

@@ -1,11 +1,10 @@
 package trigger
 
 import (
-	"Api/handler"
-	"Api/request"
-	"Api/response"
-	merchant "merchant_srv/proto_merchant"
-
+	"ZuLMe/ZuLMe/Api/handler"
+	"ZuLMe/ZuLMe/Api/request"
+	"ZuLMe/ZuLMe/Api/response"
+	merchant "ZuLMe/ZuLMe/Srv/merchant_srv/proto_merchant"
 	"github.com/gin-gonic/gin"
 )
 

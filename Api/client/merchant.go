@@ -1,9 +1,9 @@
 package client
 
 import (
+	merchant "ZuLMe/ZuLMe/Srv/merchant_srv/proto_merchant"
 	"context"
 	"google.golang.org/grpc"
-	merchant "merchant_srv/proto_merchant"
 )
 
 type HandlerMerchant func(ctx context.Context, in merchant.MerchantServiceClient) (interface{}, error)

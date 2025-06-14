@@ -1,11 +1,11 @@
 package internal
 
 import (
-	admin "admin_srv/proto_admin"
-	server2 "admin_srv/server"
+	admin "ZuLMe/ZuLMe/Srv/admin_srv/proto_admin"
+	"ZuLMe/ZuLMe/Srv/admin_srv/server"
 	"google.golang.org/grpc"
 )
 
 func RegisterAdminServer(ser *grpc.Server) {
-	admin.RegisterAdminServer(ser, server2.ServerAdmin{})
+	admin.RegisterAdminServer(ser, server.ServerAdmin{})
 }

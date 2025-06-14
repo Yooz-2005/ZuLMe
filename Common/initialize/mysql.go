@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"Common/global"
+	"ZuLMe/ZuLMe/Common/global"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

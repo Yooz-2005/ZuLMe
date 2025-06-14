@@ -1,13 +1,14 @@
 package logic
 
 import (
-	"Common/global"
-	"Common/services"
-	admin "admin_srv/proto_admin"
+	"ZuLMe/ZuLMe/Common/global"
+	"ZuLMe/ZuLMe/Common/services"
+	admin "ZuLMe/ZuLMe/Srv/admin_srv/proto_admin"
+	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
 	"errors"
 	"fmt"
-	"models/model_mysql"
+
 	"time"
 
 	"gorm.io/gorm"

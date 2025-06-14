@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.19.4
-// source: proto_merchant/merchant.proto
+// source: merchant.proto
 
 package merchant
 
@@ -163,5 +163,5 @@ var MerchantService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto_merchant/merchant.proto",
+	Metadata: "merchant.proto",
 }

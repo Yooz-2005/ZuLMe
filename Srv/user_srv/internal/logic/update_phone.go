@@ -1,11 +1,11 @@
 package logic
 
 import (
-	"Common/global"
-	"Common/utils"
+	"ZuLMe/ZuLMe/Common/global"
+	"ZuLMe/ZuLMe/Common/utils"
+	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
+	"ZuLMe/ZuLMe/models/model_mysql"
 	"errors"
-	"models/model_mysql"
-	user "user_srv/proto_user"
 )
 
 func UpdateUserPhone(in *user.UpdateUserPhoneRequest) (*user.UpdateUserPhoneResponse, error) {

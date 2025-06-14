@@ -1,7 +1,7 @@
 package model_redis
 
 import (
-	"Common/global"
+	"ZuLMe/ZuLMe/Common/global"
 	"context"
 	"fmt"
 	"time"

@@ -1,8 +1,8 @@
 package grpc_merchant
 
 import (
+	"ZuLMe/ZuLMe/Srv/merchant_srv/internal"
 	"google.golang.org/grpc"
-	"merchant_srv/internal"
 )
 
 // RegisterMerchantServices 负责将Merchant服务注册到gRPC服务器

@@ -1,9 +1,9 @@
 package internal
 
 import (
+	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
+	"ZuLMe/ZuLMe/Srv/user_srv/server"
 	"google.golang.org/grpc"
-	user "user_srv/proto_user"
-	"user_srv/server"
 )
 
 func RegisterUserServer(ser *grpc.Server) {

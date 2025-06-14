@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"Common/appconfig"
+	"ZuLMe/ZuLMe/Common/appconfig"
 	"encoding/json"
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/clients"

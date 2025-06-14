@@ -1,7 +1,7 @@
 package client
 
 import (
-	admin "admin_srv/proto_admin"
+	admin "ZuLMe/ZuLMe/Srv/admin_srv/proto_admin"
 	"context"
 	"google.golang.org/grpc"
 )

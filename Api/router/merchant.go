@@ -1,8 +1,7 @@
 package router
 
 import (
-	"Api/trigger"
-
+	"ZuLMe/ZuLMe/Api/trigger"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,16 +1,16 @@
 package main
 
 import (
-	"Common/appconfig"
-	"Common/global"
-	"Common/initialize"
+	"ZuLMe/ZuLMe/Common/appconfig"
+	"ZuLMe/ZuLMe/Common/global"
+	"ZuLMe/ZuLMe/Common/initialize"
+	"ZuLMe/ZuLMe/Srv/vehicle_srv/grpc_vehicle"
+	"ZuLMe/ZuLMe/models/model_mysql"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	"models/model_mysql"
 	"net"
-	"vehicle_srv/grpc_vehicle"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 	// 注册车辆服务
 	grpc_vehicle.RegisterVehicleServices(gServer)
 
-	global.DB.AutoMigrate(&model_mysql.Vehicle{}, &model_mysql.VehicleType{})
+	global.DB.AutoMigrate(&model_mysql.Vehicle{}, &model_mysql.VehicleType{}, &model_mysql.VehicleBrand{}, &model_mysql.VehicleInventory{})
 
 	// 监听端口
 	lis, err := net.Listen("tcp", ":8004") // 车辆服务运行在8004端口

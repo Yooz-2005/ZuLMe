@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Api/router"
+	"ZuLMe/ZuLMe/Api/router"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -20,7 +20,6 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-
 	router.LoadUser(r)
 	router.RegisterMerchantRoutes(r)
 	router.RegisterAdminRoutes(r)

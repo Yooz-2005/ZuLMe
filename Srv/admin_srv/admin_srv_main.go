@@ -1,9 +1,9 @@
 package main
 
 import (
-	"Common/appconfig"
-	"Common/initialize"
-	"admin_srv/grpc_admin"
+	"ZuLMe/ZuLMe/Common/appconfig"
+	"ZuLMe/ZuLMe/Common/initialize"
+	"ZuLMe/ZuLMe/Srv/admin_srv/grpc_admin"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
