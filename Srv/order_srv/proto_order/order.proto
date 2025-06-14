@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package order;
+option go_package=".;order";
+
+// 基础请求响应
+message Request {
+  string ping = 1;
+}
+
+message Response {
+  string pong = 1;
+}
+
+// 基于预订创建订单请求
+message CreateOrderFromReservationRequest {
+  int64 reservation_id = 1;
+  int64 user_id = 2;
+  int64 pickup_location_id = 3;
+  int64 return_location_id = 4;
+  string notes = 5;
+  int32 payment_method = 6;       // 1:支付宝 2:微信
+  double expected_total_amount = 7; // 前端计算的预期金额
+}
+
+// 基于预订创建订单响应
+message CreateOrderFromReservationResponse {
+  int64 code = 1;
+  string message = 2;
+  int64 order_id = 3;
+  string order_sn = 4;
+  double total_amount = 5;
+  string payment_url = 6;
+}
+
+// 订单信息
+message OrderInfo {
+  int64 id = 1;
+  int64 user_id = 2;
+  int64 vehicle_id = 3;
+  int64 reservation_id = 4;
+  string order_sn = 5;
+  int64 pickup_location_id = 6;
+  int64 return_location_id = 7;
+  string pickup_time = 8;
+  string return_time = 9;
+  int32 rental_days = 10;
+  double daily_rate = 11;
+  double total_amount = 12;
+  int32 status = 13;
+  int32 payment = 14;
+  int32 payment_status = 15;
+  string payment_url = 16;
+  string alipay_trade_no = 17;
+  string notes = 18;
+  string created_at = 19;
+  string updated_at = 20;
+}
+
+// 获取订单详情请求
+message GetOrderRequest {
+  int64 order_id = 1;
+  string order_sn = 2; // order_id 和 order_sn 二选一
+}
+
+// 获取订单详情响应
+message GetOrderResponse {
+  int64 code = 1;
+  string message = 2;
+  OrderInfo order = 3;
+}
+
+// 更新订单状态请求
+message UpdateOrderStatusRequest {
+  int64 order_id = 1;
+  string order_sn = 2; // order_id 和 order_sn 二选一
+  int32 status = 3;
+}
+
+// 更新订单状态响应
+message UpdateOrderStatusResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 支付宝异步通知请求
+message AlipayNotifyRequest {
+  string out_trade_no = 1;    // 订单号
+  string trade_no = 2;        // 支付宝交易号
+  string trade_status = 3;    // 交易状态
+  string total_amount = 4;    // 交易金额
+  string gmt_payment = 5;     // 支付时间
+}
+
+// 支付宝异步通知响应
+message AlipayNotifyResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+service Order {
+  rpc Ping(Request) returns(Response);
+  
+  // 订单管理
+  rpc CreateOrderFromReservation(CreateOrderFromReservationRequest) returns(CreateOrderFromReservationResponse); // 基于预订创建订单
+  rpc GetOrder(GetOrderRequest) returns(GetOrderResponse); // 获取订单详情
+  rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns(UpdateOrderStatusResponse); // 更新订单状态
+  
+  // 支付相关
+  rpc AlipayNotify(AlipayNotifyRequest) returns(AlipayNotifyResponse); // 支付宝异步通知
+}

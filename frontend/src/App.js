@@ -9,6 +9,8 @@ import VehicleDetail from './pages/VehicleDetail';
 import SearchResults from './pages/SearchResults';
 import Dashboard from './pages/Dashboard';
 import PersonalCenter from './pages/PersonalCenter';
+import ImageTest from './components/ImageTest';
+import VehicleDebug from './pages/VehicleDebug';
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
@@ -38,6 +40,8 @@ function App() {
           <Route path="/search" element={<SearchResults />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/personal-center" element={<PersonalCenter />} />
+          <Route path="/image-test" element={<ImageTest />} />
+          <Route path="/vehicle-debug" element={<VehicleDebug />} />
         </Routes>
       </Router>
     </ConfigProvider>

@@ -30,7 +30,7 @@ func main() {
 	// 注册车辆服务
 	grpc_vehicle.RegisterVehicleServices(gServer)
 
-	global.DB.AutoMigrate(&model_mysql.Vehicle{}, &model_mysql.VehicleType{})
+	global.DB.AutoMigrate(&model_mysql.Vehicle{}, &model_mysql.VehicleType{}, &model_mysql.VehicleBrand{}, &model_mysql.VehicleInventory{})
 
 	// 监听端口
 	lis, err := net.Listen("tcp", ":8004") // 车辆服务运行在8004端口

@@ -101,7 +101,7 @@ const SearchResults = () => {
       
       const response = await vehicleService.searchVehicles(searchData);
       
-      if (response && response.data) {
+      if (response && response.code === 200 && response.data) {
         setVehicles(response.data.vehicles || []);
         setPagination({
           current: page,

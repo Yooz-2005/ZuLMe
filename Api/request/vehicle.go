@@ -4,7 +4,8 @@ package request
 type CreateVehicleRequest struct {
 	MerchantID  int64   `json:"merchant_id" form:"merchant_id"`
 	TypeID      int64   `json:"type_id" form:"type_id" binding:"required"`
-	Brand       string  `json:"brand" form:"brand" binding:"required"`
+	BrandID     int64   `json:"brand_id" form:"brand_id" binding:"required"`
+	Brand       string  `json:"brand" form:"brand"` // 保留用于兼容性，但不再必需
 	Style       string  `json:"style" form:"style" binding:"required"`
 	Year        int64   `json:"year" form:"year" binding:"required"`
 	Color       string  `json:"color" form:"color"`
@@ -21,7 +22,8 @@ type UpdateVehicleRequest struct {
 	ID          int64   `json:"id" form:"id" binding:"required"`
 	MerchantID  int64   `json:"merchant_id"`
 	TypeID      int64   `json:"type_id" form:"type_id"`
-	Brand       string  `json:"brand" form:"brand"`
+	BrandID     int64   `json:"brand_id" form:"brand_id"`
+	Brand       string  `json:"brand" form:"brand"` // 保留用于兼容性
 	Style       string  `json:"style" form:"style"`
 	Year        int64   `json:"year" form:"year"`
 	Color       string  `json:"color" form:"color"`
@@ -51,6 +53,7 @@ type ListVehiclesRequest struct {
 	Keyword    string  `json:"keyword" form:"keyword"`
 	MerchantID int64   `json:"merchant_id" form:"merchant_id"`
 	TypeID     int64   `json:"type_id" form:"type_id"`
+	BrandID    int64   `json:"brand_id" form:"brand_id"`
 	Status     int64   `json:"status" form:"status"`
 	PriceMin   float64 `json:"price_min" form:"price_min"`
 	PriceMax   float64 `json:"price_max" form:"price_max"`
@@ -93,4 +96,135 @@ type ListVehicleTypesRequest struct {
 	PageSize int64  `json:"page_size" form:"page_size"`
 	Keyword  string `json:"keyword" form:"keyword"`
 	Status   int64  `json:"status" form:"status"`
+}
+
+// ==================== 车辆品牌请求结构体 ====================
+
+// CreateVehicleBrandRequest 创建车辆品牌请求
+type CreateVehicleBrandRequest struct {
+	Name        string `json:"name" form:"name" binding:"required"`
+	EnglishName string `json:"english_name" form:"english_name"`
+	Logo        string `json:"logo" form:"logo"`
+	Country     string `json:"country" form:"country"`
+	Description string `json:"description" form:"description"`
+	Status      int64  `json:"status" form:"status"`
+	Sort        int64  `json:"sort" form:"sort"`
+	IsHot       int64  `json:"is_hot" form:"is_hot"`
+}
+
+// UpdateVehicleBrandRequest 更新车辆品牌请求
+type UpdateVehicleBrandRequest struct {
+	ID          int64  `json:"id" form:"id" binding:"required"`
+	Name        string `json:"name" form:"name" binding:"required"`
+	EnglishName string `json:"english_name" form:"english_name"`
+	Logo        string `json:"logo" form:"logo"`
+	Country     string `json:"country" form:"country"`
+	Description string `json:"description" form:"description"`
+	Status      int64  `json:"status" form:"status"`
+	Sort        int64  `json:"sort" form:"sort"`
+	IsHot       int64  `json:"is_hot" form:"is_hot"`
+}
+
+// DeleteVehicleBrandRequest 删除车辆品牌请求
+type DeleteVehicleBrandRequest struct {
+	ID int64 `json:"id" form:"id" binding:"required"`
+}
+
+// GetVehicleBrandRequest 获取车辆品牌详情请求
+type GetVehicleBrandRequest struct {
+	ID int64 `json:"id" form:"id" binding:"required"`
+}
+
+// ListVehicleBrandsRequest 获取车辆品牌列表请求
+type ListVehicleBrandsRequest struct {
+	Page     int64  `json:"page" form:"page"`
+	PageSize int64  `json:"page_size" form:"page_size"`
+	Keyword  string `json:"keyword" form:"keyword"`
+	Status   int64  `json:"status" form:"status"`
+	IsHot    int64  `json:"is_hot" form:"is_hot"`
+}
+
+// ==================== 车辆库存请求结构体 ====================
+
+// CheckAvailabilityRequest 检查车辆可用性请求
+type CheckAvailabilityRequest struct {
+	VehicleID int64  `json:"vehicle_id" form:"vehicle_id" binding:"required"`
+	StartDate string `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
+	EndDate   string `json:"end_date" form:"end_date" binding:"required"`     // 格式: YYYY-MM-DD
+}
+
+// CreateReservationRequest 创建预订请求（新流程：先预订后订单）
+type CreateReservationRequest struct {
+	VehicleID int64  `json:"vehicle_id" form:"vehicle_id" binding:"required"`
+	StartDate string `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
+	EndDate   string `json:"end_date" form:"end_date" binding:"required"`     // 格式: YYYY-MM-DD
+	Notes     string `json:"notes" form:"notes"`                              // 预订备注
+	// UserID 从JWT token中获取，不需要在请求中传递
+	// OrderID 将在创建订单时关联，预订时不需要
+}
+
+// UpdateReservationStatusRequest 更新预订状态请求
+type UpdateReservationStatusRequest struct {
+	OrderID int64  `json:"order_id" form:"order_id" binding:"required"`
+	Status  string `json:"status" form:"status" binding:"required"` // rented, completed, cancelled
+}
+
+// GetAvailableVehiclesRequest 获取可用车辆请求
+type GetAvailableVehiclesRequest struct {
+	StartDate  string  `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
+	EndDate    string  `json:"end_date" form:"end_date" binding:"required"`     // 格式: YYYY-MM-DD
+	MerchantID int64   `json:"merchant_id" form:"merchant_id"`                  // 可选，按商家筛选
+	TypeID     int64   `json:"type_id" form:"type_id"`                          // 可选，按类型筛选
+	BrandID    int64   `json:"brand_id" form:"brand_id"`                        // 可选，按品牌筛选
+	PriceMin   float64 `json:"price_min" form:"price_min"`                      // 可选，最低价格
+	PriceMax   float64 `json:"price_max" form:"price_max"`                      // 可选，最高价格
+}
+
+// GetInventoryStatsRequest 获取库存统计请求
+type GetInventoryStatsRequest struct {
+	MerchantID int64 `json:"merchant_id" form:"merchant_id" binding:"required"`
+}
+
+// SetMaintenanceRequest 设置维护状态请求
+type SetMaintenanceRequest struct {
+	VehicleID int64  `json:"vehicle_id" form:"vehicle_id" binding:"required"`
+	StartDate string `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
+	EndDate   string `json:"end_date" form:"end_date" binding:"required"`     // 格式: YYYY-MM-DD
+	Notes     string `json:"notes" form:"notes"`                              // 维护备注
+	CreatedBy int64  `json:"created_by" form:"created_by"`                    // 创建人ID
+}
+
+// GetMaintenanceScheduleRequest 获取维护计划请求
+type GetMaintenanceScheduleRequest struct {
+	VehicleID int64 `json:"vehicle_id" form:"vehicle_id" binding:"required"`
+}
+
+// GetInventoryCalendarRequest 获取库存日历请求
+type GetInventoryCalendarRequest struct {
+	VehicleID int64  `json:"vehicle_id" form:"vehicle_id" binding:"required"`
+	StartDate string `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
+	EndDate   string `json:"end_date" form:"end_date" binding:"required"`     // 格式: YYYY-MM-DD
+}
+
+// GetInventoryReportRequest 获取库存报表请求
+type GetInventoryReportRequest struct {
+	MerchantID int64  `json:"merchant_id" form:"merchant_id"`
+	StartDate  string `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
+	EndDate    string `json:"end_date" form:"end_date" binding:"required"`     // 格式: YYYY-MM-DD
+}
+
+// CreateOrderFromReservationRequest 基于预订创建订单请求
+type CreateOrderFromReservationRequest struct {
+	ReservationID       int64   `json:"reservation_id" form:"reservation_id" binding:"required"`
+	PickupLocationID    int64   `json:"pickup_location_id" form:"pickup_location_id" binding:"required"`
+	ReturnLocationID    int64   `json:"return_location_id" form:"return_location_id" binding:"required"`
+	Notes               string  `json:"notes" form:"notes"`
+	PaymentMethod       int32   `json:"payment_method" form:"payment_method"`               // 1:支付宝 2:微信
+	ExpectedTotalAmount float64 `json:"expected_total_amount" form:"expected_total_amount"` // 预期总金额（前端计算）
+}
+
+// UpdateOrderStatusRequest 更新订单状态请求
+type UpdateOrderStatusRequest struct {
+	Status int32  `json:"status" form:"status" binding:"required"` // 订单状态
+	Reason string `json:"reason" form:"reason"`                    // 状态变更原因
 }
