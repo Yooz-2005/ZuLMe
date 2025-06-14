@@ -2,7 +2,9 @@ package model_mysql
 
 import (
 	"Common/global"
+	"errors"
 
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +27,7 @@ type Vehicle struct {
 }
 
 // TableName 设置表名
-func (Vehicle) TableName() string {
+func (v *Vehicle) TableName() string {
 	return "vehicles"
 }
 
@@ -47,4 +49,17 @@ func (v *Vehicle) Delete() error {
 // GetByID 根据ID获取车辆
 func (v *Vehicle) GetByID(id uint) error {
 	return global.DB.Where("id = ?", id).Limit(1).Find(v).Error
+}
+
+// CheckVehicleAvailable 检查车辆是否存在且状态为上架
+func (v *Vehicle) CheckVehicleAvailable(vehicleID int64) (*Vehicle, error) {
+	vehicle := &Vehicle{}
+	err := global.DB.Where("id = ? AND status = ?", vehicleID, 1).Limit(1).Find(vehicle).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("车辆不存在或已下架")
+		}
+		return nil, fmt.Errorf("查询车辆失败: %w", err)
+	}
+	return vehicle, nil
 }
