@@ -49,6 +49,7 @@ message UpdateUserPhoneResponse {
   int64 UserId = 1;
   string Message = 2;
 }
+
 service User {
   rpc SendCode(SendCodeRequest) returns(SendCodeResponse);//todo 短信验证码
   rpc UserRegister(UserRegisterRequest) returns(UserRegisterResponse); //todo 用户注册登录

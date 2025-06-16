@@ -24,5 +24,6 @@ func main() {
 	router.RegisterMerchantRoutes(r)
 	router.RegisterAdminRoutes(r)
 	router.RegisterVehicleRoutes(r)
+	router.RegisterInvoiceRoutes(r)
 	r.Run(":8888")
 }
