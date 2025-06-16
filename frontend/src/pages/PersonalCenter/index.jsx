@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Card, Typography, Row, Col, Input, Space, Tabs } from 'antd';
 import { UserOutlined, FileTextOutlined, AccountBookOutlined, WalletOutlined, MailOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+
 import MyInfoPage from './components/MyInfoPage'; // 导入 MyInfoPage
+import ReservationList from '../../components/ReservationList'; // 导入预订列表组件
 import styled from 'styled-components';
 
 const { Header, Sider, Content, Footer } = Layout; // 添加 Footer
@@ -139,6 +141,8 @@ const PersonalCenter = () => {
         setCurrentPhoneNumber(newPhoneNumber);
     };
 
+
+
     const renderContent = () => {
         switch (selectedContentKey) {
             case 'my_orders_short_term':
@@ -148,39 +152,63 @@ const PersonalCenter = () => {
                             <Search placeholder="请输入订单号" onSearch={() => {}} style={{ width: 200 }} />
                             <Button>查询</Button>
                             <Button>清除</Button>
-                            <Button type="primary">开发票</Button>
                         </Space>
                     )}>
-                        <Tabs defaultActiveKey="1" style={{ marginBottom: 24 }}
+                        <Tabs
+                            defaultActiveKey="all"
+                            style={{ marginBottom: 24 }}
                             items={[
-                                { label: '全部', key: '1' },
-                                { label: '处理中', key: '2' },
-                                { label: '等待付款', key: '3' },
-                                { label: '预订成功', key: '4' },
-                                { label: '租赁中', key: '5' },
-                                { label: '已完成', key: '6' },
-                                { label: '已取消', key: '7' },
+                                {
+                                    label: '全部',
+                                    key: 'all',
+                                    children: <ReservationList activeTab="all" />
+                                },
+                                {
+                                    label: '处理中',
+                                    key: 'processing',
+                                    children: <ReservationList activeTab="processing" />
+                                },
+                                {
+                                    label: '等待付款',
+                                    key: 'pending_payment',
+                                    children: <ReservationList activeTab="pending_payment" />
+                                },
+                                {
+                                    label: '预订成功',
+                                    key: 'confirmed',
+                                    children: <ReservationList activeTab="confirmed" />
+                                },
+                                {
+                                    label: '租赁中',
+                                    key: 'in_use',
+                                    children: <ReservationList activeTab="in_use" />
+                                },
+                                {
+                                    label: '已完成',
+                                    key: 'completed',
+                                    children: <ReservationList activeTab="completed" />
+                                },
+                                {
+                                    label: '已取消',
+                                    key: 'cancelled',
+                                    children: <ReservationList activeTab="cancelled" />
+                                },
                             ]}
                         />
-                        <div style={{ textAlign: 'center', padding: '50px' }}>
-                            <img src="https://gw.alipayobjects.com/zos/antfincdn/ZH9JzZhHw$/empty.svg" alt="Empty" style={{ width: '100px' }} />
-                            <Text style={{ display: 'block', marginTop: '16px' }}>还没租过车？速速体验吧</Text>
-                        </div>
-                        <Button type="primary" style={{ marginTop: '24px' }}>去租车</Button>
                         <div style={{ marginTop: '40px', borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
-                            <Title level={5}>订单状态说明</Title>
+                            <Title level={5}>预订状态说明</Title>
                             <Row gutter={16}>
                                 <Col span={6}>
                                     <Text strong>预订成功</Text><br/>
-                                    <Text type="secondary">订单已确认，尚未提车</Text>
+                                    <Text type="secondary">预订已确认，尚未提车</Text>
                                 </Col>
                                 <Col span={6}>
                                     <Text strong>等待付款</Text><br/>
-                                    <Text type="secondary">订单尚未付款，请在1小时内完成支付</Text>
+                                    <Text type="secondary">预订尚未付款，请及时完成支付</Text>
                                 </Col>
                                 <Col span={6}>
                                     <Text strong>处理中</Text><br/>
-                                    <Text type="secondary">您的订单已提交，正在处理中</Text>
+                                    <Text type="secondary">您的预订已提交，正在处理中</Text>
                                 </Col>
                                 <Col span={6}>
                                     <Text strong>租赁中</Text><br/>
@@ -242,16 +270,6 @@ const PersonalCenter = () => {
                                             icon: <FileTextOutlined />,
                                             label: '短租自驾(0)',
                                         },
-                                        {
-                                            key: 'my_orders_shunfeng',
-                                            icon: <FileTextOutlined />,
-                                            label: '顺风车(0)',
-                                        },
-                                        {
-                                            key: 'my_orders_international',
-                                            icon: <FileTextOutlined />,
-                                            label: '国际租车(0)',
-                                        },
                                     ],
                                 },
                                 {
@@ -270,19 +288,9 @@ const PersonalCenter = () => {
                                             label: '优惠券(0张)',
                                         },
                                         {
-                                            key: 'my_assets_stored_value',
-                                            icon: <WalletOutlined />,
-                                            label: '储值卡(0元)',
-                                        },
-                                        {
                                             key: 'my_assets_balance',
                                             icon: <WalletOutlined />,
                                             label: '账户余额(0元)',
-                                        },
-                                        {
-                                            key: 'my_assets_bank_cards',
-                                            icon: <WalletOutlined />,
-                                            label: '银行卡(0张)',
                                         },
                                     ],
                                 },

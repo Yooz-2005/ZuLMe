@@ -633,6 +633,91 @@ func CreateReservationHandler(c *gin.Context) {
 
 // 订单相关的handler已移动到 Api/trigger/order.go 文件中
 
+// GetUserReservationListHandler 获取用户预订列表处理器
+func GetUserReservationListHandler(c *gin.Context) {
+	// 从JWT中获取用户ID
+	userID := c.GetUint("userId")
+	if userID == 0 {
+		response.ResponseError400(c, "用户ID不能为空")
+		return
+	}
+
+	// 获取查询参数
+	page := c.DefaultQuery("page", "1")
+	pageSize := c.DefaultQuery("page_size", "10")
+	status := c.Query("status") // 可选的状态筛选
+
+	// 转换参数
+	pageInt := 1
+	pageSizeInt := 10
+	if p, err := strconv.Atoi(page); err == nil && p > 0 {
+		pageInt = p
+	}
+	if ps, err := strconv.Atoi(pageSize); err == nil && ps > 0 {
+		pageSizeInt = ps
+	}
+
+	// TODO: 暂时返回模拟数据，等待微服务实现
+	// 模拟预订数据
+	mockReservations := []map[string]interface{}{
+		{
+			"id":              "RES001",
+			"vehicle_id":      1,
+			"user_id":         userID,
+			"start_date":      "2024-01-15",
+			"end_date":        "2024-01-18",
+			"pickup_location": "北京首都国际机场",
+			"return_location": "北京首都国际机场",
+			"total_amount":    2400.00,
+			"status":          "pending_payment",
+			"created_at":      "2024-01-10T14:30:00Z",
+			"vehicle": map[string]interface{}{
+				"id":     1,
+				"brand":  "Range Rover",
+				"name":   "Evoque",
+				"images": []string{"https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400"},
+			},
+		},
+		{
+			"id":              "RES002",
+			"vehicle_id":      2,
+			"user_id":         userID,
+			"start_date":      "2024-01-20",
+			"end_date":        "2024-01-22",
+			"pickup_location": "上海虹桥机场",
+			"return_location": "上海虹桥机场",
+			"total_amount":    3600.00,
+			"status":          "confirmed",
+			"created_at":      "2024-01-12T10:15:00Z",
+			"vehicle": map[string]interface{}{
+				"id":     2,
+				"brand":  "Bentley",
+				"name":   "Continental GT",
+				"images": []string{"https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400"},
+			},
+		},
+	}
+
+	// 根据状态筛选
+	filteredReservations := mockReservations
+	if status != "" {
+		filteredReservations = []map[string]interface{}{}
+		for _, reservation := range mockReservations {
+			if reservation["status"] == status {
+				filteredReservations = append(filteredReservations, reservation)
+			}
+		}
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message":      "获取预订列表成功",
+		"reservations": filteredReservations,
+		"total":        len(filteredReservations),
+		"page":         pageInt,
+		"page_size":    pageSizeInt,
+	})
+}
+
 // UpdateReservationStatusHandler 更新预订状态处理器
 func UpdateReservationStatusHandler(c *gin.Context) {
 	var req request.UpdateReservationStatusRequest
@@ -668,14 +753,25 @@ func GetAvailableVehiclesHandler(c *gin.Context) {
 		return
 	}
 
+	// 设置默认分页参数
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 12
+	}
+
 	getRes, err := handler.GetAvailableVehicles(c, &vehicle.GetAvailableVehiclesRequest{
 		StartDate:  req.StartDate,
 		EndDate:    req.EndDate,
 		MerchantId: req.MerchantID,
 		TypeId:     req.TypeID,
 		BrandId:    req.BrandID,
+		Status:     req.Status,
 		PriceMin:   req.PriceMin,
 		PriceMax:   req.PriceMax,
+		Page:       req.Page,
+		PageSize:   req.PageSize,
 	})
 	if err != nil {
 		response.ResponseError(c, err.Error())
@@ -691,6 +787,8 @@ func GetAvailableVehiclesHandler(c *gin.Context) {
 		"message":  getRes.Message,
 		"vehicles": getRes.Vehicles,
 		"total":    getRes.Total,
+		"page":     req.Page,
+		"pageSize": req.PageSize,
 	})
 }
 

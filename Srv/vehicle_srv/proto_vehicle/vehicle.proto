@@ -352,8 +352,11 @@ message GetAvailableVehiclesRequest {
   int64 merchant_id = 3; // 可选，按商家筛选
   int64 type_id = 4;     // 可选，按类型筛选
   int64 brand_id = 5;    // 可选，按品牌筛选
-  double price_min = 6;  // 可选，最低价格
-  double price_max = 7;  // 可选，最高价格
+  int64 status = 6;      // 可选，按库存状态筛选 -1:全部 0:默认可用 1:可租用 2:已预订 3:租用中 4:维护中 5:不可用
+  double price_min = 7;  // 可选，最低价格
+  double price_max = 8;  // 可选，最高价格
+  int64 page = 9;        // 页码
+  int64 page_size = 10;  // 每页数量
 }
 
 // 获取可用车辆响应

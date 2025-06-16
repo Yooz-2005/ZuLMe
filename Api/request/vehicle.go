@@ -176,8 +176,11 @@ type GetAvailableVehiclesRequest struct {
 	MerchantID int64   `json:"merchant_id" form:"merchant_id"`                  // 可选，按商家筛选
 	TypeID     int64   `json:"type_id" form:"type_id"`                          // 可选，按类型筛选
 	BrandID    int64   `json:"brand_id" form:"brand_id"`                        // 可选，按品牌筛选
+	Status     int64   `json:"status" form:"status"`                            // 可选，按库存状态筛选 -1:全部 0:默认可用 1:可租用 2:已预订 3:租用中 4:维护中 5:不可用
 	PriceMin   float64 `json:"price_min" form:"price_min"`                      // 可选，最低价格
 	PriceMax   float64 `json:"price_max" form:"price_max"`                      // 可选，最高价格
+	Page       int64   `json:"page" form:"page"`                                // 页码
+	PageSize   int64   `json:"page_size" form:"page_size"`                      // 每页数量
 }
 
 // GetInventoryStatsRequest 获取库存统计请求

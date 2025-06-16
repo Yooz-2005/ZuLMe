@@ -260,7 +260,7 @@ func UpdateReservationStatus(ctx context.Context, req *vehicle.UpdateReservation
 // GetAvailableVehicles 获取可用车辆列表
 func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehiclesRequest) (*vehicle.GetAvailableVehiclesResponse, error) {
 	// 解析日期
-	startDate, err := time.Parse("2006-01-02", req.StartDate)
+	startDate, err := time.Parse("2006-01-02", req.GetStartDate())
 	if err != nil {
 		return &vehicle.GetAvailableVehiclesResponse{
 			Code:    400,
@@ -268,7 +268,7 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 		}, nil
 	}
 
-	endDate, err := time.Parse("2006-01-02", req.EndDate)
+	endDate, err := time.Parse("2006-01-02", req.GetEndDate())
 	if err != nil {
 		return &vehicle.GetAvailableVehiclesResponse{
 			Code:    400,
@@ -280,23 +280,23 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 	var allVehicles []model_mysql.Vehicle
 	var vehicleIDs []uint
 
-	// 构建查询条件
-	query := global.DB.Model(&model_mysql.Vehicle{}).Where("status = 1")
+	// 构建基础车辆查询条件（只查询上架的车辆）
+	query := global.DB.Model(&model_mysql.Vehicle{}).Where("status = 1") // 只查询上架的车辆
 
-	if req.MerchantId > 0 {
-		query = query.Where("merchant_id = ?", req.MerchantId)
+	if req.GetMerchantId() > 0 {
+		query = query.Where("merchant_id = ?", req.GetMerchantId())
 	}
-	if req.TypeId > 0 {
-		query = query.Where("type_id = ?", req.TypeId)
+	if req.GetTypeId() > 0 {
+		query = query.Where("type_id = ?", req.GetTypeId())
 	}
-	if req.BrandId > 0 {
-		query = query.Where("brand_id = ?", req.BrandId)
+	if req.GetBrandId() > 0 {
+		query = query.Where("brand_id = ?", req.GetBrandId())
 	}
-	if req.PriceMin > 0 {
-		query = query.Where("price >= ?", req.PriceMin)
+	if req.GetPriceMin() > 0 {
+		query = query.Where("price >= ?", req.GetPriceMin())
 	}
-	if req.PriceMax > 0 {
-		query = query.Where("price <= ?", req.PriceMax)
+	if req.GetPriceMax() > 0 {
+		query = query.Where("price <= ?", req.GetPriceMax())
 	}
 
 	if err := query.Find(&allVehicles).Error; err != nil {
@@ -311,25 +311,76 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 		vehicleIDs = append(vehicleIDs, v.ID)
 	}
 
-	// 检查库存可用性
-	inventoryModel := &model_mysql.VehicleInventory{}
-	availableVehicleIDs, err := inventoryModel.GetAvailableVehicles(startDate, endDate, vehicleIDs)
-	if err != nil {
+	if len(vehicleIDs) == 0 {
 		return &vehicle.GetAvailableVehiclesResponse{
-			Code:    500,
-			Message: "检查库存失败",
-		}, err
+			Code:     200,
+			Message:  "获取成功",
+			Vehicles: []*vehicle.VehicleInfo{},
+			Total:    0,
+		}, nil
 	}
 
-	// 过滤出可用的车辆
-	var availableVehicles []*vehicle.VehicleInfo
-	availableMap := make(map[uint]bool)
-	for _, id := range availableVehicleIDs {
-		availableMap[id] = true
+	// 根据库存状态筛选车辆
+	var filteredVehicleIDs []uint
+
+	if req.GetStatus() == -1 {
+		// 查询所有状态的车辆（包括有库存记录和无库存记录的）
+		filteredVehicleIDs = vehicleIDs
+	} else if req.GetStatus() > 0 {
+		// 查询指定库存状态的车辆
+		err := global.DB.Model(&model_mysql.VehicleInventory{}).
+			Select("DISTINCT vehicle_id").
+			Where("vehicle_id IN ? AND status = ? AND start_date <= ? AND end_date >= ?",
+				vehicleIDs, req.GetStatus(), endDate, startDate).
+			Pluck("vehicle_id", &filteredVehicleIDs).Error
+		if err != nil {
+			return &vehicle.GetAvailableVehiclesResponse{
+				Code:    500,
+				Message: "查询库存状态失败",
+			}, err
+		}
+	} else {
+		// 默认查询可用车辆（没有库存记录或库存状态为可租用的车辆）
+		var unavailableVehicleIDs []uint
+		err := global.DB.Model(&model_mysql.VehicleInventory{}).
+			Select("DISTINCT vehicle_id").
+			Where("vehicle_id IN ? AND status IN (?, ?, ?, ?) AND start_date <= ? AND end_date >= ?",
+				vehicleIDs,
+				model_mysql.InventoryStatusReserved,
+				model_mysql.InventoryStatusRented,
+				model_mysql.InventoryStatusMaintenance,
+				model_mysql.InventoryStatusUnavailable,
+				endDate, startDate).
+			Pluck("vehicle_id", &unavailableVehicleIDs).Error
+		if err != nil {
+			return &vehicle.GetAvailableVehiclesResponse{
+				Code:    500,
+				Message: "查询库存状态失败",
+			}, err
+		}
+
+		// 从所有车辆中排除不可用的车辆
+		unavailableMap := make(map[uint]bool)
+		for _, id := range unavailableVehicleIDs {
+			unavailableMap[id] = true
+		}
+
+		for _, id := range vehicleIDs {
+			if !unavailableMap[id] {
+				filteredVehicleIDs = append(filteredVehicleIDs, id)
+			}
+		}
+	}
+
+	// 过滤出符合条件的车辆
+	var allFilteredVehicles []*vehicle.VehicleInfo
+	filteredMap := make(map[uint]bool)
+	for _, id := range filteredVehicleIDs {
+		filteredMap[id] = true
 	}
 
 	for _, v := range allVehicles {
-		if availableMap[v.ID] {
+		if filteredMap[v.ID] {
 			vehicleInfo := &vehicle.VehicleInfo{
 				Id:          int64(v.ID),
 				MerchantId:  v.MerchantID,
@@ -349,15 +400,40 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 				CreatedAt:   v.CreatedAt.Format(time.RFC3339),
 				UpdatedAt:   v.UpdatedAt.Format(time.RFC3339),
 			}
-			availableVehicles = append(availableVehicles, vehicleInfo)
+			allFilteredVehicles = append(allFilteredVehicles, vehicleInfo)
 		}
+	}
+
+	// 处理分页
+	total := int64(len(allFilteredVehicles))
+	page := req.GetPage()
+	pageSize := req.GetPageSize()
+
+	// 设置默认分页参数
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 12
+	}
+
+	// 计算分页
+	offset := (page - 1) * pageSize
+	var pagedVehicles []*vehicle.VehicleInfo
+
+	if offset < total {
+		end := offset + pageSize
+		if end > total {
+			end = total
+		}
+		pagedVehicles = allFilteredVehicles[offset:end]
 	}
 
 	return &vehicle.GetAvailableVehiclesResponse{
 		Code:     200,
 		Message:  "获取成功",
-		Vehicles: availableVehicles,
-		Total:    int64(len(availableVehicles)),
+		Vehicles: pagedVehicles,
+		Total:    total,
 	}, nil
 }
 

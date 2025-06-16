@@ -63,8 +63,9 @@ func RegisterVehicleRoutes(r *gin.Engine) {
 	// 用户库存操作路由（需要用户认证）
 	userInventoryGroup := r.Group("/vehicle-inventory")
 	{
-		userInventoryGroup.Use(jwt.JWTAuth("2209"))                                      // 用户认证
-		userInventoryGroup.POST("/reservation/create", trigger.CreateReservationHandler) // 用户创建预订
+		userInventoryGroup.Use(jwt.JWTAuth("2209"))                                        // 用户认证
+		userInventoryGroup.POST("/reservation/create", trigger.CreateReservationHandler)   // 用户创建预订
+		userInventoryGroup.GET("/reservation/list", trigger.GetUserReservationListHandler) // 获取用户预订列表
 	}
 
 	// 订单相关路由已移动到 router/order.go 文件中
