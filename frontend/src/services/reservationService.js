@@ -37,7 +37,9 @@ const reservationService = {
   // 取消预订
   cancelReservation: async (reservationId) => {
     try {
-      const response = await api.put(`/api/reservations/${reservationId}/cancel`);
+      const response = await api.put('/vehicle-inventory/reservation/cancel', {
+        reservation_id: reservationId
+      });
       return response;
     } catch (error) {
       console.error('取消预订失败:', error);

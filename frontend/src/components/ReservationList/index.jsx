@@ -11,7 +11,10 @@ import {
   Image,
   Typography,
   Divider,
-  Empty
+  Empty,
+  Select,
+  Row,
+  Col
 } from 'antd';
 import {
   CarOutlined,
@@ -19,15 +22,18 @@ import {
   EnvironmentOutlined,
   DollarOutlined,
   ClockCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  CreditCardOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import styled from 'styled-components';
 import reservationService from '../../services/reservationService';
 import orderService from '../../services/orderService';
-import paymentService from '../../services/paymentService';
+import vehicleService from '../../services/vehicleService';
 
 const { Text, Title } = Typography;
 const { confirm } = Modal;
+const { Option } = Select;
 
 const StyledCard = styled(Card)`
   margin-bottom: 16px;
@@ -52,6 +58,11 @@ const ReservationList = ({ activeTab = 'all' }) => {
   const [loading, setLoading] = useState(false);
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState(null);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [selectedReturnLocation, setSelectedReturnLocation] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [returnLocations, setReturnLocations] = useState([]);
+  const [locationsLoading, setLocationsLoading] = useState(false);
 
   // 获取预订列表
   const fetchReservations = async () => {
@@ -59,17 +70,51 @@ const ReservationList = ({ activeTab = 'all' }) => {
     try {
       const response = await reservationService.getUserReservations();
       if (response && response.code === 200) {
-        setReservations(response.data || []);
+        // 修复：从response.data.reservations获取预订列表数组
+        setReservations(response.data?.reservations || []);
       }
     } catch (error) {
       message.error('获取预订列表失败');
+      console.error('获取预订列表错误:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  // 获取网点列表（还车地点）
+  const fetchReturnLocations = async () => {
+    setLocationsLoading(true);
+    try {
+      const response = await vehicleService.getLocationList();
+      if (response && response.code === 200) {
+        // 将商户信息转换为还车地点格式
+        const locations = response.data?.merchants?.map(merchant => ({
+          id: merchant.id,
+          name: merchant.name,
+          address: merchant.location,
+          business_time: merchant.business_time,
+          longitude: merchant.longitude,
+          latitude: merchant.latitude
+        })) || [];
+        setReturnLocations(locations);
+      }
+    } catch (error) {
+      console.error('获取网点列表失败:', error);
+      // 如果获取失败，使用默认的模拟数据
+      setReturnLocations([
+        { id: 1, name: '北京首都国际机场T3航站楼', address: '北京市朝阳区首都机场' },
+        { id: 2, name: '北京大兴国际机场', address: '北京市大兴区大兴机场' },
+        { id: 3, name: '北京西站', address: '北京市西城区莲花池东路' },
+        { id: 4, name: '北京南站', address: '北京市丰台区永外大街' }
+      ]);
+    } finally {
+      setLocationsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchReservations();
+    fetchReturnLocations();
   }, []);
 
   // 根据状态过滤预订
@@ -109,29 +154,103 @@ const ReservationList = ({ activeTab = 'all' }) => {
     return <StatusTag color={config.color}>{config.text}</StatusTag>;
   };
 
-  // 处理支付
-  const handlePayment = async (reservation) => {
+  // 获取车辆第一张图片
+  const getVehicleImage = (vehicle) => {
+    if (!vehicle) return '/placeholder-car.jpg';
+
+    // 如果images是字符串，分割获取第一张图片
+    if (typeof vehicle.images === 'string' && vehicle.images) {
+      const imageArray = vehicle.images.split(',').map(img => img.trim()).filter(img => img);
+      if (imageArray.length > 0) {
+        return imageArray[0];
+      }
+    }
+
+    // 如果images是数组，获取第一张图片
+    if (Array.isArray(vehicle.images) && vehicle.images.length > 0) {
+      return vehicle.images[0];
+    }
+
+    // 默认图片
+    return '/placeholder-car.jpg';
+  };
+
+  // 处理支付 - 打开支付选择弹窗
+  const handlePayment = (reservation) => {
+    setSelectedReservation(reservation);
+    setPaymentModalVisible(true);
+    setSelectedReturnLocation(null); // 重置还车地点选择
+  };
+
+  // 确认支付
+  const confirmPayment = async () => {
+    if (!selectedReturnLocation) {
+      message.error('请选择还车地点');
+      return;
+    }
+
+    const reservation = selectedReservation;
+    console.log('开始处理支付，预订信息:', reservation);
+    console.log('选择的还车地点:', selectedReturnLocation);
+
+    // 检查预订信息是否有效
+    if (!reservation || !reservation.id) {
+      console.error('预订信息无效:', reservation);
+      message.error('预订信息无效，请刷新页面重试');
+      return;
+    }
+
+    // 检查用户是否已登录
+    const token = localStorage.getItem('token');
+    console.log('用户token:', token);
+    if (!token) {
+      message.error('请先登录后再进行支付');
+      return;
+    }
+
+    setPaymentLoading(true);
     try {
-      // 先从预订创建订单
-      const orderResponse = await orderService.createOrderFromReservation(reservation.id);
+      // 创建订单时包含还车地点信息
+      const orderData = {
+        reservation_id: reservation.id,
+        return_location_id: selectedReturnLocation,
+        payment_method: 1, // 1:支付宝
+        notes: `还车地点：${returnLocations.find(loc => loc.id === selectedReturnLocation)?.name}`
+      };
+
+      console.log('调用创建订单接口，订单数据:', orderData);
+      const orderResponse = await orderService.createOrderFromReservation(orderData);
+      console.log('创建订单响应:', orderResponse);
+
       if (orderResponse && orderResponse.code === 200) {
-        const orderId = orderResponse.data.id;
-        
-        // 获取支付链接
-        const paymentResponse = await paymentService.getPaymentUrl(orderId, 'alipay');
-        if (paymentResponse && paymentResponse.code === 200) {
-          // 打开支付链接
-          window.open(paymentResponse.data.payment_url, '_blank');
-          message.success('支付链接已打开，请完成支付');
-          
-          // 刷新预订列表
-          setTimeout(() => {
-            fetchReservations();
-          }, 2000);
-        }
+        console.log('订单创建成功，订单数据:', orderResponse.data);
+
+        // 关闭支付弹窗
+        setPaymentModalVisible(false);
+
+        // 直接使用创建订单时返回的支付链接，或者构建模拟支付链接
+        const paymentUrl = orderResponse.data.payment_url ||
+          `http://localhost:3000/mock-payment.html?order_sn=${orderResponse.data.order_sn}&amount=${orderResponse.data.total_amount}&subject=${encodeURIComponent('租车订单-豪华车辆')}&app_id=2021000122671234`;
+
+        console.log('支付链接:', paymentUrl);
+
+        // 打开支付链接
+        window.open(paymentUrl, '_blank');
+        message.success('支付链接已打开，请完成支付');
+
+        // 刷新预订列表
+        setTimeout(() => {
+          fetchReservations();
+        }, 2000);
+      } else {
+        console.error('创建订单失败:', orderResponse);
+        message.error(orderResponse?.message || '创建订单失败');
       }
     } catch (error) {
-      message.error('创建支付失败，请稍后重试');
+      console.error('支付处理错误:', error);
+      message.error('创建支付失败：' + (error.message || '请稍后重试'));
+    } finally {
+      setPaymentLoading(false);
     }
   };
 
@@ -176,8 +295,8 @@ const ReservationList = ({ activeTab = 'all' }) => {
                 <VehicleImage
                   width={120}
                   height={80}
-                  src={reservation.vehicle?.images?.[0] || '/placeholder-car.jpg'}
-                  alt={reservation.vehicle?.name}
+                  src={getVehicleImage(reservation.vehicle)}
+                  alt={reservation.vehicle?.style || reservation.vehicle?.name}
                   style={{ objectFit: 'cover' }}
                 />
                 <div style={{ flex: 1 }}>
@@ -185,7 +304,7 @@ const ReservationList = ({ activeTab = 'all' }) => {
                     <div>
                       <Title level={5} style={{ margin: 0, marginBottom: 4 }}>
                         <CarOutlined style={{ marginRight: 8, color: '#1890ff' }} />
-                        {reservation.vehicle?.brand} {reservation.vehicle?.name}
+                        {reservation.vehicle?.brand} {reservation.vehicle?.style || reservation.vehicle?.name}
                       </Title>
                       <Text type="secondary">预订单号: {reservation.id}</Text>
                     </div>
@@ -254,17 +373,118 @@ const ReservationList = ({ activeTab = 'all' }) => {
           <Descriptions column={1} bordered>
             <Descriptions.Item label="预订单号">{selectedReservation.id}</Descriptions.Item>
             <Descriptions.Item label="车辆信息">
-              {selectedReservation.vehicle?.brand} {selectedReservation.vehicle?.name}
+              {selectedReservation.vehicle?.brand} {selectedReservation.vehicle?.style || selectedReservation.vehicle?.name}
             </Descriptions.Item>
             <Descriptions.Item label="租赁时间">
               {selectedReservation.start_date} 至 {selectedReservation.end_date}
             </Descriptions.Item>
             <Descriptions.Item label="取车地点">{selectedReservation.pickup_location}</Descriptions.Item>
-            <Descriptions.Item label="还车地点">{selectedReservation.return_location}</Descriptions.Item>
+            {selectedReservation.return_location && (
+              <Descriptions.Item label="还车地点">{selectedReservation.return_location}</Descriptions.Item>
+            )}
             <Descriptions.Item label="总金额">¥{selectedReservation.total_amount}</Descriptions.Item>
             <Descriptions.Item label="预订状态">{getStatusTag(selectedReservation.status)}</Descriptions.Item>
             <Descriptions.Item label="创建时间">{selectedReservation.created_at}</Descriptions.Item>
+            {selectedReservation.status === 'pending_payment' && (
+              <Descriptions.Item label="提示">
+                <Text type="warning">请完成支付以确认预订，支付时可选择还车地点</Text>
+              </Descriptions.Item>
+            )}
           </Descriptions>
+        )}
+      </Modal>
+
+      {/* 支付选择弹窗 */}
+      <Modal
+        title="选择还车地点并支付"
+        open={paymentModalVisible}
+        onCancel={() => setPaymentModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setPaymentModalVisible(false)}>
+            取消
+          </Button>,
+          <Button
+            key="confirm"
+            type="primary"
+            loading={paymentLoading}
+            onClick={confirmPayment}
+            disabled={!selectedReturnLocation}
+            icon={<CreditCardOutlined />}
+          >
+            确认支付
+          </Button>
+        ]}
+        width={600}
+      >
+        {selectedReservation && (
+          <div>
+            <Card size="small" style={{ marginBottom: 20, background: '#f8f9fa' }}>
+              <Row gutter={16}>
+                <Col span={6}>
+                  <Image
+                    width={80}
+                    height={60}
+                    src={getVehicleImage(selectedReservation.vehicle)}
+                    alt={selectedReservation.vehicle?.style}
+                    style={{ objectFit: 'cover', borderRadius: 6 }}
+                  />
+                </Col>
+                <Col span={18}>
+                  <div>
+                    <Text strong>
+                      {selectedReservation.vehicle?.brand} {selectedReservation.vehicle?.style}
+                    </Text>
+                    <br />
+                    <Text type="secondary">
+                      {selectedReservation.start_date} 至 {selectedReservation.end_date}
+                    </Text>
+                    <br />
+                    <Text type="secondary">
+                      取车地点：{selectedReservation.pickup_location}
+                    </Text>
+                    <br />
+                    <Text strong style={{ color: '#f5222d' }}>
+                      总金额：¥{selectedReservation.total_amount}
+                    </Text>
+                  </div>
+                </Col>
+              </Row>
+            </Card>
+
+            <Divider orientation="left">选择还车地点</Divider>
+            <Select
+              style={{ width: '100%' }}
+              placeholder={locationsLoading ? "正在加载网点..." : "请选择还车地点"}
+              value={selectedReturnLocation}
+              onChange={setSelectedReturnLocation}
+              size="large"
+              loading={locationsLoading}
+              disabled={locationsLoading}
+            >
+              {returnLocations.map(location => (
+                <Option key={location.id} value={location.id}>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>{location.name}</div>
+                    <div style={{ fontSize: '12px', color: '#999' }}>
+                      {location.address}
+                      {location.business_time && (
+                        <span style={{ marginLeft: 8, color: '#52c41a' }}>
+                          营业时间: {location.business_time}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Option>
+              ))}
+            </Select>
+
+            <div style={{ marginTop: 16, padding: 12, background: '#fff7e6', borderRadius: 6, border: '1px solid #ffd591' }}>
+              <Text type="warning">
+                <ExclamationCircleOutlined style={{ marginRight: 8 }} />
+                请确认还车地点，支付成功后将无法更改
+              </Text>
+            </div>
+          </div>
         )}
       </Modal>
     </>

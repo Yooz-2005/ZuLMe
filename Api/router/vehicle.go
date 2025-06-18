@@ -66,6 +66,7 @@ func RegisterVehicleRoutes(r *gin.Engine) {
 		userInventoryGroup.Use(jwt.JWTAuth("2209"))                                        // 用户认证
 		userInventoryGroup.POST("/reservation/create", trigger.CreateReservationHandler)   // 用户创建预订
 		userInventoryGroup.GET("/reservation/list", trigger.GetUserReservationListHandler) // 获取用户预订列表
+		userInventoryGroup.PUT("/reservation/cancel", trigger.CancelReservationHandler)    // 取消预订
 	}
 
 	// 订单相关路由已移动到 router/order.go 文件中

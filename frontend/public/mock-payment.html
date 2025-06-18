@@ -183,10 +183,10 @@
         function getUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
             return {
-                orderSn: urlParams.get('order_sn') || '',
+                orderSn: urlParams.get('order_sn') || urlParams.get('orderSn') || '',
                 amount: urlParams.get('amount') || '0.00',
                 subject: urlParams.get('subject') || '',
-                appId: urlParams.get('app_id') || ''
+                appId: urlParams.get('app_id') || '2021000122671234'
             };
         }
 

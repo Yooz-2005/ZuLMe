@@ -28,6 +28,18 @@ func CreateOrderFromReservationHandler(c *gin.Context) {
 		return
 	}
 
+	// 转换支付方式字符串为数字
+	var paymentMethod int32
+	switch req.PaymentMethod {
+	case "alipay":
+		paymentMethod = 1
+	case "wechat":
+		paymentMethod = 2
+	default:
+		response.ResponseError400(c, "不支持的支付方式")
+		return
+	}
+
 	// 调用订单微服务创建订单
 	createRes, err := handler.CreateOrderFromReservation(c, &order.CreateOrderFromReservationRequest{
 		ReservationId:       req.ReservationID,
@@ -35,7 +47,7 @@ func CreateOrderFromReservationHandler(c *gin.Context) {
 		PickupLocationId:    req.PickupLocationID,
 		ReturnLocationId:    req.ReturnLocationID,
 		Notes:               req.Notes,
-		PaymentMethod:       req.PaymentMethod,
+		PaymentMethod:       paymentMethod,
 		ExpectedTotalAmount: req.ExpectedTotalAmount,
 	})
 	if err != nil {
@@ -166,6 +178,26 @@ func UpdateOrderStatusHandler(c *gin.Context) {
 		return
 	}
 
+	// 转换状态字符串为数字
+	var status int32
+	switch req.Status {
+	case "pending":
+		status = 1 // 待支付
+	case "paid":
+		status = 2 // 已支付
+	case "confirmed":
+		status = 3 // 已确认
+	case "in_progress":
+		status = 4 // 进行中
+	case "completed":
+		status = 5 // 已完成
+	case "cancelled":
+		status = 6 // 已取消
+	default:
+		response.ResponseError400(c, "不支持的订单状态")
+		return
+	}
+
 	// 先验证订单归属
 	getRes, err := handler.GetOrder(c, &order.GetOrderRequest{
 		OrderId: orderID,
@@ -188,7 +220,7 @@ func UpdateOrderStatusHandler(c *gin.Context) {
 	// 调用订单微服务更新状态
 	updateRes, err := handler.UpdateOrderStatus(c, &order.UpdateOrderStatusRequest{
 		OrderId: orderID,
-		Status:  req.Status,
+		Status:  status,
 	})
 	if err != nil {
 		response.ResponseError(c, err.Error())

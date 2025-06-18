@@ -282,6 +282,21 @@ func UpdateReservationStatus(ctx context.Context, req *vehicle.UpdateReservation
 	return vehicleClient.(*vehicle.UpdateReservationStatusResponse), nil
 }
 
+// CancelReservation 取消预订
+func CancelReservation(ctx context.Context, req *vehicle.CancelReservationRequest) (*vehicle.CancelReservationResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.CancelReservation(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.CancelReservationResponse), nil
+}
+
 // GetAvailableVehicles 获取可用车辆
 func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehiclesRequest) (*vehicle.GetAvailableVehiclesResponse, error) {
 	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
@@ -295,6 +310,21 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 		return nil, err
 	}
 	return vehicleClient.(*vehicle.GetAvailableVehiclesResponse), nil
+}
+
+// GetUserReservationList 获取用户预订列表
+func GetUserReservationList(ctx context.Context, req *vehicle.GetUserReservationListRequest) (*vehicle.GetUserReservationListResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.GetUserReservationList(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.GetUserReservationListResponse), nil
 }
 
 // GetInventoryStats 获取库存统计

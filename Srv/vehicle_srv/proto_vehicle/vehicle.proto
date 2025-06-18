@@ -345,6 +345,17 @@ message UpdateReservationStatusResponse {
   string message = 2;
 }
 
+// 取消预订请求
+message CancelReservationRequest {
+  string reservation_id = 1; // 预订ID，格式如 RES123
+}
+
+// 取消预订响应
+message CancelReservationResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
 // 获取可用车辆请求
 message GetAvailableVehiclesRequest {
   string start_date = 1; // 格式: YYYY-MM-DD
@@ -497,6 +508,37 @@ message GetInventoryReportResponse {
   double utilization_rate = 10;
 }
 
+// 预订信息
+message ReservationInfo {
+  string id = 1;
+  int64 vehicle_id = 2;
+  int64 user_id = 3;
+  string start_date = 4;
+  string end_date = 5;
+  string pickup_location = 6;
+  string return_location = 7;
+  double total_amount = 8;
+  string status = 9;
+  string created_at = 10;
+  VehicleInfo vehicle = 11;
+}
+
+// 获取用户预订列表请求
+message GetUserReservationListRequest {
+  int64 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  string status = 4; // 可选的状态筛选
+}
+
+// 获取用户预订列表响应
+message GetUserReservationListResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated ReservationInfo reservations = 3;
+  int64 total = 4;
+}
+
 service Vehicle {
   rpc Ping(Request) returns(Response);
 
@@ -525,7 +567,9 @@ service Vehicle {
   rpc CheckAvailability(CheckAvailabilityRequest) returns(CheckAvailabilityResponse); // 检查车辆可用性
   rpc CreateReservation(CreateReservationRequest) returns(CreateReservationResponse); // 创建预订
   rpc UpdateReservationStatus(UpdateReservationStatusRequest) returns(UpdateReservationStatusResponse); // 更新预订状态
+  rpc CancelReservation(CancelReservationRequest) returns(CancelReservationResponse); // 取消预订
   rpc GetAvailableVehicles(GetAvailableVehiclesRequest) returns(GetAvailableVehiclesResponse); // 获取可用车辆
+  rpc GetUserReservationList(GetUserReservationListRequest) returns(GetUserReservationListResponse); // 获取用户预订列表
   rpc GetInventoryStats(GetInventoryStatsRequest) returns(GetInventoryStatsResponse); // 获取库存统计
   rpc SetMaintenance(SetMaintenanceRequest) returns(SetMaintenanceResponse); // 设置维护状态
   rpc GetMaintenanceSchedule(GetMaintenanceScheduleRequest) returns(GetMaintenanceScheduleResponse); // 获取维护计划

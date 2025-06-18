@@ -631,6 +631,39 @@ func CreateReservationHandler(c *gin.Context) {
 	})
 }
 
+// CancelReservationHandler 取消预订处理器
+func CancelReservationHandler(c *gin.Context) {
+	// 从JWT中获取用户ID（用于权限验证）
+	userID := c.GetUint("userId")
+	if userID == 0 {
+		response.ResponseError400(c, "用户ID不能为空")
+		return
+	}
+
+	var req request.CancelReservationRequest
+	if err := c.ShouldBind(&req); err != nil {
+		response.ResponseError400(c, err.Error())
+		return
+	}
+
+	cancelRes, err := handler.CancelReservation(c, &vehicle.CancelReservationRequest{
+		ReservationId: req.ReservationID,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if cancelRes.Code != 200 {
+		response.ResponseError400(c, cancelRes.Message)
+		return
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message": cancelRes.Message,
+	})
+}
+
 // 订单相关的handler已移动到 Api/trigger/order.go 文件中
 
 // GetUserReservationListHandler 获取用户预订列表处理器
@@ -657,62 +690,27 @@ func GetUserReservationListHandler(c *gin.Context) {
 		pageSizeInt = ps
 	}
 
-	// TODO: 暂时返回模拟数据，等待微服务实现
-	// 模拟预订数据
-	mockReservations := []map[string]interface{}{
-		{
-			"id":              "RES001",
-			"vehicle_id":      1,
-			"user_id":         userID,
-			"start_date":      "2024-01-15",
-			"end_date":        "2024-01-18",
-			"pickup_location": "北京首都国际机场",
-			"return_location": "北京首都国际机场",
-			"total_amount":    2400.00,
-			"status":          "pending_payment",
-			"created_at":      "2024-01-10T14:30:00Z",
-			"vehicle": map[string]interface{}{
-				"id":     1,
-				"brand":  "Range Rover",
-				"name":   "Evoque",
-				"images": []string{"https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400"},
-			},
-		},
-		{
-			"id":              "RES002",
-			"vehicle_id":      2,
-			"user_id":         userID,
-			"start_date":      "2024-01-20",
-			"end_date":        "2024-01-22",
-			"pickup_location": "上海虹桥机场",
-			"return_location": "上海虹桥机场",
-			"total_amount":    3600.00,
-			"status":          "confirmed",
-			"created_at":      "2024-01-12T10:15:00Z",
-			"vehicle": map[string]interface{}{
-				"id":     2,
-				"brand":  "Bentley",
-				"name":   "Continental GT",
-				"images": []string{"https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400"},
-			},
-		},
+	// 调用车辆微服务获取用户预订列表
+	listRes, err := handler.GetUserReservationList(c, &vehicle.GetUserReservationListRequest{
+		UserId:   int64(userID),
+		Page:     int32(pageInt),
+		PageSize: int32(pageSizeInt),
+		Status:   status,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
 	}
 
-	// 根据状态筛选
-	filteredReservations := mockReservations
-	if status != "" {
-		filteredReservations = []map[string]interface{}{}
-		for _, reservation := range mockReservations {
-			if reservation["status"] == status {
-				filteredReservations = append(filteredReservations, reservation)
-			}
-		}
+	if listRes.Code != 200 {
+		response.ResponseError400(c, listRes.Message)
+		return
 	}
 
 	response.ResponseSuccess(c, gin.H{
-		"message":      "获取预订列表成功",
-		"reservations": filteredReservations,
-		"total":        len(filteredReservations),
+		"message":      listRes.Message,
+		"reservations": listRes.Reservations,
+		"total":        listRes.Total,
 		"page":         pageInt,
 		"page_size":    pageSizeInt,
 	})

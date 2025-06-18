@@ -169,6 +169,11 @@ type UpdateReservationStatusRequest struct {
 	Status  string `json:"status" form:"status" binding:"required"` // rented, completed, cancelled
 }
 
+// CancelReservationRequest 取消预订请求
+type CancelReservationRequest struct {
+	ReservationID string `json:"reservation_id" form:"reservation_id" binding:"required"` // 预订ID，格式如 RES123
+}
+
 // GetAvailableVehiclesRequest 获取可用车辆请求
 type GetAvailableVehiclesRequest struct {
 	StartDate  string  `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
@@ -214,20 +219,4 @@ type GetInventoryReportRequest struct {
 	MerchantID int64  `json:"merchant_id" form:"merchant_id"`
 	StartDate  string `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
 	EndDate    string `json:"end_date" form:"end_date" binding:"required"`     // 格式: YYYY-MM-DD
-}
-
-// CreateOrderFromReservationRequest 基于预订创建订单请求
-type CreateOrderFromReservationRequest struct {
-	ReservationID       int64   `json:"reservation_id" form:"reservation_id" binding:"required"`
-	PickupLocationID    int64   `json:"pickup_location_id" form:"pickup_location_id" binding:"required"`
-	ReturnLocationID    int64   `json:"return_location_id" form:"return_location_id" binding:"required"`
-	Notes               string  `json:"notes" form:"notes"`
-	PaymentMethod       int32   `json:"payment_method" form:"payment_method"`               // 1:支付宝 2:微信
-	ExpectedTotalAmount float64 `json:"expected_total_amount" form:"expected_total_amount"` // 预期总金额（前端计算）
-}
-
-// UpdateOrderStatusRequest 更新订单状态请求
-type UpdateOrderStatusRequest struct {
-	Status int32  `json:"status" form:"status" binding:"required"` // 订单状态
-	Reason string `json:"reason" form:"reason"`                    // 状态变更原因
 }

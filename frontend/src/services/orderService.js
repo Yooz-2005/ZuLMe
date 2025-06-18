@@ -2,9 +2,14 @@ import api from './api';
 
 const orderService = {
   // 从预订创建订单
-  createOrderFromReservation: async (reservationId) => {
+  createOrderFromReservation: async (orderData) => {
     try {
-      const response = await api.post('/order/create-from-reservation', { reservation_id: reservationId });
+      // 如果传入的是数字，说明是旧的调用方式，只传了reservationId
+      if (typeof orderData === 'number') {
+        orderData = { reservation_id: orderData };
+      }
+
+      const response = await api.post('/order/create-from-reservation', orderData);
       return response;
     } catch (error) {
       console.error('从预订创建订单失败:', error);
@@ -26,10 +31,21 @@ const orderService = {
   // 获取订单详情
   getOrderDetail: async (orderId) => {
     try {
-      const response = await api.get(`/api/orders/${orderId}`);
+      const response = await api.get(`/order/detail/${orderId}`);
       return response;
     } catch (error) {
       console.error('获取订单详情失败:', error);
+      throw error;
+    }
+  },
+
+  // 根据订单号获取订单详情
+  getOrderDetailBySn: async (orderSn) => {
+    try {
+      const response = await api.get(`/order/detail-by-sn/${orderSn}`);
+      return response;
+    } catch (error) {
+      console.error('根据订单号获取订单详情失败:', error);
       throw error;
     }
   },

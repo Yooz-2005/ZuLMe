@@ -196,6 +196,26 @@ class VehicleService {
     }
   }
 
+  // ==================== 网点管理方法 ====================
+
+  // 获取网点列表（商户列表）
+  async getLocationList(params = {}) {
+    try {
+      const queryParams = {
+        page: params.page || 1,
+        page_size: params.pageSize || 100, // 获取所有网点
+        status_filter: 1, // 只获取审核通过的商户
+        ...params
+      };
+
+      const response = await api.get('/admin/merchant/list', { params: queryParams });
+      return response;
+    } catch (error) {
+      console.error('获取网点列表失败:', error);
+      throw new Error('获取网点列表失败');
+    }
+  }
+
   // 创建预订
   async createReservation(data) {
     try {

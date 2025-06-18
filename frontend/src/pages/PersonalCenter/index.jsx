@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 import MyInfoPage from './components/MyInfoPage'; // 导入 MyInfoPage
 import ReservationList from '../../components/ReservationList'; // 导入预订列表组件
+import OrderList from '../../components/OrderList'; // 导入订单列表组件
 import styled from 'styled-components';
 
 const { Header, Sider, Content, Footer } = Layout; // 添加 Footer
@@ -218,6 +219,74 @@ const PersonalCenter = () => {
                         </div>
                     </Card>
                 );
+            case 'my_orders_management':
+                return (
+                    <Card title="订单管理" extra={(
+                        <Space>
+                            <Search placeholder="请输入订单号" onSearch={() => {}} style={{ width: 200 }} />
+                            <Button>查询</Button>
+                            <Button>清除</Button>
+                        </Space>
+                    )}>
+                        <Tabs
+                            defaultActiveKey="all"
+                            style={{ marginBottom: 24 }}
+                            items={[
+                                {
+                                    label: '全部订单',
+                                    key: 'all',
+                                    children: <OrderList activeTab="all" />
+                                },
+                                {
+                                    label: '待支付',
+                                    key: 'pending_payment',
+                                    children: <OrderList activeTab="pending_payment" />
+                                },
+                                {
+                                    label: '已支付',
+                                    key: 'paid',
+                                    children: <OrderList activeTab="paid" />
+                                },
+                                {
+                                    label: '使用中',
+                                    key: 'in_use',
+                                    children: <OrderList activeTab="in_use" />
+                                },
+                                {
+                                    label: '已完成',
+                                    key: 'completed',
+                                    children: <OrderList activeTab="completed" />
+                                },
+                                {
+                                    label: '已取消',
+                                    key: 'cancelled',
+                                    children: <OrderList activeTab="cancelled" />
+                                },
+                            ]}
+                        />
+                        <div style={{ marginTop: '40px', borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
+                            <Title level={5}>订单状态说明</Title>
+                            <Row gutter={16}>
+                                <Col span={6}>
+                                    <Text strong>待支付</Text><br/>
+                                    <Text type="secondary">订单已创建，等待支付</Text>
+                                </Col>
+                                <Col span={6}>
+                                    <Text strong>已支付</Text><br/>
+                                    <Text type="secondary">支付成功，等待取车</Text>
+                                </Col>
+                                <Col span={6}>
+                                    <Text strong>使用中</Text><br/>
+                                    <Text type="secondary">车辆正在使用中</Text>
+                                </Col>
+                                <Col span={6}>
+                                    <Text strong>已完成</Text><br/>
+                                    <Text type="secondary">订单已完成</Text>
+                                </Col>
+                            </Row>
+                        </div>
+                    </Card>
+                );
             case 'my_account_info':
                 return <MyInfoPage onPhoneUpdate={handlePhoneUpdate} />;
             // 可以添加更多 case 来渲染其他内容
@@ -268,7 +337,12 @@ const PersonalCenter = () => {
                                         {
                                             key: 'my_orders_short_term',
                                             icon: <FileTextOutlined />,
-                                            label: '短租自驾(0)',
+                                            label: '预订管理',
+                                        },
+                                        {
+                                            key: 'my_orders_management',
+                                            icon: <AccountBookOutlined />,
+                                            label: '订单管理',
                                         },
                                     ],
                                 },

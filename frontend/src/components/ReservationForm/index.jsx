@@ -25,64 +25,201 @@ const { TextArea } = Input;
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: none;
   }
-  
+
   .ant-modal-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-bottom: none;
-    padding: 24px;
-    
+    padding: 28px 32px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      pointer-events: none;
+    }
+
     .ant-modal-title {
       color: white;
-      font-size: 20px;
-      font-weight: 600;
+      font-size: 22px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .anticon {
+        font-size: 24px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+      }
     }
   }
-  
+
+  .ant-modal-close {
+    color: white;
+    font-size: 18px;
+    top: 24px;
+    right: 24px;
+
+    &:hover {
+      color: rgba(255,255,255,0.8);
+    }
+  }
+
   .ant-modal-body {
-    padding: 24px;
+    padding: 32px;
+    background: #fafbfc;
   }
 `;
 
 const VehicleInfoCard = styled(Card)`
-  margin-bottom: 24px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  
+  margin-bottom: 28px;
+  border: none;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
   .ant-card-body {
-    padding: 16px;
+    padding: 24px;
   }
 `;
 
 const PriceDisplay = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  padding: 16px;
-  border-radius: 8px;
-  margin: 16px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24px;
+  border-radius: 12px;
+  margin: 24px 0;
   text-align: center;
-  
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    pointer-events: none;
+  }
+
   .price-label {
-    color: #64748b;
-    font-size: 14px;
-    margin-bottom: 4px;
-  }
-  
-  .price-value {
-    color: #1e293b;
-    font-size: 24px;
-    font-weight: 700;
-  }
-  
-  .price-unit {
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.9);
     font-size: 16px;
-    margin-left: 4px;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .price-value {
+    color: white;
+    font-size: 32px;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 1;
+  }
+
+  .price-unit {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 18px;
+    margin-left: 6px;
+    font-weight: 500;
   }
 `;
 
-const ReservationForm = ({ 
+const StyledForm = styled(Form)`
+  .ant-form-item-label > label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 16px;
+  }
+
+  .ant-picker {
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #667eea;
+    }
+
+    &.ant-picker-focused {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+  }
+
+  .ant-input {
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #667eea;
+    }
+
+    &:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+  }
+`;
+
+const StyledButton = styled(Button)`
+  border-radius: 8px;
+  font-weight: 600;
+  height: 48px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+
+  &.ant-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    &:disabled {
+      background: #d1d5db;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &:not(.ant-btn-primary) {
+    border: 2px solid #e5e7eb;
+    color: #6b7280;
+
+    &:hover {
+      border-color: #667eea;
+      color: #667eea;
+      transform: translateY(-1px);
+    }
+  }
+`;
+
+const ReservationForm = ({
   visible, 
   onCancel, 
   onSuccess, 
@@ -205,8 +342,15 @@ const ReservationForm = ({
   const renderAvailabilityStatus = () => {
     if (checkingAvailability) {
       return (
-        <div style={{ textAlign: 'center', padding: '16px' }}>
-          <Spin tip="检查车辆可用性..." />
+        <div style={{
+          textAlign: 'center',
+          padding: '24px',
+          background: 'white',
+          borderRadius: '12px',
+          marginBottom: '24px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+        }}>
+          <Spin tip="检查车辆可用性..." size="large" />
         </div>
       );
     }
@@ -215,10 +359,15 @@ const ReservationForm = ({
       return (
         <Alert
           type={availability.is_available ? 'success' : 'error'}
-          message={availability.is_available ? '车辆可用' : '车辆不可用'}
+          message={availability.is_available ? '✅ 车辆可用' : '❌ 车辆不可用'}
           description={availability.message}
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{
+            marginBottom: 24,
+            borderRadius: 12,
+            border: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+          }}
         />
       );
     }
@@ -237,30 +386,42 @@ const ReservationForm = ({
       open={visible}
       onCancel={onCancel}
       footer={null}
-      width={600}
+      width={680}
       destroyOnClose
+      centered
     >
       {vehicle && (
         <VehicleInfoCard>
           <Row align="middle">
             <Col span={16}>
-              <Title level={4} style={{ margin: 0 }}>
-                {vehicle.brand} {vehicle.style}
-              </Title>
-              <Text type="secondary">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <CarOutlined style={{ fontSize: '20px', color: '#667eea' }} />
+                <Title level={4} style={{ margin: 0, color: '#1f2937' }}>
+                  {vehicle.brand} {vehicle.style}
+                </Title>
+              </div>
+              <Text type="secondary" style={{ fontSize: '14px' }}>
                 {vehicle.year}年 · {vehicle.color || '标准色'}
               </Text>
             </Col>
             <Col span={8} style={{ textAlign: 'right' }}>
-              <Text strong style={{ fontSize: '18px', color: '#667eea' }}>
-                ¥{vehicle.price}/天
-              </Text>
+              <div style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                display: 'inline-block'
+              }}>
+                <Text strong style={{ fontSize: '18px', color: 'white' }}>
+                  ¥{vehicle.price}/天
+                </Text>
+              </div>
             </Col>
           </Row>
         </VehicleInfoCard>
       )}
 
-      <Form
+      <StyledForm
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
@@ -308,19 +469,19 @@ const ReservationForm = ({
           />
         </Form.Item>
 
-        <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
-          <Row gutter={12}>
+        <Form.Item style={{ marginBottom: 0, marginTop: 32 }}>
+          <Row gutter={16}>
             <Col span={12}>
-              <Button 
-                size="large" 
-                block 
+              <StyledButton
+                size="large"
+                block
                 onClick={onCancel}
               >
                 取消
-              </Button>
+              </StyledButton>
             </Col>
             <Col span={12}>
-              <Button
+              <StyledButton
                 type="primary"
                 size="large"
                 block
@@ -329,11 +490,11 @@ const ReservationForm = ({
                 disabled={!availability?.is_available || checkingAvailability}
               >
                 确认预订
-              </Button>
+              </StyledButton>
             </Col>
           </Row>
         </Form.Item>
-      </Form>
+      </StyledForm>
     </StyledModal>
   );
 };

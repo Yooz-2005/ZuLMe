@@ -15,11 +15,14 @@ const paymentService = {
   // 获取支付链接
   getPaymentUrl: async (orderId, paymentMethod = 'alipay') => {
     try {
-      // 暂时返回模拟支付链接，等待支付API实现
+      // 直接返回模拟支付链接，因为订单创建时已经包含了支付链接
+      // 这里orderId实际上是从createOrderFromReservation返回的数据
+      const orderData = orderId; // 这里传入的是整个订单数据
+
       return {
         code: 200,
         data: {
-          payment_url: `https://mock-alipay.com/pay?order=${orderId}&method=${paymentMethod}`,
+          payment_url: orderData.payment_url || `http://localhost:3000/mock-payment.html?order_sn=${orderData.order_sn}&amount=${orderData.total_amount}&subject=${encodeURIComponent('租车订单-豪华车辆')}&app_id=2021000122671234`,
           payment_id: `PAY${Date.now()}`
         },
         message: 'success'
