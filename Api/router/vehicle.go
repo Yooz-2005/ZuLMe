@@ -21,8 +21,10 @@ func RegisterVehicleRoutes(r *gin.Engine) {
 	// 公开路由（不需要认证）
 	publicVehicleGroup := r.Group("/vehicle")
 	{
-		publicVehicleGroup.GET("/:id", trigger.GetVehicleHandler)    // 获取车辆详情
-		publicVehicleGroup.GET("/list", trigger.ListVehiclesHandler) // 获取车辆列表
+		publicVehicleGroup.GET("/:id", trigger.GetVehicleHandler)              // 获取车辆详情
+		publicVehicleGroup.GET("/list", trigger.ListVehiclesHandler)           // 获取车辆列表
+		publicVehicleGroup.GET("/search", trigger.SearchVehiclesHandler)       // 使用ES搜索车辆
+		publicVehicleGroup.POST("/sync-to-es", trigger.SyncVehicleToEsHandler) // 同步车辆到ES
 	}
 
 	// 车辆类型管理路由（不需要身份验证）

@@ -40,6 +40,16 @@ func (s *ServerVehicle) ListVehicles(ctx context.Context, in *vehicle.ListVehicl
 	return logic.ListVehicles(ctx, in)
 }
 
+// SearchVehicles 使用ES搜索车辆
+func (s *ServerVehicle) SearchVehicles(ctx context.Context, in *vehicle.ListVehiclesRequest) (*vehicle.ListVehiclesResponse, error) {
+	return logic.SearchVehicles(ctx, in)
+}
+
+// SyncVehicleToEs 同步车辆到ES
+func (s *ServerVehicle) SyncVehicleToEs(ctx context.Context, in *vehicle.SyncVehicleToEsRequest) (*vehicle.SyncVehicleToEsResponse, error) {
+	return logic.SyncVehicleToEs(ctx, in)
+}
+
 // ==================== 车辆类型gRPC方法 ====================
 
 // CreateVehicleType 创建车辆类型

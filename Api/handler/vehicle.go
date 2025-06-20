@@ -81,6 +81,36 @@ func ListVehicles(ctx context.Context, req *vehicle.ListVehiclesRequest) (*vehic
 	return vehicleClient.(*vehicle.ListVehiclesResponse), nil
 }
 
+// SearchVehicles 使用ES搜索车辆
+func SearchVehicles(ctx context.Context, req *vehicle.ListVehiclesRequest) (*vehicle.ListVehiclesResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.SearchVehicles(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.ListVehiclesResponse), nil
+}
+
+// SyncVehicleToEs 同步车辆到ES
+func SyncVehicleToEs(ctx context.Context, req *vehicle.SyncVehicleToEsRequest) (*vehicle.SyncVehicleToEsResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.SyncVehicleToEs(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.SyncVehicleToEsResponse), nil
+}
+
 // ==================== 车辆类型Handler ====================
 
 // CreateVehicleType 创建车辆类型

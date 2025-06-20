@@ -67,7 +67,7 @@ type Nacoss struct {
 		Username     string `json:"username"`
 		Password     string `json:"password"`
 		Host         string `json:"host"`
-		Port         string `json:"port"`
+		Port         int    `json:"port"`
 		DatabaseName string `json:"databaseName"`
 	} `json:"mongodb"`
 }

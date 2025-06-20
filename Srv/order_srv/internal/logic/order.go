@@ -74,7 +74,13 @@ func CreateOrderFromReservation(ctx context.Context, req *order.CreateOrderFromR
 		pickupLocationID = uint(vehicle.MerchantID) // 使用车辆所在的商家ID作为取车地点
 	}
 
-	// 4. 开启事务创建订单
+	// 4. 确定还车地点ID（如果前端没有传递，则使用取车地点）
+	returnLocationID := uint(req.ReturnLocationId)
+	if returnLocationID == 0 {
+		returnLocationID = pickupLocationID // 使用取车地点作为还车地点
+	}
+
+	// 5. 开启事务创建订单
 	tx := global.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -84,7 +90,7 @@ func CreateOrderFromReservation(ctx context.Context, req *order.CreateOrderFromR
 
 	// 创建订单
 	var orderModel model_mysql.Orders
-	if err := orderModel.CreateOrderFromReservationWithTx(tx, &reservation, &vehicle, pickupLocationID, uint(req.ReturnLocationId), req.Notes, req.PaymentMethod); err != nil {
+	if err := orderModel.CreateOrderFromReservationWithTx(tx, &reservation, &vehicle, pickupLocationID, returnLocationID, req.Notes, req.PaymentMethod); err != nil {
 		tx.Rollback()
 		return &order.CreateOrderFromReservationResponse{
 			Code:    500,
@@ -101,7 +107,7 @@ func CreateOrderFromReservation(ctx context.Context, req *order.CreateOrderFromR
 		}, fmt.Errorf("order ID is 0 after creation")
 	}
 
-	// 5. 更新预订的order_id
+	// 6. 更新预订的order_id
 	if err := tx.Model(&model_mysql.VehicleInventory{}).Where("id = ?", reservation.ID).Update("order_id", orderModel.ID).Error; err != nil {
 		tx.Rollback()
 		return &order.CreateOrderFromReservationResponse{
@@ -110,7 +116,7 @@ func CreateOrderFromReservation(ctx context.Context, req *order.CreateOrderFromR
 		}, err
 	}
 
-	// 6. 创建支付链接
+	// 7. 创建支付链接
 	pay := payment.NewAliPay()
 	amount := strconv.FormatFloat(orderModel.TotalAmount, 'f', -1, 64)
 	paymentURL := pay.Pay(vehicle.Brand, orderModel.OrderSn, amount)
@@ -123,7 +129,7 @@ func CreateOrderFromReservation(ctx context.Context, req *order.CreateOrderFromR
 		}, nil
 	}
 
-	// 7. 更新订单的支付链接
+	// 8. 更新订单的支付链接
 	if err := tx.Model(&model_mysql.Orders{}).Where("id = ?", orderModel.ID).Update("payment_url", paymentURL).Error; err != nil {
 		tx.Rollback()
 		return &order.CreateOrderFromReservationResponse{

@@ -3,6 +3,7 @@ package logic
 import (
 	"Common/global"
 	"context"
+	"fmt"
 	"models/model_mysql"
 	"strings"
 	"time"
@@ -73,6 +74,12 @@ func CreateVehicle(ctx context.Context, in *vehicle.CreateVehicleRequest) (*vehi
 	// 调用模型的Create方法
 	if err := newVehicle.Create(); err != nil {
 		return &vehicle.CreateVehicleResponse{Code: 500, Message: "车辆创建失败"}, err
+	}
+
+	// 将车辆信息索引到ES
+	if err := IndexVehicleToES(&newVehicle); err != nil {
+		// ES索引失败不影响车辆创建，只记录日志
+		fmt.Printf("车辆索引到ES失败: %v\n", err)
 	}
 
 	// 转换为响应格式
@@ -176,6 +183,12 @@ func UpdateVehicle(ctx context.Context, in *vehicle.UpdateVehicleRequest) (*vehi
 		return &vehicle.UpdateVehicleResponse{Code: 500, Message: "车辆更新失败"}, err
 	}
 
+	// 更新ES中的车辆信息
+	if err := UpdateVehicleInES(&existingVehicle); err != nil {
+		// ES更新失败不影响车辆更新，只记录日志
+		fmt.Printf("车辆ES更新失败: %v\n", err)
+	}
+
 	// 转换为响应格式
 	vehicleInfo := &vehicle.VehicleInfo{
 		Id:          int64(existingVehicle.ID),
@@ -221,6 +234,12 @@ func DeleteVehicle(ctx context.Context, in *vehicle.DeleteVehicleRequest) (*vehi
 	// 调用模型的Delete方法
 	if err := vehicleData.Delete(); err != nil {
 		return &vehicle.DeleteVehicleResponse{Code: 500, Message: "车辆删除失败"}, err
+	}
+
+	// 从ES中删除车辆
+	if err := DeleteVehicleFromES(vehicleData.ID); err != nil {
+		// ES删除失败不影响车辆删除，只记录日志
+		fmt.Printf("车辆ES删除失败: %v\n", err)
 	}
 
 	return &vehicle.DeleteVehicleResponse{Code: 200, Message: "车辆删除成功"}, nil
@@ -363,5 +382,121 @@ func ListVehicles(ctx context.Context, in *vehicle.ListVehiclesRequest) (*vehicl
 		Message:  "获取车辆列表成功",
 		Vehicles: vehicleInfos,
 		Total:    total,
+	}, nil
+}
+
+// SearchVehicles 使用ES搜索车辆
+func SearchVehicles(ctx context.Context, in *vehicle.ListVehiclesRequest) (*vehicle.ListVehiclesResponse, error) {
+	// 构建过滤条件
+	filters := make(map[string]interface{})
+
+	if in.MerchantId > 0 {
+		filters["merchant_id"] = in.MerchantId
+	}
+	if in.TypeId > 0 {
+		filters["type_id"] = in.TypeId
+	}
+	if in.BrandId > 0 {
+		filters["brand_id"] = in.BrandId
+	}
+	if in.Status != -1 {
+		filters["status"] = in.Status
+	}
+	if in.PriceMin > 0 {
+		filters["price_min"] = in.PriceMin
+	}
+	if in.PriceMax > 0 {
+		filters["price_max"] = in.PriceMax
+	}
+	if in.YearMin > 0 {
+		filters["year_min"] = in.YearMin
+	}
+	if in.YearMax > 0 {
+		filters["year_max"] = in.YearMax
+	}
+
+	// 设置分页参数
+	page := in.Page
+	pageSize := in.PageSize
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+	if pageSize > 100 {
+		pageSize = 100
+	}
+
+	// 使用ES搜索
+	vehicles, total, err := SearchVehiclesInES(strings.TrimSpace(in.Keyword), page, pageSize, filters)
+	if err != nil {
+		// 如果ES搜索失败，回退到数据库搜索
+		fmt.Printf("ES搜索失败，回退到数据库搜索: %v\n", err)
+		return ListVehicles(ctx, in)
+	}
+
+	// 转换为响应格式
+	var vehicleInfos []*vehicle.VehicleInfo
+	for _, v := range vehicles {
+		vehicleInfo := &vehicle.VehicleInfo{
+			Id:          v.ID,
+			MerchantId:  v.MerchantID,
+			TypeId:      v.TypeID,
+			BrandId:     v.BrandID,
+			Brand:       v.Brand,
+			Style:       v.Style,
+			Year:        int64(v.Year),
+			Color:       v.Color,
+			Mileage:     int64(v.Mileage),
+			Price:       v.Price,
+			Status:      int64(v.Status),
+			Description: v.Description,
+			Location:    v.Location,
+			Contact:     v.Contact,
+			CreatedAt:   v.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:   v.UpdatedAt.Format(time.RFC3339),
+		}
+		vehicleInfos = append(vehicleInfos, vehicleInfo)
+	}
+
+	return &vehicle.ListVehiclesResponse{
+		Code:     200,
+		Message:  "ES搜索车辆成功",
+		Vehicles: vehicleInfos,
+		Total:    total,
+	}, nil
+}
+
+// SyncVehicleToEs 同步所有车辆到ES
+func SyncVehicleToEs(ctx context.Context, in *vehicle.SyncVehicleToEsRequest) (*vehicle.SyncVehicleToEsResponse, error) {
+	// 获取所有车辆
+	var vehicles []model_mysql.Vehicle
+	if err := global.DB.Find(&vehicles).Error; err != nil {
+		return &vehicle.SyncVehicleToEsResponse{
+			Code:    500,
+			Message: "获取车辆数据失败: " + err.Error(),
+		}, nil
+	}
+
+	successCount := 0
+	failCount := 0
+
+	// 逐个同步到ES
+	for _, v := range vehicles {
+		if err := IndexVehicleToES(&v); err != nil {
+			fmt.Printf("车辆ID:%d 同步到ES失败: %v\n", v.ID, err)
+			failCount++
+		} else {
+			successCount++
+		}
+	}
+
+	message := fmt.Sprintf("同步完成，成功:%d，失败:%d", successCount, failCount)
+	fmt.Printf("车辆ES同步结果: %s\n", message)
+
+	return &vehicle.SyncVehicleToEsResponse{
+		Code:    200,
+		Message: message,
 	}, nil
 }

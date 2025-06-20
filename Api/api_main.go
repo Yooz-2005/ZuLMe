@@ -26,5 +26,6 @@ func main() {
 	router.RegisterVehicleRoutes(r)
 	router.RegisterInvoiceRoutes(r)
 	router.LoadOrder(r)
+	router.CommentRouter(r)
 	r.Run(":8888")
 }
