@@ -15,6 +15,9 @@ func LoadUser(r *gin.Engine) {
 		{
 			user.POST("/profile", trigger.UpdateUserProfile)
 			user.POST("/phone", trigger.UpdateUserPhone)
+			user.POST("/realName", trigger.RealName)
+			user.POST("/collect", trigger.CollectVehicle)
+			user.GET("/collectList", trigger.CollectVehicleList)
 		}
 	}
 }

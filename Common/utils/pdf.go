@@ -146,16 +146,16 @@ func GenerateInvoicePDF(invoice *model_mysql.Invoice, order *model_mysql.Orders,
 	}{
 		InvoiceNo:      invoice.InvoiceNo,
 		IssuedAt:       invoice.IssuedAt.Format("2006年01月02日"), // 匹配示例日期格式
-		BuyerName:      buyerName,       
-		BuyerTaxID:     buyerTaxID,      
-		SellerName:     sellerName,     
-		SellerTaxID:    sellerTaxID,     
-		VehicleName:    invoice.VehicleName,                      
+		BuyerName:      buyerName,
+		BuyerTaxID:     buyerTaxID,
+		SellerName:     sellerName,
+		SellerTaxID:    sellerTaxID,
+		VehicleName:    invoice.VehicleName,
 		RentalDays:     invoice.RentalDays,
 		DailyRate:      invoice.DailyRate,
 		Amount:         invoice.Amount,
 		OrderSn:        order.OrderSn,
-		IssuerName:     issuerName, 
+		IssuerName:     issuerName,
 		Title:          invoice.Title,
 		TaxNumber:      invoice.TaxNumber,
 		InvoiceTypeStr: getInvoiceTypeString(invoice.InvoiceType),
@@ -185,12 +185,15 @@ func GenerateInvoicePDF(invoice *model_mysql.Invoice, order *model_mysql.Orders,
 
 	// 确保 PDF 输出目录存在
 	outputDir := "invoices"
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0755); err != nil { // 确保目录存在
+		if !os.IsExist(err) {
+			return "", fmt.Errorf("创建 PDF 输出目录失败: %v", err)
+		}
 		return "", fmt.Errorf("创建 PDF 输出目录失败: %v", err)
 	}
 
 	pdfFileName := fmt.Sprintf("%s.pdf", invoice.InvoiceNo)
-	pdfPath := filepath.Join(outputDir, pdfFileName)
+	pdfPath := filepath.Join(outputDir, pdfFileName) // 确保路径正确
 
 	// 调用 wkhtmltopdf 命令生成 PDF (使用绝对路径)
 	const wkhtmltopdfPath = "C:\\down\\wkhtmltopdf\\bin\\wkhtmltopdf.exe" // 请根据您的实际安装路径修改

@@ -41,3 +41,27 @@ func (s ServerUser) UpdateUserPhone(ctx context.Context, in *user.UpdateUserPhon
 	}
 	return phone, nil
 }
+
+func (s ServerUser) RealName(ctx context.Context, in *user.RealNameRequest) (*user.RealNameResponse, error) {
+	name, err := logic.RealName(in)
+	if err != nil {
+		return nil, err
+	}
+	return name, nil
+}
+
+func (s ServerUser) CollectVehicle(ctx context.Context, in *user.CollectVehicleRequest) (*user.CollectVehicleResponse, error) {
+	collect, err := logic.CollectVehicle(in)
+	if err != nil {
+		return nil, err
+	}
+	return collect, nil
+}
+
+func (s ServerUser) CollectVehicleList(ctx context.Context, in *user.CollectVehicleListRequest) (*user.CollectVehicleListResponse, error) {
+	collect, err := logic.CollectVehicleList(in)
+	if err != nil {
+		return nil, err
+	}
+	return collect, nil
+}

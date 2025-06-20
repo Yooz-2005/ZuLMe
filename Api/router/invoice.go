@@ -14,6 +14,7 @@ func RegisterInvoiceRoutes(r *gin.Engine) {
 		{
 			invoiceGroup.POST("/generate", trigger.GenerateInvoice)
 		}
-	}
 
+	}
+	
 }

@@ -17,7 +17,6 @@ type Merchant struct {
 	BusinessTime string  `gorm:"type:varchar(255)"`          // 营业时间
 	Longitude    float64 `gorm:"type:decimal(10,7)"`         // 经度
 	Latitude     float64 `gorm:"type:decimal(10,7)"`         // 纬度
-	// Merchant 模型中没有 TaxID 字段，因此销售方税号将沿用 Invoice 的 TaxNumber
 }
 
 // GetByID 根据ID获取商家信息
