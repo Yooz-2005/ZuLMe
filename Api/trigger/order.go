@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"Common/payment"
 	order "order_srv/proto_order"
 
 	"github.com/gin-gonic/gin"
@@ -241,14 +240,11 @@ func UpdateOrderStatusHandler(c *gin.Context) {
 func AlipayNotifyHandler(c *gin.Context) {
 	// 记录收到回调的日志
 	fmt.Printf("=== 收到支付宝回调通知 ===\n")
-	fmt.Printf("请求方法: %s\n", c.Request.Method)
-	fmt.Printf("请求URL: %s\n", c.Request.URL.String())
-	fmt.Printf("Content-Type: %s\n", c.GetHeader("Content-Type"))
 
 	// 解析表单数据
 	if err := c.Request.ParseForm(); err != nil {
 		fmt.Printf("解析表单数据失败: %v\n", err)
-		c.String(400, "解析表单数据失败")
+		c.String(400, "fail")
 		return
 	}
 
@@ -257,53 +253,58 @@ func AlipayNotifyHandler(c *gin.Context) {
 	for key, values := range c.Request.Form {
 		if len(values) > 0 {
 			params[key] = values[0]
+			fmt.Printf("参数 %s: %s\n", key, values[0])
 		}
 	}
 
-	// 打印所有参数
-	fmt.Printf("回调参数:\n")
-	for key, value := range params {
-		fmt.Printf("  %s: %s\n", key, value)
-	}
+	// 验证必要参数
+	outTradeNo := params["out_trade_no"]
+	tradeNo := params["trade_no"]
+	tradeStatus := params["trade_status"]
+	totalAmount := params["total_amount"]
 
-	// 验证通知
-	alipayService := payment.NewAlipayService()
-	if !alipayService.VerifyNotify(params) {
-		fmt.Printf("支付宝通知验证失败\n")
-		c.String(400, "验证失败")
+	if outTradeNo == "" || tradeStatus == "" {
+		fmt.Printf("缺少必要参数: out_trade_no=%s, trade_status=%s\n", outTradeNo, tradeStatus)
+		c.String(400, "fail")
 		return
 	}
-	fmt.Printf("支付宝通知验证成功\n")
 
-	// 解析通知数据
-	result := alipayService.ParseNotify(params)
-	fmt.Printf("解析结果: 订单号=%s, 交易号=%s, 状态=%s, 金额=%.2f\n",
-		result.OrderSn, result.TradeNo, result.TradeStatus, result.TotalAmount)
+	fmt.Printf("订单号: %s, 交易号: %s, 状态: %s, 金额: %s\n",
+		outTradeNo, tradeNo, tradeStatus, totalAmount)
 
-	// 调用订单微服务处理支付通知
-	fmt.Printf("调用订单微服务处理支付通知...\n")
-	notifyRes, err := handler.AlipayNotify(c, &order.AlipayNotifyRequest{
-		OutTradeNo:  result.OrderSn,
-		TradeNo:     result.TradeNo,
-		TradeStatus: result.TradeStatus,
-		TotalAmount: fmt.Sprintf("%.2f", result.TotalAmount),
-		GmtPayment:  result.PayTime,
+	// 直接调用logic层处理支付回调，不通过gRPC
+	var orderStatus int32
+	switch tradeStatus {
+	case "TRADE_SUCCESS":
+		orderStatus = 2 // 已支付
+	case "TRADE_FINISHED":
+		orderStatus = 5 // 已完成
+	case "TRADE_CLOSED":
+		orderStatus = 6 // 已取消
+	default:
+		fmt.Printf("未处理的交易状态: %s\n", tradeStatus)
+		c.String(200, "success") // 即使状态未处理也返回成功，避免支付宝重复通知
+		return
+	}
+
+	// 调用logic层更新订单状态
+	updateRes, err := handler.UpdateOrderStatus(c, &order.UpdateOrderStatusRequest{
+		OrderSn: outTradeNo,
+		Status:  orderStatus,
 	})
 	if err != nil {
-		fmt.Printf("调用订单微服务失败: %v\n", err)
-		c.String(500, "处理支付通知失败")
+		fmt.Printf("更新订单状态失败: %v\n", err)
+		c.String(500, "fail")
 		return
 	}
 
-	fmt.Printf("订单微服务响应: Code=%d, Message=%s\n", notifyRes.Code, notifyRes.Message)
-
-	if notifyRes.Code != 200 {
-		fmt.Printf("订单微服务处理失败: %s\n", notifyRes.Message)
-		c.String(500, notifyRes.Message)
+	if updateRes.Code != 200 {
+		fmt.Printf("更新订单状态失败: %s\n", updateRes.Message)
+		c.String(500, "fail")
 		return
 	}
 
-	fmt.Printf("支付回调处理成功\n")
+	fmt.Printf("支付回调处理成功: %s\n", updateRes.Message)
 	// 返回成功响应给支付宝
 	c.String(200, "success")
 }
@@ -324,6 +325,69 @@ func AlipayReturnHandler(c *gin.Context) {
 	c.Redirect(302, redirectURL)
 }
 
+// CancelOrderHandler 取消订单处理器
+func CancelOrderHandler(c *gin.Context) {
+	// 从JWT中获取用户ID
+	userID := c.GetUint("userId")
+	if userID == 0 {
+		response.ResponseError400(c, "用户ID不能为空")
+		return
+	}
+
+	// 获取订单ID
+	orderIDStr := c.Param("order_id")
+	orderID, err := strconv.ParseInt(orderIDStr, 10, 64)
+	if err != nil {
+		response.ResponseError400(c, "订单ID格式错误")
+		return
+	}
+
+	// 获取取消原因（可选）
+	var req struct {
+		Reason string `json:"reason"`
+	}
+	c.ShouldBind(&req)
+
+	// 先验证订单归属
+	getRes, err := handler.GetOrder(c, &order.GetOrderRequest{
+		OrderId: orderID,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if getRes.Code != 200 {
+		response.ResponseError400(c, getRes.Message)
+		return
+	}
+
+	if getRes.Order.UserId != int64(userID) {
+		response.ResponseError400(c, "无权操作此订单")
+		return
+	}
+
+	// 调用订单微服务取消订单
+	cancelRes, err := handler.CancelOrder(c, &order.CancelOrderRequest{
+		OrderId: orderID,
+		UserId:  int64(userID),
+		Reason:  req.Reason,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if cancelRes.Code != 200 {
+		response.ResponseError400(c, cancelRes.Message)
+		return
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message": cancelRes.Message,
+	})
+}
+
 // GetUserOrderListHandler 获取用户订单列表处理器
 func GetUserOrderListHandler(c *gin.Context) {
 	// 从JWT中获取用户ID
@@ -333,12 +397,46 @@ func GetUserOrderListHandler(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现获取用户订单列表的逻辑
-	// 这里需要在订单微服务中添加相应的接口
+	// 获取查询参数
+	page := c.DefaultQuery("page", "1")
+	pageSize := c.DefaultQuery("page_size", "10")
+	status := c.Query("status")                // 可选的状态筛选
+	paymentStatus := c.Query("payment_status") // 可选的支付状态筛选
+
+	// 转换参数
+	pageInt := 1
+	pageSizeInt := 10
+	if p, err := strconv.Atoi(page); err == nil && p > 0 {
+		pageInt = p
+	}
+	if ps, err := strconv.Atoi(pageSize); err == nil && ps > 0 {
+		pageSizeInt = ps
+	}
+
+	// 调用订单微服务获取用户订单列表
+	listRes, err := handler.GetUserOrderList(c, &order.GetUserOrderListRequest{
+		UserId:        int64(userID),
+		Page:          int32(pageInt),
+		PageSize:      int32(pageSizeInt),
+		Status:        status,
+		PaymentStatus: paymentStatus,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if listRes.Code != 200 {
+		response.ResponseError400(c, listRes.Message)
+		return
+	}
 
 	response.ResponseSuccess(c, gin.H{
-		"message": "功能开发中",
-		"orders":  []interface{}{},
+		"message":   listRes.Message,
+		"orders":    listRes.Orders,
+		"total":     listRes.Total,
+		"page":      pageInt,
+		"page_size": pageSizeInt,
 	})
 }
 

@@ -1,6 +1,10 @@
 package model_mysql
 
-import "gorm.io/gorm"
+import (
+	"Common/global"
+
+	"gorm.io/gorm"
+)
 
 // Merchant 商家模型
 type Merchant struct {
@@ -14,4 +18,9 @@ type Merchant struct {
 	BusinessTime string  `gorm:"type:varchar(255)"`          // 营业时间
 	Longitude    float64 `gorm:"type:decimal(10,7)"`         // 经度
 	Latitude     float64 `gorm:"type:decimal(10,7)"`         // 纬度
+}
+
+// GetByID 根据ID获取商家信息
+func (m *Merchant) GetByID(id uint) error {
+	return global.DB.Where("id = ?", id).First(m).Error
 }

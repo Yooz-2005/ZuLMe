@@ -22,13 +22,14 @@ func InitOrderRouter(r *gin.Engine) {
 		userOrderGroup.GET("/detail/:order_id", trigger.GetOrderDetailHandler)                     // 获取订单详情
 		userOrderGroup.GET("/detail-by-sn/:order_sn", trigger.GetOrderDetailBySnHandler)           // 根据订单号获取详情
 		userOrderGroup.PUT("/status/:order_id", trigger.UpdateOrderStatusHandler)                  // 更新订单状态
+		userOrderGroup.POST("/cancel/:order_id", trigger.CancelOrderHandler)                       // 取消订单
 		userOrderGroup.GET("/list", trigger.GetUserOrderListHandler)                               // 获取用户订单列表
 	}
 
 	// 商家订单管理路由（需要商家认证）
 	merchantOrderGroup := r.Group("/merchant/order")
 	{
-		merchantOrderGroup.Use(jwt.JWTAuth("2208"))                                     // 商家认证
+		merchantOrderGroup.Use(jwt.JWTAuth("merchant"))                                 // 商家认证
 		merchantOrderGroup.GET("/list", trigger.GetMerchantOrderListHandler)            // 获取商家订单列表
 		merchantOrderGroup.PUT("/status/:order_id", trigger.MerchantUpdateOrderHandler) // 商家更新订单状态
 		merchantOrderGroup.GET("/statistics", trigger.GetOrderStatisticsHandler)        // 获取订单统计
@@ -39,7 +40,6 @@ func InitOrderRouter(r *gin.Engine) {
 	{
 		paymentGroup.POST("/alipay/notify", trigger.AlipayNotifyHandler) // 支付宝异步通知
 		paymentGroup.GET("/alipay/return", trigger.AlipayReturnHandler)  // 支付宝同步返回
-		paymentGroup.POST("/wechat/notify", trigger.WechatNotifyHandler) // 微信支付异步通知（预留）
 	}
 
 	// 订单管理路由（内部调用，可选择是否需要认证）

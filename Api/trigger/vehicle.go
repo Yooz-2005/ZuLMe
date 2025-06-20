@@ -950,13 +950,13 @@ func GetInventoryReportHandler(c *gin.Context) {
 
 	response.ResponseSuccess(c, gin.H{
 		"message":          reportRes.Message,
-		"total_vehicles":   reportRes.TotalVehicles,
-		"total_days":       reportRes.TotalDays,
-		"total_capacity":   reportRes.TotalCapacity,
-		"reservations":     reportRes.Reservations,
-		"rentals":          reportRes.Rentals,
-		"maintenances":     reportRes.Maintenances,
-		"used_capacity":    reportRes.UsedCapacity,
-		"utilization_rate": reportRes.UtilizationRate,
+		"total_vehicles":   reportRes.TotalVehicles,   // 总车辆数
+		"total_days":       reportRes.TotalDays,       // 总天数
+		"total_capacity":   reportRes.TotalCapacity,   // 总容量
+		"reservations":     reportRes.Reservations,    // 预订数
+		"rentals":          reportRes.Rentals,         // 租赁数
+		"maintenances":     reportRes.Maintenances,    // 维护数
+		"used_capacity":    reportRes.UsedCapacity,    // 已使用容量
+		"utilization_rate": reportRes.UtilizationRate, // 利用率
 	})
 }

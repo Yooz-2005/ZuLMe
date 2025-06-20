@@ -177,6 +177,8 @@ const ReservationList = ({ activeTab = 'all' }) => {
 
   // 处理支付 - 打开支付选择弹窗
   const handlePayment = (reservation) => {
+    console.log('准备支付的预订信息:', reservation);
+    console.log('预订ID:', reservation.id, '类型:', typeof reservation.id);
     setSelectedReservation(reservation);
     setPaymentModalVisible(true);
     setSelectedReturnLocation(null); // 重置还车地点选择
@@ -200,6 +202,49 @@ const ReservationList = ({ activeTab = 'all' }) => {
       return;
     }
 
+    // 验证预订ID并提取数字部分（订单服务期望数字格式）
+    let reservationId = reservation.id;
+    let numericReservationId;
+
+    // 检查预订ID是否为空
+    if (!reservationId) {
+      console.error('预订ID为空:', reservation.id);
+      message.error('预订ID为空，请刷新页面重试');
+      return;
+    }
+
+    // 如果是字符串格式的ID（如 "RES123"），提取数字部分
+    if (typeof reservationId === 'string') {
+      const match = reservationId.match(/RES(\d+)/);
+      if (match) {
+        numericReservationId = parseInt(match[1], 10);
+        console.log('从字符串ID提取数字:', reservationId, '->', numericReservationId);
+      } else {
+        // 尝试直接解析为数字
+        numericReservationId = parseInt(reservationId, 10);
+        if (isNaN(numericReservationId)) {
+          console.error('无法从预订ID提取数字:', reservationId);
+          message.error('预订ID格式无效，请刷新页面重试');
+          return;
+        }
+      }
+    } else if (typeof reservationId === 'number') {
+      numericReservationId = reservationId;
+      console.log('使用数字格式的预订ID:', numericReservationId);
+    } else {
+      console.error('预订ID类型无效:', reservation.id, typeof reservation.id);
+      message.error('预订ID类型无效，请刷新页面重试');
+      return;
+    }
+
+    if (isNaN(numericReservationId) || numericReservationId <= 0) {
+      console.error('预订ID数字无效:', numericReservationId);
+      message.error('预订ID格式无效，请刷新页面重试');
+      return;
+    }
+
+    console.log('预订ID验证通过:', numericReservationId);
+
     // 检查用户是否已登录
     const token = localStorage.getItem('token');
     console.log('用户token:', token);
@@ -210,12 +255,13 @@ const ReservationList = ({ activeTab = 'all' }) => {
 
     setPaymentLoading(true);
     try {
-      // 创建订单时包含还车地点信息
+      // 创建订单时包含还车地点信息（取车地点由后端自动从车辆信息获取）
       const orderData = {
-        reservation_id: reservation.id,
+        reservation_id: numericReservationId, // 使用提取的数字ID
         return_location_id: selectedReturnLocation,
-        payment_method: 1, // 1:支付宝
-        notes: `还车地点：${returnLocations.find(loc => loc.id === selectedReturnLocation)?.name}`
+        payment_method: "alipay", // 使用字符串格式
+        notes: `还车地点：${returnLocations.find(loc => loc.id === selectedReturnLocation)?.name}`,
+        expected_total_amount: parseFloat(reservation.total_amount) || 0
       };
 
       console.log('调用创建订单接口，订单数据:', orderData);
@@ -228,11 +274,15 @@ const ReservationList = ({ activeTab = 'all' }) => {
         // 关闭支付弹窗
         setPaymentModalVisible(false);
 
-        // 直接使用创建订单时返回的支付链接，或者构建模拟支付链接
-        const paymentUrl = orderResponse.data.payment_url ||
-          `http://localhost:3000/mock-payment.html?order_sn=${orderResponse.data.order_sn}&amount=${orderResponse.data.total_amount}&subject=${encodeURIComponent('租车订单-豪华车辆')}&app_id=2021000122671234`;
+        // 使用创建订单时返回的支付链接
+        const paymentUrl = orderResponse.data.payment_url;
 
         console.log('支付链接:', paymentUrl);
+
+        if (!paymentUrl) {
+          message.error('支付链接生成失败，请重试');
+          return;
+        }
 
         // 打开支付链接
         window.open(paymentUrl, '_blank');
@@ -244,11 +294,25 @@ const ReservationList = ({ activeTab = 'all' }) => {
         }, 2000);
       } else {
         console.error('创建订单失败:', orderResponse);
-        message.error(orderResponse?.message || '创建订单失败');
+        const errorMsg = orderResponse?.message || '创建订单失败';
+        message.error(`创建订单失败: ${errorMsg}`);
       }
     } catch (error) {
       console.error('支付处理错误:', error);
-      message.error('创建支付失败：' + (error.message || '请稍后重试'));
+      console.error('错误详情:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+
+      let errorMessage = '创建支付失败，请稍后重试';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      message.error(errorMessage);
     } finally {
       setPaymentLoading(false);
     }

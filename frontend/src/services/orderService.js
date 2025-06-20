@@ -51,9 +51,9 @@ const orderService = {
   },
 
   // 取消订单
-  cancelOrder: async (orderId) => {
+  cancelOrder: async (orderId, reason = '') => {
     try {
-      const response = await api.put(`/api/orders/${orderId}/cancel`);
+      const response = await api.post(`/order/cancel/${orderId}`, { reason });
       return response;
     } catch (error) {
       console.error('取消订单失败:', error);

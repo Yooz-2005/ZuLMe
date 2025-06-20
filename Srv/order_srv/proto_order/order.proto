@@ -83,29 +83,48 @@ message UpdateOrderStatusResponse {
   string message = 2;
 }
 
-// 支付宝异步通知请求
-message AlipayNotifyRequest {
-  string out_trade_no = 1;    // 订单号
-  string trade_no = 2;        // 支付宝交易号
-  string trade_status = 3;    // 交易状态
-  string total_amount = 4;    // 交易金额
-  string gmt_payment = 5;     // 支付时间
+// 获取用户订单列表请求
+message GetUserOrderListRequest {
+  int64 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  string status = 4; // 可选的状态筛选
+  string payment_status = 5; // 可选的支付状态筛选
 }
 
-// 支付宝异步通知响应
-message AlipayNotifyResponse {
+// 获取用户订单列表响应
+message GetUserOrderListResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated OrderInfo orders = 3;
+  int64 total = 4;
+}
+
+
+
+// 取消订单请求
+message CancelOrderRequest {
+  int64 order_id = 1;
+  string order_sn = 2; // order_id 和 order_sn 二选一
+  int64 user_id = 3;   // 用于验证订单所有权
+  string reason = 4;   // 取消原因
+}
+
+// 取消订单响应
+message CancelOrderResponse {
   int64 code = 1;
   string message = 2;
 }
 
 service Order {
   rpc Ping(Request) returns(Response);
-  
+
   // 订单管理
   rpc CreateOrderFromReservation(CreateOrderFromReservationRequest) returns(CreateOrderFromReservationResponse); // 基于预订创建订单
   rpc GetOrder(GetOrderRequest) returns(GetOrderResponse); // 获取订单详情
   rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns(UpdateOrderStatusResponse); // 更新订单状态
-  
-  // 支付相关
-  rpc AlipayNotify(AlipayNotifyRequest) returns(AlipayNotifyResponse); // 支付宝异步通知
+  rpc GetUserOrderList(GetUserOrderListRequest) returns(GetUserOrderListResponse); // 获取用户订单列表
+  rpc CancelOrder(CancelOrderRequest) returns(CancelOrderResponse); // 取消订单
+
+
 }
