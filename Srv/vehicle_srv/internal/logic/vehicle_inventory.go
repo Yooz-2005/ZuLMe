@@ -2,11 +2,11 @@ package logic
 
 import (
 	"ZuLMe/ZuLMe/Common/global"
-	vehicle "ZuLMe/ZuLMe/Srv/vehicle_srv/proto_vehicle"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
 	"fmt"
 	"time"
+	vehicle "vehicle_srv/proto_vehicle"
 )
 
 // CheckVehicleAvailability 检查车辆可用性

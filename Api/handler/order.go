@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ZuLMe/ZuLMe/Api/client"
-	order "ZuLMe/ZuLMe/Srv/order_srv/proto_order"
+	"Api/client"
 	"context"
+	order "order_srv/proto_order"
 )
 
 // CreateOrderFromReservation 基于预订创建订单

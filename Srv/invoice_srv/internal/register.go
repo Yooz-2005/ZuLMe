@@ -1,9 +1,9 @@
 package internal
 
 import (
-	invoice "ZuLMe/ZuLMe/Srv/invoice_srv/proto_invoice"
-	"ZuLMe/ZuLMe/Srv/invoice_srv/server"
 	"google.golang.org/grpc"
+	invoice "invoice_srv/proto_invoice"
+	"invoice_srv/server"
 )
 
 func RegisterInvoiceServer(ser *grpc.Server) {

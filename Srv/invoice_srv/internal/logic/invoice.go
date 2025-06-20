@@ -1,8 +1,8 @@
 package logic
 
 import (
-	invoice "ZuLMe/ZuLMe/Srv/invoice_srv/proto_invoice"
 	"fmt"
+	invoice "invoice_srv/proto_invoice"
 	"time"
 
 	"ZuLMe/ZuLMe/Common/global"

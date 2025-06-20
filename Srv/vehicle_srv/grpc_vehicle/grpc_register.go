@@ -1,8 +1,8 @@
 package grpc_vehicle
 
 import (
-	"ZuLMe/ZuLMe/Srv/vehicle_srv/internal"
 	"google.golang.org/grpc"
+	"vehicle_srv/internal"
 )
 
 func RegisterVehicleServices(s *grpc.Server) {

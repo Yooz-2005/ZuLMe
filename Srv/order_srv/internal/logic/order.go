@@ -3,10 +3,10 @@ package logic
 import (
 	"ZuLMe/ZuLMe/Common/global"
 	"ZuLMe/ZuLMe/Common/payment"
-	order "ZuLMe/ZuLMe/Srv/order_srv/proto_order"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
 	"fmt"
+	order "order_srv/proto_order"
 	"time"
 )
 

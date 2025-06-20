@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ZuLMe/ZuLMe/Api/client"
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
+	"Api/client"
 	"context"
+	user "user_srv/proto_user"
 )
 
 // todo用户注册登录

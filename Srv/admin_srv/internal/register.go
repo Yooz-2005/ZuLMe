@@ -1,8 +1,8 @@
 package internal
 
 import (
-	admin "ZuLMe/ZuLMe/Srv/admin_srv/proto_admin"
-	"ZuLMe/ZuLMe/Srv/admin_srv/server"
+	admin "admin_srv/proto_admin"
+	"admin_srv/server"
 	"google.golang.org/grpc"
 )
 

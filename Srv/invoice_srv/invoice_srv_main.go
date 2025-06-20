@@ -3,9 +3,9 @@ package main
 import (
 	"ZuLMe/ZuLMe/Common/appconfig"
 	"ZuLMe/ZuLMe/Common/initialize"
-	"ZuLMe/ZuLMe/Srv/invoice_srv/grpc_invoice"
-	"ZuLMe/ZuLMe/Srv/invoice_srv/internal"
 	"google.golang.org/grpc"
+	"invoice_srv/grpc_invoice"
+	"invoice_srv/internal"
 )
 
 func main() {

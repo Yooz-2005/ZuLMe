@@ -3,7 +3,7 @@ package main
 import (
 	"ZuLMe/ZuLMe/Common/appconfig"
 	"ZuLMe/ZuLMe/Common/initialize"
-	"ZuLMe/ZuLMe/Srv/admin_srv/grpc_admin"
+	"admin_srv/grpc_admin"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"

@@ -1,11 +1,11 @@
 package trigger
 
 import (
-	"ZuLMe/ZuLMe/Api/handler"
-	"ZuLMe/ZuLMe/Api/request"
-	"ZuLMe/ZuLMe/Api/response"
-	merchant "ZuLMe/ZuLMe/Srv/merchant_srv/proto_merchant"
+	"Api/handler"
+	"Api/request"
+	"Api/response"
 	"github.com/gin-gonic/gin"
+	merchant "merchant_srv/proto_merchant"
 )
 
 func MerchantRegisterHandler(c *gin.Context) {

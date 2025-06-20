@@ -1,12 +1,12 @@
 package trigger
 
 import (
-	"ZuLMe/ZuLMe/Api/handler"
-	"ZuLMe/ZuLMe/Api/request"
-	"ZuLMe/ZuLMe/Api/response"
-	"ZuLMe/ZuLMe/Common/payment"
-	order "ZuLMe/ZuLMe/Srv/order_srv/proto_order"
+	"Api/handler"
+	"Api/request"
+	"Api/response"
+	"Common/payment"
 	"fmt"
+	order "order_srv/proto_order"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

@@ -1,9 +1,9 @@
 package client
 
 import (
-	invoice "ZuLMe/ZuLMe/Srv/invoice_srv/proto_invoice"
 	"context"
 	"google.golang.org/grpc"
+	invoice "invoice_srv/proto_invoice"
 )
 
 type HandlerInvoice func(ctx context.Context, in invoice.InvoiceClient) (interface{}, error)

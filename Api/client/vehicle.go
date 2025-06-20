@@ -1,8 +1,8 @@
 package client
 
 import (
-	vehicle "ZuLMe/ZuLMe/Srv/vehicle_srv/proto_vehicle"
 	"context"
+	vehicle "vehicle_srv/proto_vehicle"
 
 	"google.golang.org/grpc"
 )

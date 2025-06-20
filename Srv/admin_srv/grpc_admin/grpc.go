@@ -1,7 +1,7 @@
 package grpc_admin
 
 import (
-	"ZuLMe/ZuLMe/Srv/admin_srv/internal"
+	"admin_srv/internal"
 	"google.golang.org/grpc"
 )
 

@@ -1,11 +1,11 @@
 package trigger
 
 import (
-	"ZuLMe/ZuLMe/Api/handler"
-	"ZuLMe/ZuLMe/Api/request"
-	"ZuLMe/ZuLMe/Api/response"
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
+	"Api/handler"
+	"Api/request"
+	"Api/response"
 	"github.com/gin-gonic/gin"
+	user "user_srv/proto_user"
 )
 
 // todo用户注册登录

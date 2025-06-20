@@ -1,9 +1,9 @@
 package client
 
 import (
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
 	"context"
 	"google.golang.org/grpc"
+	user "user_srv/proto_user"
 )
 
 type HandlerUser func(ctx context.Context, in user.UserClient) (interface{}, error)

@@ -2,7 +2,7 @@ package logic
 
 import (
 	"ZuLMe/ZuLMe/Common/pkg"
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
+	user "user_srv/proto_user"
 )
 
 func RealName(in *user.RealNameRequest) (*user.RealNameResponse, error) {

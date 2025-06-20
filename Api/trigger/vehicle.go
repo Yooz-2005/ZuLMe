@@ -1,14 +1,13 @@
 package trigger
 
 import (
-	"ZuLMe/ZuLMe/Api/handler"
-	"ZuLMe/ZuLMe/Api/request"
-	"ZuLMe/ZuLMe/Api/response"
-	vehicle "ZuLMe/ZuLMe/Srv/vehicle_srv/proto_vehicle"
+	"Api/handler"
+	"Api/request"
+	"Api/response"
 	"fmt"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
+	"strconv"
+	vehicle "vehicle_srv/proto_vehicle"
 )
 
 // CreateVehicleHandler 创建车辆处理器

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ZuLMe/ZuLMe/Api/router"
+	"Api/router"
 	"time"
 
 	"github.com/gin-contrib/cors"

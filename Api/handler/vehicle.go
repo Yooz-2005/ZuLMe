@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ZuLMe/ZuLMe/Api/client"
-	vehicle "ZuLMe/ZuLMe/Srv/vehicle_srv/proto_vehicle"
+	"Api/client"
 	"context"
+	vehicle "vehicle_srv/proto_vehicle"
 )
 
 // CreateVehicle 创建车辆

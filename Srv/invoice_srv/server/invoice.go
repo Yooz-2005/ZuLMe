@@ -1,9 +1,9 @@
 package server
 
 import (
-	"ZuLMe/ZuLMe/Srv/invoice_srv/internal/logic"
-	invoice "ZuLMe/ZuLMe/Srv/invoice_srv/proto_invoice"
 	"context"
+	"invoice_srv/internal/logic"
+	invoice "invoice_srv/proto_invoice"
 )
 
 type ServerInvoice struct {

@@ -1,9 +1,9 @@
 package server
 
 import (
-	"ZuLMe/ZuLMe/Srv/vehicle_srv/internal/logic"
-	vehicle "ZuLMe/ZuLMe/Srv/vehicle_srv/proto_vehicle"
 	"context"
+	"vehicle_srv/internal/logic"
+	vehicle "vehicle_srv/proto_vehicle"
 )
 
 type ServerVehicle struct {

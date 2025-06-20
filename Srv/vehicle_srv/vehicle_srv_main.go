@@ -4,13 +4,13 @@ import (
 	"ZuLMe/ZuLMe/Common/appconfig"
 	"ZuLMe/ZuLMe/Common/global"
 	"ZuLMe/ZuLMe/Common/initialize"
-	"ZuLMe/ZuLMe/Srv/vehicle_srv/grpc_vehicle"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"net"
+	"vehicle_srv/grpc_vehicle"
 )
 
 func main() {

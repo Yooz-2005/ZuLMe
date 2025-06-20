@@ -3,10 +3,10 @@ package logic
 import (
 	"ZuLMe/ZuLMe/Common/global"
 	"ZuLMe/ZuLMe/Common/services"
-	merchant "ZuLMe/ZuLMe/Srv/merchant_srv/proto_merchant"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
 	"fmt"
+	merchant "merchant_srv/proto_merchant"
 
 	"golang.org/x/crypto/bcrypt"
 )

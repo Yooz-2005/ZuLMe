@@ -3,9 +3,9 @@ package logic
 import (
 	"ZuLMe/ZuLMe/Common/global"
 	"ZuLMe/ZuLMe/Common/utils"
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"errors"
+	user "user_srv/proto_user"
 )
 
 func UpdateUserPhone(in *user.UpdateUserPhoneRequest) (*user.UpdateUserPhoneResponse, error) {

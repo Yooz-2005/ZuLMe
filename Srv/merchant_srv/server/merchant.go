@@ -1,9 +1,9 @@
 package server
 
 import (
-	"ZuLMe/ZuLMe/Srv/merchant_srv/internal/logic"
-	merchant "ZuLMe/ZuLMe/Srv/merchant_srv/proto_merchant"
 	"context"
+	"merchant_srv/internal/logic"
+	merchant "merchant_srv/proto_merchant"
 )
 
 type ServerMerchant struct {

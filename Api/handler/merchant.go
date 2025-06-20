@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ZuLMe/ZuLMe/Api/client"
-	merchant "ZuLMe/ZuLMe/Srv/merchant_srv/proto_merchant"
+	"Api/client"
 	"context"
+	merchant "merchant_srv/proto_merchant"
 )
 
 func MerchantRegister(ctx context.Context, req *merchant.MerchantRegisterRequest) (*merchant.MerchantRegisterResponse, error) {

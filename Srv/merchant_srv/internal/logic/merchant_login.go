@@ -3,11 +3,11 @@ package logic
 import (
 	"ZuLMe/ZuLMe/Common/global"
 	"ZuLMe/ZuLMe/Common/pkg"
-	merchant "ZuLMe/ZuLMe/Srv/merchant_srv/proto_merchant"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	merchant "merchant_srv/proto_merchant"
 )
 
 func MerchantLogin(ctx context.Context, in *merchant.MerchantLoginRequest) (*merchant.MerchantLoginResponse, error) {

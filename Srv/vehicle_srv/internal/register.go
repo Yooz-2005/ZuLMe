@@ -1,9 +1,9 @@
 package internal
 
 import (
-	vehicle "ZuLMe/ZuLMe/Srv/vehicle_srv/proto_vehicle"
-	"ZuLMe/ZuLMe/Srv/vehicle_srv/server"
 	"google.golang.org/grpc"
+	vehicle "vehicle_srv/proto_vehicle"
+	"vehicle_srv/server"
 )
 
 func RegisterVehicleServer(ser *grpc.Server) {

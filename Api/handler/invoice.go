@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ZuLMe/ZuLMe/Api/client"
-	invoice "ZuLMe/ZuLMe/Srv/invoice_srv/proto_invoice"
+	"Api/client"
 	"context"
+	invoice "invoice_srv/proto_invoice"
 )
 
 func GenerateInvoice(ctx context.Context, req *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoiceResponse, error) {

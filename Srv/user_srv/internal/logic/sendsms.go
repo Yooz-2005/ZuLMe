@@ -2,12 +2,12 @@ package logic
 
 import (
 	"ZuLMe/ZuLMe/Common/appconfig"
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
 	"ZuLMe/ZuLMe/models/model_redis"
 	"errors"
 	"log"
 	"math/rand"
 	"strconv"
+	user "user_srv/proto_user"
 )
 
 func generateCode() string {

@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ZuLMe/ZuLMe/Api/client"
-	"ZuLMe/ZuLMe/Api/request"
-	admin "ZuLMe/ZuLMe/Srv/admin_srv/proto_admin"
+	"Api/client"
+	"Api/request"
+	admin "admin_srv/proto_admin"
 	"context"
 )
 

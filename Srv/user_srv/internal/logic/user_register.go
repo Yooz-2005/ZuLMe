@@ -4,11 +4,11 @@ import (
 	"ZuLMe/ZuLMe/Common/global"
 	"ZuLMe/ZuLMe/Common/pkg"
 	"ZuLMe/ZuLMe/Common/utils"
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"ZuLMe/ZuLMe/models/model_redis"
 	"errors"
 	"gorm.io/gorm"
+	user "user_srv/proto_user"
 
 	"strconv"
 )

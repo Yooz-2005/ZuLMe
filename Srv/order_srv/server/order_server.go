@@ -1,9 +1,9 @@
 package server
 
 import (
-	"ZuLMe/ZuLMe/Srv/order_srv/internal/logic"
-	order "ZuLMe/ZuLMe/Srv/order_srv/proto_order"
 	"context"
+	"order_srv/internal/logic"
+	order "order_srv/proto_order"
 )
 
 // OrderServer 订单服务器

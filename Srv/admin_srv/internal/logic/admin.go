@@ -3,8 +3,8 @@ package logic
 import (
 	"ZuLMe/ZuLMe/Common/global"
 	"ZuLMe/ZuLMe/Common/services"
-	admin "ZuLMe/ZuLMe/Srv/admin_srv/proto_admin"
 	"ZuLMe/ZuLMe/models/model_mysql"
+	admin "admin_srv/proto_admin"
 	"context"
 	"errors"
 	"fmt"

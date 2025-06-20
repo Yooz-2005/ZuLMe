@@ -1,9 +1,9 @@
 package client
 
 import (
-	order "ZuLMe/ZuLMe/Srv/order_srv/proto_order"
 	"context"
 	"fmt"
+	order "order_srv/proto_order"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

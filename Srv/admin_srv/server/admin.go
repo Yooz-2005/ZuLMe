@@ -1,8 +1,8 @@
 package server
 
 import (
-	"ZuLMe/ZuLMe/Srv/admin_srv/internal/logic"
-	admin "ZuLMe/ZuLMe/Srv/admin_srv/proto_admin"
+	"admin_srv/internal/logic"
+	admin "admin_srv/proto_admin"
 	"context"
 )
 

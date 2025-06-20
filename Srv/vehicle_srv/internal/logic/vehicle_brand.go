@@ -1,11 +1,11 @@
 package logic
 
 import (
-	vehicle "ZuLMe/ZuLMe/Srv/vehicle_srv/proto_vehicle"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
 	"fmt"
 	"time"
+	vehicle "vehicle_srv/proto_vehicle"
 )
 
 // CreateVehicleBrand 创建车辆品牌

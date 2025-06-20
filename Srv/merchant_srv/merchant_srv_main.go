@@ -4,9 +4,9 @@ import (
 	"ZuLMe/ZuLMe/Common/appconfig"
 	"ZuLMe/ZuLMe/Common/global"
 	"ZuLMe/ZuLMe/Common/initialize"
-	"ZuLMe/ZuLMe/Srv/merchant_srv/grpc_merchant"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"fmt"
+	"merchant_srv/grpc_merchant"
 	"net"
 
 	"google.golang.org/grpc"

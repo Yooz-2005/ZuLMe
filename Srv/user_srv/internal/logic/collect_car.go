@@ -1,10 +1,10 @@
 package logic
 
 import (
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
 	"ZuLMe/ZuLMe/models/model_mysql"
 	"errors"
 	"time"
+	user "user_srv/proto_user"
 )
 
 func CollectVehicle(in *user.CollectVehicleRequest) (*user.CollectVehicleResponse, error) {

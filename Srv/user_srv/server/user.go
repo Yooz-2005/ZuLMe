@@ -1,9 +1,9 @@
 package server
 
 import (
-	"ZuLMe/ZuLMe/Srv/user_srv/internal/logic"
-	user "ZuLMe/ZuLMe/Srv/user_srv/proto_user"
 	"context"
+	"user_srv/internal/logic"
+	user "user_srv/proto_user"
 )
 
 type ServerUser struct {

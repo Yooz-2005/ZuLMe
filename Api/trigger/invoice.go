@@ -1,11 +1,11 @@
 package trigger
 
 import (
-	"ZuLMe/ZuLMe/Api/handler"
-	"ZuLMe/ZuLMe/Api/request"
-	"ZuLMe/ZuLMe/Api/response"
-	invoice "ZuLMe/ZuLMe/Srv/invoice_srv/proto_invoice"
+	"Api/handler"
+	"Api/request"
+	"Api/response"
 	"github.com/gin-gonic/gin"
+	invoice "invoice_srv/proto_invoice"
 )
 
 func GenerateInvoice(c *gin.Context) {
