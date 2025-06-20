@@ -12,7 +12,7 @@ import {
   Breadcrumb,
   Empty
 } from 'antd';
-import { HomeOutlined, SearchOutlined, CarOutlined } from '@ant-design/icons';
+import { HomeOutlined, SearchOutlined, CarOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
@@ -60,30 +60,41 @@ const SearchResults = () => {
     pageSize: PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
     total: 0
   });
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  // 检查用户登录状态
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
 
   // 解析URL参数
   const parseUrlParams = () => {
     const urlParams = new URLSearchParams(location.search);
     const params = {};
-    
+
     if (urlParams.get('location')) {
       params.location = urlParams.get('location');
     }
-    
+
     if (urlParams.get('start_date') && urlParams.get('end_date')) {
       params.dates = [
         dayjs(urlParams.get('start_date')),
         dayjs(urlParams.get('end_date'))
       ];
     }
-    
+
     if (urlParams.get('vehicle_type')) {
-      params.carType = urlParams.get('vehicle_type');
+      params.carType = parseInt(urlParams.get('vehicle_type'));
     }
-    
+
+    if (urlParams.get('brand_id')) {
+      params.brandId = parseInt(urlParams.get('brand_id'));
+    }
+
     return params;
   };
 
@@ -101,7 +112,7 @@ const SearchResults = () => {
       
       const response = await vehicleService.searchVehicles(searchData);
       
-      if (response && response.data) {
+      if (response && response.code === 200 && response.data) {
         setVehicles(response.data.vehicles || []);
         setPagination({
           current: page,
@@ -130,7 +141,7 @@ const SearchResults = () => {
   const handleSearch = async (newSearchParams) => {
     setSearchParams(newSearchParams);
     await searchVehicles(newSearchParams, 1, pagination.pageSize);
-    
+
     // 更新URL参数
     const queryParams = new URLSearchParams();
     if (newSearchParams.location) {
@@ -143,7 +154,10 @@ const SearchResults = () => {
     if (newSearchParams.carType) {
       queryParams.append('vehicle_type', newSearchParams.carType);
     }
-    
+    if (newSearchParams.brandId) {
+      queryParams.append('brand_id', newSearchParams.brandId);
+    }
+
     navigate(`/search?${queryParams.toString()}`, { replace: true });
   };
 
@@ -174,6 +188,14 @@ const SearchResults = () => {
             <Space>
               <Button onClick={() => navigate('/vehicles')}>所有车辆</Button>
               <Button onClick={() => navigate('/')}>返回首页</Button>
+              {isLoggedIn && (
+                <Button
+                  icon={<UserOutlined />}
+                  onClick={() => navigate('/personal-center')}
+                >
+                  我的
+                </Button>
+              )}
             </Space>
           </Col>
         </Row>

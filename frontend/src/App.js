@@ -9,6 +9,10 @@ import VehicleDetail from './pages/VehicleDetail';
 import SearchResults from './pages/SearchResults';
 import Dashboard from './pages/Dashboard';
 import PersonalCenter from './pages/PersonalCenter';
+import ImageTest from './components/ImageTest';
+import VehicleDebug from './pages/VehicleDebug';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentTest from './pages/PaymentTest';
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
@@ -19,7 +23,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    font-family: 'SimHei', 'Microsoft YaHei', Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
       'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
       'Noto Color Emoji';
   }
@@ -38,6 +42,10 @@ function App() {
           <Route path="/search" element={<SearchResults />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/personal-center" element={<PersonalCenter />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/test" element={<PaymentTest />} />
+          <Route path="/image-test" element={<ImageTest />} />
+          <Route path="/vehicle-debug" element={<VehicleDebug />} />
         </Routes>
       </Router>
     </ConfigProvider>

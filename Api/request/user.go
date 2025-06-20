@@ -26,3 +26,12 @@ type UpdateUserProfileRequest struct {
 type UpdateUserPhoneRequest struct {
 	Phone string `json:"phone" form:"phone"`
 }
+
+type RealNameRequest struct {
+	RealName string `json:"real_name" form:"real_name"`
+	IdNumber string `json:"id_number" form:"id_number"`
+}
+
+type CollectVehicleRequest struct {
+	VehicleId uint `json:"vehicle_id" form:"vehicle_id"`
+}

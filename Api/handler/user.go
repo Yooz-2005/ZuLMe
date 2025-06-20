@@ -65,3 +65,48 @@ func UpdateUserPhone(ctx context.Context, req *user.UpdateUserPhoneRequest) (*us
 	}
 	return userClient.(*user.UpdateUserPhoneResponse), nil
 }
+
+// todo用户实名认证
+func RealName(ctx context.Context, req *user.RealNameRequest) (*user.RealNameResponse, error) {
+	userClient, err := client.UserClient(ctx, func(ctx context.Context, in user.UserClient) (interface{}, error) {
+		name, err := in.RealName(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return name, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return userClient.(*user.RealNameResponse), nil
+}
+
+// todo收藏取消收藏车辆
+func CollectVehicle(ctx context.Context, req *user.CollectVehicleRequest) (*user.CollectVehicleResponse, error) {
+	userClient, err := client.UserClient(ctx, func(ctx context.Context, in user.UserClient) (interface{}, error) {
+		collect, err := in.CollectVehicle(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return collect, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return userClient.(*user.CollectVehicleResponse), nil
+}
+
+// todo收藏车辆列表
+func CollectVehicleList(ctx context.Context, req *user.CollectVehicleListRequest) (*user.CollectVehicleListResponse, error) {
+	userClient, err := client.UserClient(ctx, func(ctx context.Context, in user.UserClient) (interface{}, error) {
+		collect, err := in.CollectVehicleList(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return collect, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return userClient.(*user.CollectVehicleListResponse), nil
+}

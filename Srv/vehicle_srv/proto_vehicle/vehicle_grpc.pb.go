@@ -19,17 +19,35 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Vehicle_Ping_FullMethodName              = "/vehicle.Vehicle/Ping"
-	Vehicle_CreateVehicle_FullMethodName     = "/vehicle.Vehicle/CreateVehicle"
-	Vehicle_UpdateVehicle_FullMethodName     = "/vehicle.Vehicle/UpdateVehicle"
-	Vehicle_DeleteVehicle_FullMethodName     = "/vehicle.Vehicle/DeleteVehicle"
-	Vehicle_GetVehicle_FullMethodName        = "/vehicle.Vehicle/GetVehicle"
-	Vehicle_ListVehicles_FullMethodName      = "/vehicle.Vehicle/ListVehicles"
-	Vehicle_CreateVehicleType_FullMethodName = "/vehicle.Vehicle/CreateVehicleType"
-	Vehicle_UpdateVehicleType_FullMethodName = "/vehicle.Vehicle/UpdateVehicleType"
-	Vehicle_DeleteVehicleType_FullMethodName = "/vehicle.Vehicle/DeleteVehicleType"
-	Vehicle_GetVehicleType_FullMethodName    = "/vehicle.Vehicle/GetVehicleType"
-	Vehicle_ListVehicleTypes_FullMethodName  = "/vehicle.Vehicle/ListVehicleTypes"
+	Vehicle_Ping_FullMethodName                    = "/vehicle.Vehicle/Ping"
+	Vehicle_CreateVehicle_FullMethodName           = "/vehicle.Vehicle/CreateVehicle"
+	Vehicle_UpdateVehicle_FullMethodName           = "/vehicle.Vehicle/UpdateVehicle"
+	Vehicle_DeleteVehicle_FullMethodName           = "/vehicle.Vehicle/DeleteVehicle"
+	Vehicle_GetVehicle_FullMethodName              = "/vehicle.Vehicle/GetVehicle"
+	Vehicle_ListVehicles_FullMethodName            = "/vehicle.Vehicle/ListVehicles"
+	Vehicle_CreateVehicleType_FullMethodName       = "/vehicle.Vehicle/CreateVehicleType"
+	Vehicle_UpdateVehicleType_FullMethodName       = "/vehicle.Vehicle/UpdateVehicleType"
+	Vehicle_DeleteVehicleType_FullMethodName       = "/vehicle.Vehicle/DeleteVehicleType"
+	Vehicle_GetVehicleType_FullMethodName          = "/vehicle.Vehicle/GetVehicleType"
+	Vehicle_ListVehicleTypes_FullMethodName        = "/vehicle.Vehicle/ListVehicleTypes"
+	Vehicle_CreateVehicleBrand_FullMethodName      = "/vehicle.Vehicle/CreateVehicleBrand"
+	Vehicle_UpdateVehicleBrand_FullMethodName      = "/vehicle.Vehicle/UpdateVehicleBrand"
+	Vehicle_DeleteVehicleBrand_FullMethodName      = "/vehicle.Vehicle/DeleteVehicleBrand"
+	Vehicle_GetVehicleBrand_FullMethodName         = "/vehicle.Vehicle/GetVehicleBrand"
+	Vehicle_ListVehicleBrands_FullMethodName       = "/vehicle.Vehicle/ListVehicleBrands"
+	Vehicle_CheckAvailability_FullMethodName       = "/vehicle.Vehicle/CheckAvailability"
+	Vehicle_CreateReservation_FullMethodName       = "/vehicle.Vehicle/CreateReservation"
+	Vehicle_UpdateReservationStatus_FullMethodName = "/vehicle.Vehicle/UpdateReservationStatus"
+	Vehicle_CancelReservation_FullMethodName       = "/vehicle.Vehicle/CancelReservation"
+	Vehicle_GetAvailableVehicles_FullMethodName    = "/vehicle.Vehicle/GetAvailableVehicles"
+	Vehicle_GetUserReservationList_FullMethodName  = "/vehicle.Vehicle/GetUserReservationList"
+	Vehicle_GetInventoryStats_FullMethodName       = "/vehicle.Vehicle/GetInventoryStats"
+	Vehicle_SetMaintenance_FullMethodName          = "/vehicle.Vehicle/SetMaintenance"
+	Vehicle_GetMaintenanceSchedule_FullMethodName  = "/vehicle.Vehicle/GetMaintenanceSchedule"
+	Vehicle_GetInventoryCalendar_FullMethodName    = "/vehicle.Vehicle/GetInventoryCalendar"
+	Vehicle_BatchCreateReservations_FullMethodName = "/vehicle.Vehicle/BatchCreateReservations"
+	Vehicle_BatchCancelReservations_FullMethodName = "/vehicle.Vehicle/BatchCancelReservations"
+	Vehicle_GetInventoryReport_FullMethodName      = "/vehicle.Vehicle/GetInventoryReport"
 )
 
 // VehicleClient is the client API for Vehicle service.
@@ -49,6 +67,26 @@ type VehicleClient interface {
 	DeleteVehicleType(ctx context.Context, in *DeleteVehicleTypeRequest, opts ...grpc.CallOption) (*DeleteVehicleTypeResponse, error)
 	GetVehicleType(ctx context.Context, in *GetVehicleTypeRequest, opts ...grpc.CallOption) (*GetVehicleTypeResponse, error)
 	ListVehicleTypes(ctx context.Context, in *ListVehicleTypesRequest, opts ...grpc.CallOption) (*ListVehicleTypesResponse, error)
+	// 车辆品牌管理
+	CreateVehicleBrand(ctx context.Context, in *CreateVehicleBrandRequest, opts ...grpc.CallOption) (*CreateVehicleBrandResponse, error)
+	UpdateVehicleBrand(ctx context.Context, in *UpdateVehicleBrandRequest, opts ...grpc.CallOption) (*UpdateVehicleBrandResponse, error)
+	DeleteVehicleBrand(ctx context.Context, in *DeleteVehicleBrandRequest, opts ...grpc.CallOption) (*DeleteVehicleBrandResponse, error)
+	GetVehicleBrand(ctx context.Context, in *GetVehicleBrandRequest, opts ...grpc.CallOption) (*GetVehicleBrandResponse, error)
+	ListVehicleBrands(ctx context.Context, in *ListVehicleBrandsRequest, opts ...grpc.CallOption) (*ListVehicleBrandsResponse, error)
+	// 车辆库存管理
+	CheckAvailability(ctx context.Context, in *CheckAvailabilityRequest, opts ...grpc.CallOption) (*CheckAvailabilityResponse, error)
+	CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*CreateReservationResponse, error)
+	UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*UpdateReservationStatusResponse, error)
+	CancelReservation(ctx context.Context, in *CancelReservationRequest, opts ...grpc.CallOption) (*CancelReservationResponse, error)
+	GetAvailableVehicles(ctx context.Context, in *GetAvailableVehiclesRequest, opts ...grpc.CallOption) (*GetAvailableVehiclesResponse, error)
+	GetUserReservationList(ctx context.Context, in *GetUserReservationListRequest, opts ...grpc.CallOption) (*GetUserReservationListResponse, error)
+	GetInventoryStats(ctx context.Context, in *GetInventoryStatsRequest, opts ...grpc.CallOption) (*GetInventoryStatsResponse, error)
+	SetMaintenance(ctx context.Context, in *SetMaintenanceRequest, opts ...grpc.CallOption) (*SetMaintenanceResponse, error)
+	GetMaintenanceSchedule(ctx context.Context, in *GetMaintenanceScheduleRequest, opts ...grpc.CallOption) (*GetMaintenanceScheduleResponse, error)
+	GetInventoryCalendar(ctx context.Context, in *GetInventoryCalendarRequest, opts ...grpc.CallOption) (*GetInventoryCalendarResponse, error)
+	BatchCreateReservations(ctx context.Context, in *BatchCreateReservationsRequest, opts ...grpc.CallOption) (*BatchCreateReservationsResponse, error)
+	BatchCancelReservations(ctx context.Context, in *BatchCancelReservationsRequest, opts ...grpc.CallOption) (*BatchCancelReservationsResponse, error)
+	GetInventoryReport(ctx context.Context, in *GetInventoryReportRequest, opts ...grpc.CallOption) (*GetInventoryReportResponse, error)
 }
 
 type vehicleClient struct {
@@ -169,6 +207,186 @@ func (c *vehicleClient) ListVehicleTypes(ctx context.Context, in *ListVehicleTyp
 	return out, nil
 }
 
+func (c *vehicleClient) CreateVehicleBrand(ctx context.Context, in *CreateVehicleBrandRequest, opts ...grpc.CallOption) (*CreateVehicleBrandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateVehicleBrandResponse)
+	err := c.cc.Invoke(ctx, Vehicle_CreateVehicleBrand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) UpdateVehicleBrand(ctx context.Context, in *UpdateVehicleBrandRequest, opts ...grpc.CallOption) (*UpdateVehicleBrandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateVehicleBrandResponse)
+	err := c.cc.Invoke(ctx, Vehicle_UpdateVehicleBrand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) DeleteVehicleBrand(ctx context.Context, in *DeleteVehicleBrandRequest, opts ...grpc.CallOption) (*DeleteVehicleBrandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteVehicleBrandResponse)
+	err := c.cc.Invoke(ctx, Vehicle_DeleteVehicleBrand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) GetVehicleBrand(ctx context.Context, in *GetVehicleBrandRequest, opts ...grpc.CallOption) (*GetVehicleBrandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetVehicleBrandResponse)
+	err := c.cc.Invoke(ctx, Vehicle_GetVehicleBrand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) ListVehicleBrands(ctx context.Context, in *ListVehicleBrandsRequest, opts ...grpc.CallOption) (*ListVehicleBrandsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListVehicleBrandsResponse)
+	err := c.cc.Invoke(ctx, Vehicle_ListVehicleBrands_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) CheckAvailability(ctx context.Context, in *CheckAvailabilityRequest, opts ...grpc.CallOption) (*CheckAvailabilityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckAvailabilityResponse)
+	err := c.cc.Invoke(ctx, Vehicle_CheckAvailability_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*CreateReservationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateReservationResponse)
+	err := c.cc.Invoke(ctx, Vehicle_CreateReservation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*UpdateReservationStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateReservationStatusResponse)
+	err := c.cc.Invoke(ctx, Vehicle_UpdateReservationStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) CancelReservation(ctx context.Context, in *CancelReservationRequest, opts ...grpc.CallOption) (*CancelReservationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelReservationResponse)
+	err := c.cc.Invoke(ctx, Vehicle_CancelReservation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) GetAvailableVehicles(ctx context.Context, in *GetAvailableVehiclesRequest, opts ...grpc.CallOption) (*GetAvailableVehiclesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAvailableVehiclesResponse)
+	err := c.cc.Invoke(ctx, Vehicle_GetAvailableVehicles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) GetUserReservationList(ctx context.Context, in *GetUserReservationListRequest, opts ...grpc.CallOption) (*GetUserReservationListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserReservationListResponse)
+	err := c.cc.Invoke(ctx, Vehicle_GetUserReservationList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) GetInventoryStats(ctx context.Context, in *GetInventoryStatsRequest, opts ...grpc.CallOption) (*GetInventoryStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInventoryStatsResponse)
+	err := c.cc.Invoke(ctx, Vehicle_GetInventoryStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) SetMaintenance(ctx context.Context, in *SetMaintenanceRequest, opts ...grpc.CallOption) (*SetMaintenanceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetMaintenanceResponse)
+	err := c.cc.Invoke(ctx, Vehicle_SetMaintenance_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) GetMaintenanceSchedule(ctx context.Context, in *GetMaintenanceScheduleRequest, opts ...grpc.CallOption) (*GetMaintenanceScheduleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMaintenanceScheduleResponse)
+	err := c.cc.Invoke(ctx, Vehicle_GetMaintenanceSchedule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) GetInventoryCalendar(ctx context.Context, in *GetInventoryCalendarRequest, opts ...grpc.CallOption) (*GetInventoryCalendarResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInventoryCalendarResponse)
+	err := c.cc.Invoke(ctx, Vehicle_GetInventoryCalendar_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) BatchCreateReservations(ctx context.Context, in *BatchCreateReservationsRequest, opts ...grpc.CallOption) (*BatchCreateReservationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatchCreateReservationsResponse)
+	err := c.cc.Invoke(ctx, Vehicle_BatchCreateReservations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) BatchCancelReservations(ctx context.Context, in *BatchCancelReservationsRequest, opts ...grpc.CallOption) (*BatchCancelReservationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatchCancelReservationsResponse)
+	err := c.cc.Invoke(ctx, Vehicle_BatchCancelReservations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) GetInventoryReport(ctx context.Context, in *GetInventoryReportRequest, opts ...grpc.CallOption) (*GetInventoryReportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInventoryReportResponse)
+	err := c.cc.Invoke(ctx, Vehicle_GetInventoryReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VehicleServer is the server API for Vehicle service.
 // All implementations must embed UnimplementedVehicleServer
 // for forward compatibility.
@@ -186,6 +404,26 @@ type VehicleServer interface {
 	DeleteVehicleType(context.Context, *DeleteVehicleTypeRequest) (*DeleteVehicleTypeResponse, error)
 	GetVehicleType(context.Context, *GetVehicleTypeRequest) (*GetVehicleTypeResponse, error)
 	ListVehicleTypes(context.Context, *ListVehicleTypesRequest) (*ListVehicleTypesResponse, error)
+	// 车辆品牌管理
+	CreateVehicleBrand(context.Context, *CreateVehicleBrandRequest) (*CreateVehicleBrandResponse, error)
+	UpdateVehicleBrand(context.Context, *UpdateVehicleBrandRequest) (*UpdateVehicleBrandResponse, error)
+	DeleteVehicleBrand(context.Context, *DeleteVehicleBrandRequest) (*DeleteVehicleBrandResponse, error)
+	GetVehicleBrand(context.Context, *GetVehicleBrandRequest) (*GetVehicleBrandResponse, error)
+	ListVehicleBrands(context.Context, *ListVehicleBrandsRequest) (*ListVehicleBrandsResponse, error)
+	// 车辆库存管理
+	CheckAvailability(context.Context, *CheckAvailabilityRequest) (*CheckAvailabilityResponse, error)
+	CreateReservation(context.Context, *CreateReservationRequest) (*CreateReservationResponse, error)
+	UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*UpdateReservationStatusResponse, error)
+	CancelReservation(context.Context, *CancelReservationRequest) (*CancelReservationResponse, error)
+	GetAvailableVehicles(context.Context, *GetAvailableVehiclesRequest) (*GetAvailableVehiclesResponse, error)
+	GetUserReservationList(context.Context, *GetUserReservationListRequest) (*GetUserReservationListResponse, error)
+	GetInventoryStats(context.Context, *GetInventoryStatsRequest) (*GetInventoryStatsResponse, error)
+	SetMaintenance(context.Context, *SetMaintenanceRequest) (*SetMaintenanceResponse, error)
+	GetMaintenanceSchedule(context.Context, *GetMaintenanceScheduleRequest) (*GetMaintenanceScheduleResponse, error)
+	GetInventoryCalendar(context.Context, *GetInventoryCalendarRequest) (*GetInventoryCalendarResponse, error)
+	BatchCreateReservations(context.Context, *BatchCreateReservationsRequest) (*BatchCreateReservationsResponse, error)
+	BatchCancelReservations(context.Context, *BatchCancelReservationsRequest) (*BatchCancelReservationsResponse, error)
+	GetInventoryReport(context.Context, *GetInventoryReportRequest) (*GetInventoryReportResponse, error)
 	mustEmbedUnimplementedVehicleServer()
 }
 
@@ -228,6 +466,60 @@ func (UnimplementedVehicleServer) GetVehicleType(context.Context, *GetVehicleTyp
 }
 func (UnimplementedVehicleServer) ListVehicleTypes(context.Context, *ListVehicleTypesRequest) (*ListVehicleTypesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListVehicleTypes not implemented")
+}
+func (UnimplementedVehicleServer) CreateVehicleBrand(context.Context, *CreateVehicleBrandRequest) (*CreateVehicleBrandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateVehicleBrand not implemented")
+}
+func (UnimplementedVehicleServer) UpdateVehicleBrand(context.Context, *UpdateVehicleBrandRequest) (*UpdateVehicleBrandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateVehicleBrand not implemented")
+}
+func (UnimplementedVehicleServer) DeleteVehicleBrand(context.Context, *DeleteVehicleBrandRequest) (*DeleteVehicleBrandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteVehicleBrand not implemented")
+}
+func (UnimplementedVehicleServer) GetVehicleBrand(context.Context, *GetVehicleBrandRequest) (*GetVehicleBrandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVehicleBrand not implemented")
+}
+func (UnimplementedVehicleServer) ListVehicleBrands(context.Context, *ListVehicleBrandsRequest) (*ListVehicleBrandsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListVehicleBrands not implemented")
+}
+func (UnimplementedVehicleServer) CheckAvailability(context.Context, *CheckAvailabilityRequest) (*CheckAvailabilityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAvailability not implemented")
+}
+func (UnimplementedVehicleServer) CreateReservation(context.Context, *CreateReservationRequest) (*CreateReservationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateReservation not implemented")
+}
+func (UnimplementedVehicleServer) UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*UpdateReservationStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateReservationStatus not implemented")
+}
+func (UnimplementedVehicleServer) CancelReservation(context.Context, *CancelReservationRequest) (*CancelReservationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelReservation not implemented")
+}
+func (UnimplementedVehicleServer) GetAvailableVehicles(context.Context, *GetAvailableVehiclesRequest) (*GetAvailableVehiclesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableVehicles not implemented")
+}
+func (UnimplementedVehicleServer) GetUserReservationList(context.Context, *GetUserReservationListRequest) (*GetUserReservationListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserReservationList not implemented")
+}
+func (UnimplementedVehicleServer) GetInventoryStats(context.Context, *GetInventoryStatsRequest) (*GetInventoryStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInventoryStats not implemented")
+}
+func (UnimplementedVehicleServer) SetMaintenance(context.Context, *SetMaintenanceRequest) (*SetMaintenanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetMaintenance not implemented")
+}
+func (UnimplementedVehicleServer) GetMaintenanceSchedule(context.Context, *GetMaintenanceScheduleRequest) (*GetMaintenanceScheduleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMaintenanceSchedule not implemented")
+}
+func (UnimplementedVehicleServer) GetInventoryCalendar(context.Context, *GetInventoryCalendarRequest) (*GetInventoryCalendarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInventoryCalendar not implemented")
+}
+func (UnimplementedVehicleServer) BatchCreateReservations(context.Context, *BatchCreateReservationsRequest) (*BatchCreateReservationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchCreateReservations not implemented")
+}
+func (UnimplementedVehicleServer) BatchCancelReservations(context.Context, *BatchCancelReservationsRequest) (*BatchCancelReservationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchCancelReservations not implemented")
+}
+func (UnimplementedVehicleServer) GetInventoryReport(context.Context, *GetInventoryReportRequest) (*GetInventoryReportResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInventoryReport not implemented")
 }
 func (UnimplementedVehicleServer) mustEmbedUnimplementedVehicleServer() {}
 func (UnimplementedVehicleServer) testEmbeddedByValue()                 {}
@@ -448,6 +740,330 @@ func _Vehicle_ListVehicleTypes_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Vehicle_CreateVehicleBrand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateVehicleBrandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).CreateVehicleBrand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_CreateVehicleBrand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).CreateVehicleBrand(ctx, req.(*CreateVehicleBrandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_UpdateVehicleBrand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateVehicleBrandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).UpdateVehicleBrand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_UpdateVehicleBrand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).UpdateVehicleBrand(ctx, req.(*UpdateVehicleBrandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_DeleteVehicleBrand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteVehicleBrandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).DeleteVehicleBrand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_DeleteVehicleBrand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).DeleteVehicleBrand(ctx, req.(*DeleteVehicleBrandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_GetVehicleBrand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetVehicleBrandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).GetVehicleBrand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_GetVehicleBrand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).GetVehicleBrand(ctx, req.(*GetVehicleBrandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_ListVehicleBrands_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListVehicleBrandsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).ListVehicleBrands(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_ListVehicleBrands_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).ListVehicleBrands(ctx, req.(*ListVehicleBrandsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_CheckAvailability_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckAvailabilityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).CheckAvailability(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_CheckAvailability_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).CheckAvailability(ctx, req.(*CheckAvailabilityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_CreateReservation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateReservationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).CreateReservation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_CreateReservation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).CreateReservation(ctx, req.(*CreateReservationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_UpdateReservationStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateReservationStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).UpdateReservationStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_UpdateReservationStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).UpdateReservationStatus(ctx, req.(*UpdateReservationStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_CancelReservation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelReservationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).CancelReservation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_CancelReservation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).CancelReservation(ctx, req.(*CancelReservationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_GetAvailableVehicles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvailableVehiclesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).GetAvailableVehicles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_GetAvailableVehicles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).GetAvailableVehicles(ctx, req.(*GetAvailableVehiclesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_GetUserReservationList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserReservationListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).GetUserReservationList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_GetUserReservationList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).GetUserReservationList(ctx, req.(*GetUserReservationListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_GetInventoryStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInventoryStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).GetInventoryStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_GetInventoryStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).GetInventoryStats(ctx, req.(*GetInventoryStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_SetMaintenance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetMaintenanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).SetMaintenance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_SetMaintenance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).SetMaintenance(ctx, req.(*SetMaintenanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_GetMaintenanceSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMaintenanceScheduleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).GetMaintenanceSchedule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_GetMaintenanceSchedule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).GetMaintenanceSchedule(ctx, req.(*GetMaintenanceScheduleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_GetInventoryCalendar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInventoryCalendarRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).GetInventoryCalendar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_GetInventoryCalendar_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).GetInventoryCalendar(ctx, req.(*GetInventoryCalendarRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_BatchCreateReservations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchCreateReservationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).BatchCreateReservations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_BatchCreateReservations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).BatchCreateReservations(ctx, req.(*BatchCreateReservationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_BatchCancelReservations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchCancelReservationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).BatchCancelReservations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_BatchCancelReservations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).BatchCancelReservations(ctx, req.(*BatchCancelReservationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_GetInventoryReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInventoryReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).GetInventoryReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_GetInventoryReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).GetInventoryReport(ctx, req.(*GetInventoryReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Vehicle_ServiceDesc is the grpc.ServiceDesc for Vehicle service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -498,6 +1114,78 @@ var Vehicle_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListVehicleTypes",
 			Handler:    _Vehicle_ListVehicleTypes_Handler,
+		},
+		{
+			MethodName: "CreateVehicleBrand",
+			Handler:    _Vehicle_CreateVehicleBrand_Handler,
+		},
+		{
+			MethodName: "UpdateVehicleBrand",
+			Handler:    _Vehicle_UpdateVehicleBrand_Handler,
+		},
+		{
+			MethodName: "DeleteVehicleBrand",
+			Handler:    _Vehicle_DeleteVehicleBrand_Handler,
+		},
+		{
+			MethodName: "GetVehicleBrand",
+			Handler:    _Vehicle_GetVehicleBrand_Handler,
+		},
+		{
+			MethodName: "ListVehicleBrands",
+			Handler:    _Vehicle_ListVehicleBrands_Handler,
+		},
+		{
+			MethodName: "CheckAvailability",
+			Handler:    _Vehicle_CheckAvailability_Handler,
+		},
+		{
+			MethodName: "CreateReservation",
+			Handler:    _Vehicle_CreateReservation_Handler,
+		},
+		{
+			MethodName: "UpdateReservationStatus",
+			Handler:    _Vehicle_UpdateReservationStatus_Handler,
+		},
+		{
+			MethodName: "CancelReservation",
+			Handler:    _Vehicle_CancelReservation_Handler,
+		},
+		{
+			MethodName: "GetAvailableVehicles",
+			Handler:    _Vehicle_GetAvailableVehicles_Handler,
+		},
+		{
+			MethodName: "GetUserReservationList",
+			Handler:    _Vehicle_GetUserReservationList_Handler,
+		},
+		{
+			MethodName: "GetInventoryStats",
+			Handler:    _Vehicle_GetInventoryStats_Handler,
+		},
+		{
+			MethodName: "SetMaintenance",
+			Handler:    _Vehicle_SetMaintenance_Handler,
+		},
+		{
+			MethodName: "GetMaintenanceSchedule",
+			Handler:    _Vehicle_GetMaintenanceSchedule_Handler,
+		},
+		{
+			MethodName: "GetInventoryCalendar",
+			Handler:    _Vehicle_GetInventoryCalendar_Handler,
+		},
+		{
+			MethodName: "BatchCreateReservations",
+			Handler:    _Vehicle_BatchCreateReservations_Handler,
+		},
+		{
+			MethodName: "BatchCancelReservations",
+			Handler:    _Vehicle_BatchCancelReservations_Handler,
+		},
+		{
+			MethodName: "GetInventoryReport",
+			Handler:    _Vehicle_GetInventoryReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -10,8 +10,7 @@ type User struct {
 	CreatedAt time.Time `gorm:"column:created_at;type:datetime(3);default:NULL;" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;type:datetime(3);default:NULL;" json:"updated_at"`
 	DeletedAt time.Time `gorm:"column:deleted_at;type:datetime(3);default:NULL;" json:"deleted_at"`
-	Username  string    `gorm:"column:username;type:varchar(20);comment:''用户名'';default:NULL;" json:"username"` // ''用户名''
-	Phone     string    `gorm:"column:phone;type:varchar(20);comment:''手机号'';default:NULL;" json:"phone"`       // ''手机号''
+	Phone     string    `gorm:"column:phone;type:varchar(20);comment:''手机号'';default:NULL;" json:"phone"` // ''手机号''
 }
 
 func (u *User) TableName() string {
@@ -26,4 +25,19 @@ func (u *User) Register() error {
 // todo登录
 func (u *User) Login(phone string) error {
 	return global.DB.Where("phone = ?", phone).First(&u).Error
+}
+
+// todo修改手机号
+func (u *User) UpdateUserByPhone(id int64, phone string) error {
+	return global.DB.Model(&User{}).Where("id =?", id).Update("phone", phone).Error
+}
+
+// CheckPhoneExistExcludingUser 检查手机号码是否已经被注册，排除指定用户ID
+func (u *User) CheckPhoneExistExcludingUser(phone string) (bool, error) {
+	var count int64
+	err := global.DB.Model(&User{}).Where("phone = ?", phone).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

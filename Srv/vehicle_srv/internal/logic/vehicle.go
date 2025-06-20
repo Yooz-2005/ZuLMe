@@ -15,8 +15,8 @@ func CreateVehicle(ctx context.Context, in *vehicle.CreateVehicleRequest) (*vehi
 	if in.TypeId <= 0 {
 		return &vehicle.CreateVehicleResponse{Code: 400, Message: "车辆类型ID不能为空"}, nil
 	}
-	if strings.TrimSpace(in.Brand) == "" {
-		return &vehicle.CreateVehicleResponse{Code: 400, Message: "品牌不能为空"}, nil
+	if in.BrandId <= 0 {
+		return &vehicle.CreateVehicleResponse{Code: 400, Message: "品牌ID不能为空"}, nil
 	}
 	if strings.TrimSpace(in.Style) == "" {
 		return &vehicle.CreateVehicleResponse{Code: 400, Message: "型号不能为空"}, nil
@@ -37,11 +37,27 @@ func CreateVehicle(ctx context.Context, in *vehicle.CreateVehicleRequest) (*vehi
 		return &vehicle.CreateVehicleResponse{Code: 404, Message: "车辆类型不存在"}, nil
 	}
 
+	// 验证品牌是否存在
+	var vehicleBrand model_mysql.VehicleBrand
+	if err := vehicleBrand.GetByID(uint(in.BrandId)); err != nil {
+		return &vehicle.CreateVehicleResponse{Code: 404, Message: "品牌不存在"}, nil
+	}
+
+	// 验证商家是否存在
+	var merchant model_mysql.Merchant
+	if err := global.DB.Where("id =?", in.MerchantId).Limit(1).Find(&merchant).Error; err != nil {
+		return &vehicle.CreateVehicleResponse{Code: 500, Message: "数据库查询失败"}, err
+	}
+	if merchant.ID == 0 {
+		return &vehicle.CreateVehicleResponse{Code: 404, Message: "商家不存在"}, nil
+	}
+
 	// 创建车辆实例
 	newVehicle := model_mysql.Vehicle{
 		MerchantID:  in.MerchantId,
 		TypeID:      in.TypeId,
-		Brand:       strings.TrimSpace(in.Brand),
+		BrandID:     in.BrandId,
+		Brand:       vehicleBrand.Name, // 从品牌表获取品牌名称
 		Style:       strings.TrimSpace(in.Style),
 		Year:        in.Year,
 		Color:       strings.TrimSpace(in.Color),
@@ -50,7 +66,7 @@ func CreateVehicle(ctx context.Context, in *vehicle.CreateVehicleRequest) (*vehi
 		Status:      in.Status,
 		Description: strings.TrimSpace(in.Description),
 		Images:      strings.TrimSpace(in.Images),
-		Location:    strings.TrimSpace(in.Location),
+		Location:    strings.TrimSpace(merchant.Location),
 		Contact:     strings.TrimSpace(in.Contact),
 	}
 
@@ -64,6 +80,7 @@ func CreateVehicle(ctx context.Context, in *vehicle.CreateVehicleRequest) (*vehi
 		Id:          int64(newVehicle.ID),
 		MerchantId:  newVehicle.MerchantID,
 		TypeId:      newVehicle.TypeID,
+		BrandId:     newVehicle.BrandID,
 		Brand:       newVehicle.Brand,
 		Style:       newVehicle.Style,
 		Year:        newVehicle.Year,
@@ -119,9 +136,10 @@ func UpdateVehicle(ctx context.Context, in *vehicle.UpdateVehicleRequest) (*vehi
 	}
 
 	// 更新其他字段（只更新非空字段）
-	if strings.TrimSpace(in.Brand) != "" {
-		existingVehicle.Brand = strings.TrimSpace(in.Brand)
-	}
+	// 暂时注释品牌更新，等proto重新生成后启用
+	// if strings.TrimSpace(in.Brand) != "" {
+	//	existingVehicle.Brand = strings.TrimSpace(in.Brand)
+	// }
 	if strings.TrimSpace(in.Style) != "" {
 		existingVehicle.Style = strings.TrimSpace(in.Style)
 	}

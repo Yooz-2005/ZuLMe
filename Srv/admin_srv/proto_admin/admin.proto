@@ -21,7 +21,10 @@ message MerchantUpdateRequest {
   string name = 2;
   string phone = 3;
   string email = 4;
-  // 可以添加更多可编辑字段
+  string location = 5;        // 网点地址
+  string business_time = 6;   // 营业时间
+  double longitude = 7;       // 经度
+  double latitude = 8;        // 纬度
 }
 
 // 编辑商户响应
@@ -58,6 +61,10 @@ message MerchantInfo {
   int64 status = 5;
   string created_at = 6;
   string updated_at = 7;
+  string location = 8;        // 网点地址
+  string business_time = 9;   // 营业时间
+  double longitude = 10;      // 经度
+  double latitude = 11;       // 纬度
 }
 
 // 获取商户列表响应

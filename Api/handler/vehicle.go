@@ -157,3 +157,247 @@ func ListVehicleTypes(ctx context.Context, req *vehicle.ListVehicleTypesRequest)
 	}
 	return vehicleClient.(*vehicle.ListVehicleTypesResponse), nil
 }
+
+// ==================== 车辆品牌Handler ====================
+
+// CreateVehicleBrand 创建车辆品牌
+func CreateVehicleBrand(ctx context.Context, req *vehicle.CreateVehicleBrandRequest) (*vehicle.CreateVehicleBrandResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.CreateVehicleBrand(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.CreateVehicleBrandResponse), nil
+}
+
+// UpdateVehicleBrand 更新车辆品牌
+func UpdateVehicleBrand(ctx context.Context, req *vehicle.UpdateVehicleBrandRequest) (*vehicle.UpdateVehicleBrandResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.UpdateVehicleBrand(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.UpdateVehicleBrandResponse), nil
+}
+
+// DeleteVehicleBrand 删除车辆品牌
+func DeleteVehicleBrand(ctx context.Context, req *vehicle.DeleteVehicleBrandRequest) (*vehicle.DeleteVehicleBrandResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.DeleteVehicleBrand(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.DeleteVehicleBrandResponse), nil
+}
+
+// GetVehicleBrand 获取车辆品牌详情
+func GetVehicleBrand(ctx context.Context, req *vehicle.GetVehicleBrandRequest) (*vehicle.GetVehicleBrandResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.GetVehicleBrand(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.GetVehicleBrandResponse), nil
+}
+
+// ListVehicleBrands 获取车辆品牌列表
+func ListVehicleBrands(ctx context.Context, req *vehicle.ListVehicleBrandsRequest) (*vehicle.ListVehicleBrandsResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.ListVehicleBrands(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.ListVehicleBrandsResponse), nil
+}
+
+// ==================== 车辆库存Handler ====================
+
+// CheckAvailability 检查车辆可用性
+func CheckAvailability(ctx context.Context, req *vehicle.CheckAvailabilityRequest) (*vehicle.CheckAvailabilityResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.CheckAvailability(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.CheckAvailabilityResponse), nil
+}
+
+// CreateReservation 创建预订
+func CreateReservation(ctx context.Context, req *vehicle.CreateReservationRequest) (*vehicle.CreateReservationResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.CreateReservation(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.CreateReservationResponse), nil
+}
+
+// UpdateReservationStatus 更新预订状态
+func UpdateReservationStatus(ctx context.Context, req *vehicle.UpdateReservationStatusRequest) (*vehicle.UpdateReservationStatusResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.UpdateReservationStatus(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.UpdateReservationStatusResponse), nil
+}
+
+// CancelReservation 取消预订
+func CancelReservation(ctx context.Context, req *vehicle.CancelReservationRequest) (*vehicle.CancelReservationResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.CancelReservation(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.CancelReservationResponse), nil
+}
+
+// GetAvailableVehicles 获取可用车辆
+func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehiclesRequest) (*vehicle.GetAvailableVehiclesResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.GetAvailableVehicles(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.GetAvailableVehiclesResponse), nil
+}
+
+// GetUserReservationList 获取用户预订列表
+func GetUserReservationList(ctx context.Context, req *vehicle.GetUserReservationListRequest) (*vehicle.GetUserReservationListResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.GetUserReservationList(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.GetUserReservationListResponse), nil
+}
+
+// GetInventoryStats 获取库存统计
+func GetInventoryStats(ctx context.Context, req *vehicle.GetInventoryStatsRequest) (*vehicle.GetInventoryStatsResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.GetInventoryStats(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.GetInventoryStatsResponse), nil
+}
+
+// SetMaintenance 设置维护状态
+func SetMaintenance(ctx context.Context, req *vehicle.SetMaintenanceRequest) (*vehicle.SetMaintenanceResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.SetMaintenance(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.SetMaintenanceResponse), nil
+}
+
+// GetMaintenanceSchedule 获取维护计划
+func GetMaintenanceSchedule(ctx context.Context, req *vehicle.GetMaintenanceScheduleRequest) (*vehicle.GetMaintenanceScheduleResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.GetMaintenanceSchedule(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.GetMaintenanceScheduleResponse), nil
+}
+
+// GetInventoryCalendar 获取库存日历
+func GetInventoryCalendar(ctx context.Context, req *vehicle.GetInventoryCalendarRequest) (*vehicle.GetInventoryCalendarResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.GetInventoryCalendar(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.GetInventoryCalendarResponse), nil
+}
+
+// GetInventoryReport 获取库存报表
+func GetInventoryReport(ctx context.Context, req *vehicle.GetInventoryReportRequest) (*vehicle.GetInventoryReportResponse, error) {
+	vehicleClient, err := client.VehicleClient(ctx, func(ctx context.Context, in vehicle.VehicleClient) (interface{}, error) {
+		response, err := in.GetInventoryReport(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vehicleClient.(*vehicle.GetInventoryReportResponse), nil
+}

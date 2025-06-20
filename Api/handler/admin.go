@@ -24,10 +24,14 @@ func MerchantApprove(ctx context.Context, req *request.MerchantApproveRequest) (
 func MerchantUpdate(ctx context.Context, req *request.MerchantUpdateRequest) (*admin.MerchantUpdateResponse, error) {
 	adminClient, err := client.AdminClient(ctx, func(ctx context.Context, in admin.AdminClient) (interface{}, error) {
 		updateReq := &admin.MerchantUpdateRequest{
-			Id:    req.ID,
-			Name:  req.Name,
-			Phone: req.Phone,
-			Email: req.Email,
+			Id:           req.ID,
+			Name:         req.Name,
+			Phone:        req.Phone,
+			Email:        req.Email,
+			Location:     req.Location,
+			BusinessTime: req.BusinessTime,
+			Longitude:    req.Longitude,
+			Latitude:     req.Latitude,
 		}
 		return in.MerchantUpdate(ctx, updateReq)
 	})
@@ -53,9 +57,9 @@ func MerchantDelete(ctx context.Context, req *request.MerchantDeleteRequest) (*a
 func MerchantList(ctx context.Context, req *request.MerchantListRequest) (*admin.MerchantListResponse, error) {
 	adminClient, err := client.AdminClient(ctx, func(ctx context.Context, in admin.AdminClient) (interface{}, error) {
 		listReq := &admin.MerchantListRequest{
-			Page:        req.Page,
-			PageSize:   req.PageSize,
-			Keyword:    req.Keyword,
+			Page:         req.Page,
+			PageSize:     req.PageSize,
+			Keyword:      req.Keyword,
 			StatusFilter: req.StatusFilter,
 		}
 		return in.MerchantList(ctx, listReq)

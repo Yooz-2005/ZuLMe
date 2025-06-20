@@ -20,10 +20,11 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-
 	router.LoadUser(r)
 	router.RegisterMerchantRoutes(r)
 	router.RegisterAdminRoutes(r)
 	router.RegisterVehicleRoutes(r)
+	router.RegisterInvoiceRoutes(r)
+	router.LoadOrder(r)
 	r.Run(":8888")
 }

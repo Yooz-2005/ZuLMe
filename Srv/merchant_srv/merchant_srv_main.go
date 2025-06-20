@@ -4,11 +4,12 @@ import (
 	"Common/appconfig"
 	"Common/initialize"
 	"fmt"
+	"merchant_srv/grpc_merchant"
+	"net"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	"merchant_srv/grpc_merchant"
-	"net"
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 	// 注册商家服务
 	grpc_merchant.RegisterMerchantServices(gServer)
 
-	//global.DB.AutoMigrate(&model_mysql.Vehicle{}, &model_mysql.VehicleType{})
+	// 自动迁移商家模型
 
 	// 监听端口
 	lis, err := net.Listen("tcp", ":8002") // 假设商家服务运行在8002端口

@@ -16,26 +16,27 @@ message VehicleInfo {
   int64 id = 1;
   int64 merchant_id = 2;
   int64 type_id = 3;
-  string brand = 4;
-  string style = 5;
-  int64 year = 6;
-  string color = 7;
-  int64 mileage = 8;
-  double price = 9;
-  int64 status = 10;
-  string description = 11;
-  string images = 12;
-  string location = 13;
-  string contact = 14;
-  string created_at = 15;
-  string updated_at = 16;
+  int64 brand_id = 4;
+  string brand = 5;
+  string style = 6;
+  int64 year = 7;
+  string color = 8;
+  int64 mileage = 9;
+  double price = 10;
+  int64 status = 11;
+  string description = 12;
+  string images = 13;
+  string location = 14;
+  string contact = 15;
+  string created_at = 16;
+  string updated_at = 17;
 }
 
 // 创建车辆请求
 message CreateVehicleRequest {
   int64 merchant_id = 1;
   int64 type_id = 2;
-  string brand = 3;
+  int64 brand_id = 3;
   string style = 4;
   int64 year = 5;
   string color = 6;
@@ -44,8 +45,7 @@ message CreateVehicleRequest {
   int64 status = 9;
   string description = 10;
   string images = 11;
-  string location = 12;
-  string contact = 13;
+  string contact = 12;
 }
 
 // 创建车辆响应
@@ -60,7 +60,7 @@ message UpdateVehicleRequest {
   int64 id = 1;
   int64 merchant_id = 2;
   int64 type_id = 3;
-  string brand = 4;
+  int64 brand_id = 4;
   string style = 5;
   int64 year = 6;
   string color = 7;
@@ -110,11 +110,12 @@ message ListVehiclesRequest {
   string keyword = 3; // 搜索关键词，按品牌、型号等搜索
   int64 merchant_id = 4; // 按商家筛选
   int64 type_id = 5; // 按类型筛选
-  int64 status = 6; // 按状态筛选
-  double price_min = 7; // 最低价格
-  double price_max = 8; // 最高价格
-  int64 year_min = 9; // 最早年份
-  int64 year_max = 10; // 最晚年份
+  int64 brand_id = 6; // 按品牌筛选
+  int64 status = 7; // 按状态筛选
+  double price_min = 8; // 最低价格
+  double price_max = 9; // 最高价格
+  int64 year_min = 10; // 最早年份
+  int64 year_max = 11; // 最晚年份
 }
 
 // 获取车辆列表响应
@@ -206,6 +207,338 @@ message ListVehicleTypesResponse {
   int64 total = 4; // 总记录数
 }
 
+// 车辆品牌信息
+message VehicleBrandInfo {
+  int64 id = 1;
+  string name = 2;
+  string english_name = 3;
+  string logo = 4;
+  string country = 5;
+  string description = 6;
+  int64 status = 7;
+  int64 sort = 8;
+  int64 is_hot = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+// 创建车辆品牌请求
+message CreateVehicleBrandRequest {
+  string name = 1;
+  string english_name = 2;
+  string logo = 3;
+  string country = 4;
+  string description = 5;
+  int64 status = 6;
+  int64 sort = 7;
+  int64 is_hot = 8;
+}
+
+// 创建车辆品牌响应
+message CreateVehicleBrandResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleBrandInfo vehicle_brand = 3;
+}
+
+// 更新车辆品牌请求
+message UpdateVehicleBrandRequest {
+  int64 id = 1;
+  string name = 2;
+  string english_name = 3;
+  string logo = 4;
+  string country = 5;
+  string description = 6;
+  int64 status = 7;
+  int64 sort = 8;
+  int64 is_hot = 9;
+}
+
+// 更新车辆品牌响应
+message UpdateVehicleBrandResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleBrandInfo vehicle_brand = 3;
+}
+
+// 删除车辆品牌请求
+message DeleteVehicleBrandRequest {
+  int64 id = 1;
+}
+
+// 删除车辆品牌响应
+message DeleteVehicleBrandResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取车辆品牌详情请求
+message GetVehicleBrandRequest {
+  int64 id = 1;
+}
+
+// 获取车辆品牌详情响应
+message GetVehicleBrandResponse {
+  int64 code = 1;
+  string message = 2;
+  VehicleBrandInfo vehicle_brand = 3;
+}
+
+// 获取车辆品牌列表请求
+message ListVehicleBrandsRequest {
+  int64 page = 1;
+  int64 page_size = 2;
+  string keyword = 3; // 搜索关键词，按名称搜索
+  int64 status = 4; // 按状态筛选
+  int64 is_hot = 5; // 按热门筛选 -1:全部 0:非热门 1:热门
+}
+
+// 获取车辆品牌列表响应
+message ListVehicleBrandsResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated VehicleBrandInfo vehicle_brands = 3;
+  int64 total = 4; // 总记录数
+}
+
+// ==================== 车辆库存相关消息 ====================
+
+// 检查车辆可用性请求
+message CheckAvailabilityRequest {
+  int64 vehicle_id = 1;
+  string start_date = 2; // 格式: YYYY-MM-DD
+  string end_date = 3;   // 格式: YYYY-MM-DD
+}
+
+// 检查车辆可用性响应
+message CheckAvailabilityResponse {
+  int64 code = 1;
+  string message = 2;
+  bool is_available = 3;
+}
+
+// 创建预订请求（新流程：先预订后订单）
+message CreateReservationRequest {
+  int64 vehicle_id = 1;
+  int64 user_id = 2;
+  string start_date = 3; // 格式: YYYY-MM-DD
+  string end_date = 4;   // 格式: YYYY-MM-DD
+  string notes = 5;      // 预订备注
+}
+
+// 创建预订响应
+message CreateReservationResponse {
+  int64 code = 1;
+  string message = 2;
+  int64 reservation_id = 3; // 返回预订ID，用于后续创建订单
+}
+
+// 更新预订状态请求
+message UpdateReservationStatusRequest {
+  int64 order_id = 1;
+  string status = 2; // rented, completed, cancelled
+}
+
+// 更新预订状态响应
+message UpdateReservationStatusResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 取消预订请求
+message CancelReservationRequest {
+  string reservation_id = 1; // 预订ID，格式如 RES123
+}
+
+// 取消预订响应
+message CancelReservationResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取可用车辆请求
+message GetAvailableVehiclesRequest {
+  string start_date = 1; // 格式: YYYY-MM-DD
+  string end_date = 2;   // 格式: YYYY-MM-DD
+  int64 merchant_id = 3; // 可选，按商家筛选
+  int64 type_id = 4;     // 可选，按类型筛选
+  int64 brand_id = 5;    // 可选，按品牌筛选
+  int64 status = 6;      // 可选，按库存状态筛选 -1:全部 0:默认可用 1:可租用 2:已预订 3:租用中 4:维护中 5:不可用
+  double price_min = 7;  // 可选，最低价格
+  double price_max = 8;  // 可选，最高价格
+  int64 page = 9;        // 页码
+  int64 page_size = 10;  // 每页数量
+}
+
+// 获取可用车辆响应
+message GetAvailableVehiclesResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated VehicleInfo vehicles = 3;
+  int64 total = 4;
+}
+
+// 获取库存统计请求
+message GetInventoryStatsRequest {
+  int64 merchant_id = 1;
+}
+
+// 获取库存统计响应
+message GetInventoryStatsResponse {
+  int64 code = 1;
+  string message = 2;
+  int64 total = 3;       // 总车辆数
+  int64 available = 4;   // 可用车辆数
+  int64 reserved = 5;    // 已预订车辆数
+  int64 rented = 6;      // 租用中车辆数
+  int64 maintenance = 7; // 维护中车辆数
+}
+
+// 设置维护状态请求
+message SetMaintenanceRequest {
+  int64 vehicle_id = 1;
+  string start_date = 2; // 格式: YYYY-MM-DD
+  string end_date = 3;   // 格式: YYYY-MM-DD
+  string notes = 4;      // 维护备注
+  int64 created_by = 5;  // 创建人ID
+}
+
+// 设置维护状态响应
+message SetMaintenanceResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 维护信息
+message MaintenanceInfo {
+  int64 id = 1;
+  int64 vehicle_id = 2;
+  string start_date = 3;
+  string end_date = 4;
+  string notes = 5;
+  string created_at = 6;
+}
+
+// 获取维护计划请求
+message GetMaintenanceScheduleRequest {
+  int64 vehicle_id = 1;
+}
+
+// 获取维护计划响应
+message GetMaintenanceScheduleResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated MaintenanceInfo maintenances = 3;
+  int64 total = 4;
+}
+
+// 获取库存日历请求
+message GetInventoryCalendarRequest {
+  int64 vehicle_id = 1;
+  string start_date = 2; // 格式: YYYY-MM-DD
+  string end_date = 3;   // 格式: YYYY-MM-DD
+}
+
+// 库存日历项
+message InventoryCalendarItem {
+  string date = 1;       // 日期 YYYY-MM-DD
+  int32 status = 2;      // 状态: 1-可用 2-已预订 3-租用中 4-维护中
+  int64 order_id = 3;    // 订单ID（如果有）
+  string notes = 4;      // 备注
+}
+
+// 获取库存日历响应
+message GetInventoryCalendarResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated InventoryCalendarItem calendar = 3;
+}
+
+// 批量预订项
+message BatchReservationItem {
+  int64 vehicle_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+  int64 order_id = 4;
+  int64 user_id = 5;
+}
+
+// 批量创建预订请求
+message BatchCreateReservationsRequest {
+  repeated BatchReservationItem reservations = 1;
+}
+
+// 批量创建预订响应
+message BatchCreateReservationsResponse {
+  int64 code = 1;
+  string message = 2;
+  int64 success_count = 3;
+  int64 failed_count = 4;
+}
+
+// 批量取消预订请求
+message BatchCancelReservationsRequest {
+  repeated int64 order_ids = 1;
+}
+
+// 批量取消预订响应
+message BatchCancelReservationsResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取库存报表请求
+message GetInventoryReportRequest {
+  int64 merchant_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+}
+
+// 获取库存报表响应
+message GetInventoryReportResponse {
+  int64 code = 1;
+  string message = 2;
+  int64 total_vehicles = 3;
+  int64 total_days = 4;
+  int64 total_capacity = 5;
+  int64 reservations = 6;
+  int64 rentals = 7;
+  int64 maintenances = 8;
+  int64 used_capacity = 9;
+  double utilization_rate = 10;
+}
+
+// 预订信息
+message ReservationInfo {
+  string id = 1;
+  int64 vehicle_id = 2;
+  int64 user_id = 3;
+  string start_date = 4;
+  string end_date = 5;
+  string pickup_location = 6;
+  string return_location = 7;
+  double total_amount = 8;
+  string status = 9;
+  string created_at = 10;
+  VehicleInfo vehicle = 11;
+}
+
+// 获取用户预订列表请求
+message GetUserReservationListRequest {
+  int64 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  string status = 4; // 可选的状态筛选
+}
+
+// 获取用户预订列表响应
+message GetUserReservationListResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated ReservationInfo reservations = 3;
+  int64 total = 4;
+}
+
 service Vehicle {
   rpc Ping(Request) returns(Response);
 
@@ -222,4 +555,26 @@ service Vehicle {
   rpc DeleteVehicleType(DeleteVehicleTypeRequest) returns(DeleteVehicleTypeResponse); // 删除车辆类型
   rpc GetVehicleType(GetVehicleTypeRequest) returns(GetVehicleTypeResponse); // 获取车辆类型详情
   rpc ListVehicleTypes(ListVehicleTypesRequest) returns(ListVehicleTypesResponse); // 获取车辆类型列表
+
+  // 车辆品牌管理
+  rpc CreateVehicleBrand(CreateVehicleBrandRequest) returns(CreateVehicleBrandResponse); // 创建车辆品牌
+  rpc UpdateVehicleBrand(UpdateVehicleBrandRequest) returns(UpdateVehicleBrandResponse); // 更新车辆品牌
+  rpc DeleteVehicleBrand(DeleteVehicleBrandRequest) returns(DeleteVehicleBrandResponse); // 删除车辆品牌
+  rpc GetVehicleBrand(GetVehicleBrandRequest) returns(GetVehicleBrandResponse); // 获取车辆品牌详情
+  rpc ListVehicleBrands(ListVehicleBrandsRequest) returns(ListVehicleBrandsResponse); // 获取车辆品牌列表
+
+  // 车辆库存管理
+  rpc CheckAvailability(CheckAvailabilityRequest) returns(CheckAvailabilityResponse); // 检查车辆可用性
+  rpc CreateReservation(CreateReservationRequest) returns(CreateReservationResponse); // 创建预订
+  rpc UpdateReservationStatus(UpdateReservationStatusRequest) returns(UpdateReservationStatusResponse); // 更新预订状态
+  rpc CancelReservation(CancelReservationRequest) returns(CancelReservationResponse); // 取消预订
+  rpc GetAvailableVehicles(GetAvailableVehiclesRequest) returns(GetAvailableVehiclesResponse); // 获取可用车辆
+  rpc GetUserReservationList(GetUserReservationListRequest) returns(GetUserReservationListResponse); // 获取用户预订列表
+  rpc GetInventoryStats(GetInventoryStatsRequest) returns(GetInventoryStatsResponse); // 获取库存统计
+  rpc SetMaintenance(SetMaintenanceRequest) returns(SetMaintenanceResponse); // 设置维护状态
+  rpc GetMaintenanceSchedule(GetMaintenanceScheduleRequest) returns(GetMaintenanceScheduleResponse); // 获取维护计划
+  rpc GetInventoryCalendar(GetInventoryCalendarRequest) returns(GetInventoryCalendarResponse); // 获取库存日历
+  rpc BatchCreateReservations(BatchCreateReservationsRequest) returns(BatchCreateReservationsResponse); // 批量创建预订
+  rpc BatchCancelReservations(BatchCancelReservationsRequest) returns(BatchCancelReservationsResponse); // 批量取消预订
+  rpc GetInventoryReport(GetInventoryReportRequest) returns(GetInventoryReportResponse); // 获取库存报表
 }

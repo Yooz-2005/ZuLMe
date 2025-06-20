@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Layout,
@@ -10,7 +10,7 @@ import {
   Typography,
   Space
 } from 'antd';
-import { CarOutlined, SafetyOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { CarOutlined, SafetyOutlined, ClockCircleOutlined, UserOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 
 const { Header, Content, Footer } = Layout;
@@ -186,9 +186,28 @@ const FeatureCard = styled(Card)`
 
 const Home = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userPhone, setUserPhone] = useState('');
+
+  useEffect(() => {
+    // 检查用户登录状态
+    const token = localStorage.getItem('token');
+    const phone = localStorage.getItem('userPhone');
+    if (token) {
+      setIsLoggedIn(true);
+      setUserPhone(phone || '');
+    }
+  }, []);
 
   const handleLoginRegisterClick = () => {
     navigate('/login-register');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userPhone');
+    setIsLoggedIn(false);
+    setUserPhone('');
   };
 
   return (
@@ -203,9 +222,23 @@ const Home = () => {
               <StyledNavButton onClick={() => navigate('/vehicles')}>
                 租豪车
               </StyledNavButton>
-              <StyledLoginRegisterButton onClick={handleLoginRegisterClick}>
-                登录/注册
-              </StyledLoginRegisterButton>
+              {isLoggedIn ? (
+                <>
+                  <StyledNavButton
+                    icon={<UserOutlined />}
+                    onClick={() => navigate('/personal-center')}
+                  >
+                    我的
+                  </StyledNavButton>
+                  <StyledLoginRegisterButton onClick={handleLogout}>
+                    退出
+                  </StyledLoginRegisterButton>
+                </>
+              ) : (
+                <StyledLoginRegisterButton onClick={handleLoginRegisterClick}>
+                  登录/注册
+                </StyledLoginRegisterButton>
+              )}
             </Space>
           </Col>
         </Row>
