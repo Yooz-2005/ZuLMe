@@ -111,9 +111,19 @@ func (s *ServerVehicle) UpdateReservationStatus(ctx context.Context, in *vehicle
 	return logic.UpdateReservationStatus(ctx, in)
 }
 
+// CancelReservation 取消预订
+func (s *ServerVehicle) CancelReservation(ctx context.Context, in *vehicle.CancelReservationRequest) (*vehicle.CancelReservationResponse, error) {
+	return logic.CancelReservation(ctx, in)
+}
+
 // GetAvailableVehicles 获取可用车辆列表
 func (s *ServerVehicle) GetAvailableVehicles(ctx context.Context, in *vehicle.GetAvailableVehiclesRequest) (*vehicle.GetAvailableVehiclesResponse, error) {
 	return logic.GetAvailableVehicles(ctx, in)
+}
+
+// GetUserReservationList 获取用户预订列表
+func (s *ServerVehicle) GetUserReservationList(ctx context.Context, in *vehicle.GetUserReservationListRequest) (*vehicle.GetUserReservationListResponse, error) {
+	return logic.GetUserReservationList(ctx, in)
 }
 
 // GetInventoryStats 获取库存统计

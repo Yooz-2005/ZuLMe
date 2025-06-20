@@ -3,6 +3,7 @@ import { Input, DatePicker, Button, Row, Col, Select, Typography } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import dayjs from 'dayjs';
 import vehicleService from '../../services/vehicleService';
 import BrandSelector from '../BrandSelector';
 
@@ -113,6 +114,12 @@ const SearchForm = ({
     }));
   };
 
+  // 禁用当日之前的日期
+  const disabledDate = (current) => {
+    // 禁用今天之前的日期
+    return current && current < dayjs().startOf('day');
+  };
+
   if (layout === 'vertical') {
     return (
       <SearchContainer>
@@ -137,6 +144,7 @@ const SearchForm = ({
               placeholder={['取车日期', '还车日期']}
               value={searchParams.dates}
               onChange={dates => updateSearchParams('dates', dates)}
+              disabledDate={disabledDate}
               size="large"
             />
           </Col>
@@ -206,6 +214,7 @@ const SearchForm = ({
                 placeholder={['取车日期', '还车日期']}
                 value={searchParams.dates}
                 onChange={dates => updateSearchParams('dates', dates)}
+                disabledDate={disabledDate}
                 size="large"
               />
             </Col>

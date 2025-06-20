@@ -23,7 +23,8 @@ import {
   FilterOutlined,
   AppstoreOutlined,
   BarsOutlined,
-  SortAscendingOutlined
+  SortAscendingOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -261,12 +262,20 @@ const VehicleList = () => {
           <Col>
             <Space>
               {isLoggedIn && (
-                <StyledNavButton
-                  icon={<DashboardOutlined />}
-                  onClick={() => navigate('/dashboard')}
-                >
-                  返回Dashboard
-                </StyledNavButton>
+                <>
+                  <StyledNavButton
+                    icon={<DashboardOutlined />}
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    返回Dashboard
+                  </StyledNavButton>
+                  <StyledNavButton
+                    icon={<UserOutlined />}
+                    onClick={() => navigate('/personal-center')}
+                  >
+                    我的
+                  </StyledNavButton>
+                </>
               )}
               <StyledNavButton onClick={() => navigate('/')}>
                 <HomeOutlined style={{ marginRight: 8 }} />

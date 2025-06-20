@@ -5,9 +5,10 @@ import (
 	"Api/request"
 	"Api/response"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"strconv"
 	vehicle "vehicle_srv/proto_vehicle"
+
+	"github.com/gin-gonic/gin"
 )
 
 // CreateVehicleHandler 创建车辆处理器
@@ -630,7 +631,90 @@ func CreateReservationHandler(c *gin.Context) {
 	})
 }
 
+// CancelReservationHandler 取消预订处理器
+func CancelReservationHandler(c *gin.Context) {
+	// 从JWT中获取用户ID（用于权限验证）
+	userID := c.GetUint("userId")
+	if userID == 0 {
+		response.ResponseError400(c, "用户ID不能为空")
+		return
+	}
+
+	var req request.CancelReservationRequest
+	if err := c.ShouldBind(&req); err != nil {
+		response.ResponseError400(c, err.Error())
+		return
+	}
+
+	cancelRes, err := handler.CancelReservation(c, &vehicle.CancelReservationRequest{
+		ReservationId: req.ReservationID,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if cancelRes.Code != 200 {
+		response.ResponseError400(c, cancelRes.Message)
+		return
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message": cancelRes.Message,
+	})
+}
+
 // 订单相关的handler已移动到 Api/trigger/order.go 文件中
+
+// GetUserReservationListHandler 获取用户预订列表处理器
+func GetUserReservationListHandler(c *gin.Context) {
+	// 从JWT中获取用户ID
+	userID := c.GetUint("userId")
+	if userID == 0 {
+		response.ResponseError400(c, "用户ID不能为空")
+		return
+	}
+
+	// 获取查询参数
+	page := c.DefaultQuery("page", "1")
+	pageSize := c.DefaultQuery("page_size", "10")
+	status := c.Query("status") // 可选的状态筛选
+
+	// 转换参数
+	pageInt := 1
+	pageSizeInt := 10
+	if p, err := strconv.Atoi(page); err == nil && p > 0 {
+		pageInt = p
+	}
+	if ps, err := strconv.Atoi(pageSize); err == nil && ps > 0 {
+		pageSizeInt = ps
+	}
+
+	// 调用车辆微服务获取用户预订列表
+	listRes, err := handler.GetUserReservationList(c, &vehicle.GetUserReservationListRequest{
+		UserId:   int64(userID),
+		Page:     int32(pageInt),
+		PageSize: int32(pageSizeInt),
+		Status:   status,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if listRes.Code != 200 {
+		response.ResponseError400(c, listRes.Message)
+		return
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message":      listRes.Message,
+		"reservations": listRes.Reservations,
+		"total":        listRes.Total,
+		"page":         pageInt,
+		"page_size":    pageSizeInt,
+	})
+}
 
 // UpdateReservationStatusHandler 更新预订状态处理器
 func UpdateReservationStatusHandler(c *gin.Context) {
@@ -667,14 +751,25 @@ func GetAvailableVehiclesHandler(c *gin.Context) {
 		return
 	}
 
+	// 设置默认分页参数
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 12
+	}
+
 	getRes, err := handler.GetAvailableVehicles(c, &vehicle.GetAvailableVehiclesRequest{
 		StartDate:  req.StartDate,
 		EndDate:    req.EndDate,
 		MerchantId: req.MerchantID,
 		TypeId:     req.TypeID,
 		BrandId:    req.BrandID,
+		Status:     req.Status,
 		PriceMin:   req.PriceMin,
 		PriceMax:   req.PriceMax,
+		Page:       req.Page,
+		PageSize:   req.PageSize,
 	})
 	if err != nil {
 		response.ResponseError(c, err.Error())
@@ -690,6 +785,8 @@ func GetAvailableVehiclesHandler(c *gin.Context) {
 		"message":  getRes.Message,
 		"vehicles": getRes.Vehicles,
 		"total":    getRes.Total,
+		"page":     req.Page,
+		"pageSize": req.PageSize,
 	})
 }
 
@@ -853,13 +950,13 @@ func GetInventoryReportHandler(c *gin.Context) {
 
 	response.ResponseSuccess(c, gin.H{
 		"message":          reportRes.Message,
-		"total_vehicles":   reportRes.TotalVehicles,
-		"total_days":       reportRes.TotalDays,
-		"total_capacity":   reportRes.TotalCapacity,
-		"reservations":     reportRes.Reservations,
-		"rentals":          reportRes.Rentals,
-		"maintenances":     reportRes.Maintenances,
-		"used_capacity":    reportRes.UsedCapacity,
-		"utilization_rate": reportRes.UtilizationRate,
+		"total_vehicles":   reportRes.TotalVehicles,   // 总车辆数
+		"total_days":       reportRes.TotalDays,       // 总天数
+		"total_capacity":   reportRes.TotalCapacity,   // 总容量
+		"reservations":     reportRes.Reservations,    // 预订数
+		"rentals":          reportRes.Rentals,         // 租赁数
+		"maintenances":     reportRes.Maintenances,    // 维护数
+		"used_capacity":    reportRes.UsedCapacity,    // 已使用容量
+		"utilization_rate": reportRes.UtilizationRate, // 利用率
 	})
 }

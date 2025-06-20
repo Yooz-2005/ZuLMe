@@ -1,10 +1,10 @@
 package logic
 
 import (
-	"ZuLMe/ZuLMe/Common/global"
-	"ZuLMe/ZuLMe/Common/utils"
-	"ZuLMe/ZuLMe/models/model_mysql"
+	"Common/global"
+	"Common/utils"
 	"errors"
+	"models/model_mysql"
 	user "user_srv/proto_user"
 )
 

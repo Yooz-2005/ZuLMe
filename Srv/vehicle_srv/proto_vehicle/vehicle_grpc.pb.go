@@ -38,7 +38,9 @@ const (
 	Vehicle_CheckAvailability_FullMethodName       = "/vehicle.Vehicle/CheckAvailability"
 	Vehicle_CreateReservation_FullMethodName       = "/vehicle.Vehicle/CreateReservation"
 	Vehicle_UpdateReservationStatus_FullMethodName = "/vehicle.Vehicle/UpdateReservationStatus"
+	Vehicle_CancelReservation_FullMethodName       = "/vehicle.Vehicle/CancelReservation"
 	Vehicle_GetAvailableVehicles_FullMethodName    = "/vehicle.Vehicle/GetAvailableVehicles"
+	Vehicle_GetUserReservationList_FullMethodName  = "/vehicle.Vehicle/GetUserReservationList"
 	Vehicle_GetInventoryStats_FullMethodName       = "/vehicle.Vehicle/GetInventoryStats"
 	Vehicle_SetMaintenance_FullMethodName          = "/vehicle.Vehicle/SetMaintenance"
 	Vehicle_GetMaintenanceSchedule_FullMethodName  = "/vehicle.Vehicle/GetMaintenanceSchedule"
@@ -75,7 +77,9 @@ type VehicleClient interface {
 	CheckAvailability(ctx context.Context, in *CheckAvailabilityRequest, opts ...grpc.CallOption) (*CheckAvailabilityResponse, error)
 	CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*CreateReservationResponse, error)
 	UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*UpdateReservationStatusResponse, error)
+	CancelReservation(ctx context.Context, in *CancelReservationRequest, opts ...grpc.CallOption) (*CancelReservationResponse, error)
 	GetAvailableVehicles(ctx context.Context, in *GetAvailableVehiclesRequest, opts ...grpc.CallOption) (*GetAvailableVehiclesResponse, error)
+	GetUserReservationList(ctx context.Context, in *GetUserReservationListRequest, opts ...grpc.CallOption) (*GetUserReservationListResponse, error)
 	GetInventoryStats(ctx context.Context, in *GetInventoryStatsRequest, opts ...grpc.CallOption) (*GetInventoryStatsResponse, error)
 	SetMaintenance(ctx context.Context, in *SetMaintenanceRequest, opts ...grpc.CallOption) (*SetMaintenanceResponse, error)
 	GetMaintenanceSchedule(ctx context.Context, in *GetMaintenanceScheduleRequest, opts ...grpc.CallOption) (*GetMaintenanceScheduleResponse, error)
@@ -283,10 +287,30 @@ func (c *vehicleClient) UpdateReservationStatus(ctx context.Context, in *UpdateR
 	return out, nil
 }
 
+func (c *vehicleClient) CancelReservation(ctx context.Context, in *CancelReservationRequest, opts ...grpc.CallOption) (*CancelReservationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelReservationResponse)
+	err := c.cc.Invoke(ctx, Vehicle_CancelReservation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *vehicleClient) GetAvailableVehicles(ctx context.Context, in *GetAvailableVehiclesRequest, opts ...grpc.CallOption) (*GetAvailableVehiclesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAvailableVehiclesResponse)
 	err := c.cc.Invoke(ctx, Vehicle_GetAvailableVehicles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) GetUserReservationList(ctx context.Context, in *GetUserReservationListRequest, opts ...grpc.CallOption) (*GetUserReservationListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserReservationListResponse)
+	err := c.cc.Invoke(ctx, Vehicle_GetUserReservationList_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -390,7 +414,9 @@ type VehicleServer interface {
 	CheckAvailability(context.Context, *CheckAvailabilityRequest) (*CheckAvailabilityResponse, error)
 	CreateReservation(context.Context, *CreateReservationRequest) (*CreateReservationResponse, error)
 	UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*UpdateReservationStatusResponse, error)
+	CancelReservation(context.Context, *CancelReservationRequest) (*CancelReservationResponse, error)
 	GetAvailableVehicles(context.Context, *GetAvailableVehiclesRequest) (*GetAvailableVehiclesResponse, error)
+	GetUserReservationList(context.Context, *GetUserReservationListRequest) (*GetUserReservationListResponse, error)
 	GetInventoryStats(context.Context, *GetInventoryStatsRequest) (*GetInventoryStatsResponse, error)
 	SetMaintenance(context.Context, *SetMaintenanceRequest) (*SetMaintenanceResponse, error)
 	GetMaintenanceSchedule(context.Context, *GetMaintenanceScheduleRequest) (*GetMaintenanceScheduleResponse, error)
@@ -465,8 +491,14 @@ func (UnimplementedVehicleServer) CreateReservation(context.Context, *CreateRese
 func (UnimplementedVehicleServer) UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*UpdateReservationStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateReservationStatus not implemented")
 }
+func (UnimplementedVehicleServer) CancelReservation(context.Context, *CancelReservationRequest) (*CancelReservationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelReservation not implemented")
+}
 func (UnimplementedVehicleServer) GetAvailableVehicles(context.Context, *GetAvailableVehiclesRequest) (*GetAvailableVehiclesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableVehicles not implemented")
+}
+func (UnimplementedVehicleServer) GetUserReservationList(context.Context, *GetUserReservationListRequest) (*GetUserReservationListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserReservationList not implemented")
 }
 func (UnimplementedVehicleServer) GetInventoryStats(context.Context, *GetInventoryStatsRequest) (*GetInventoryStatsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInventoryStats not implemented")
@@ -852,6 +884,24 @@ func _Vehicle_UpdateReservationStatus_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Vehicle_CancelReservation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelReservationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).CancelReservation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_CancelReservation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).CancelReservation(ctx, req.(*CancelReservationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Vehicle_GetAvailableVehicles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAvailableVehiclesRequest)
 	if err := dec(in); err != nil {
@@ -866,6 +916,24 @@ func _Vehicle_GetAvailableVehicles_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VehicleServer).GetAvailableVehicles(ctx, req.(*GetAvailableVehiclesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_GetUserReservationList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserReservationListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).GetUserReservationList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_GetUserReservationList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).GetUserReservationList(ctx, req.(*GetUserReservationListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1080,8 +1148,16 @@ var Vehicle_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Vehicle_UpdateReservationStatus_Handler,
 		},
 		{
+			MethodName: "CancelReservation",
+			Handler:    _Vehicle_CancelReservation_Handler,
+		},
+		{
 			MethodName: "GetAvailableVehicles",
 			Handler:    _Vehicle_GetAvailableVehicles_Handler,
+		},
+		{
+			MethodName: "GetUserReservationList",
+			Handler:    _Vehicle_GetUserReservationList_Handler,
 		},
 		{
 			MethodName: "GetInventoryStats",

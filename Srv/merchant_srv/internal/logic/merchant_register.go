@@ -1,14 +1,13 @@
 package logic
 
 import (
-	"ZuLMe/ZuLMe/Common/global"
-	"ZuLMe/ZuLMe/Common/services"
-	"ZuLMe/ZuLMe/models/model_mysql"
+	"Common/global"
+	"Common/services"
 	"context"
 	"fmt"
-	merchant "merchant_srv/proto_merchant"
-
 	"golang.org/x/crypto/bcrypt"
+	merchant "merchant_srv/proto_merchant"
+	"models/model_mysql"
 )
 
 func MerchantRegister(ctx context.Context, in *merchant.MerchantRegisterRequest) (*merchant.MerchantRegisterResponse, error) {

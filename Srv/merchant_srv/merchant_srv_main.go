@@ -1,10 +1,8 @@
 package main
 
 import (
-	"ZuLMe/ZuLMe/Common/appconfig"
-	"ZuLMe/ZuLMe/Common/global"
-	"ZuLMe/ZuLMe/Common/initialize"
-	"ZuLMe/ZuLMe/models/model_mysql"
+	"Common/appconfig"
+	"Common/initialize"
 	"fmt"
 	"merchant_srv/grpc_merchant"
 	"net"
@@ -31,7 +29,6 @@ func main() {
 	grpc_merchant.RegisterMerchantServices(gServer)
 
 	// 自动迁移商家模型
-	global.DB.AutoMigrate(&model_mysql.Merchant{})
 
 	// 监听端口
 	lis, err := net.Listen("tcp", ":8002") // 假设商家服务运行在8002端口

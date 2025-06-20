@@ -1,13 +1,13 @@
 package logic
 
 import (
-	"ZuLMe/ZuLMe/Common/global"
-	"ZuLMe/ZuLMe/Common/pkg"
-	"ZuLMe/ZuLMe/Common/utils"
-	"ZuLMe/ZuLMe/models/model_mysql"
-	"ZuLMe/ZuLMe/models/model_redis"
+	"Common/global"
+	"Common/pkg"
+	"Common/utils"
 	"errors"
 	"gorm.io/gorm"
+	"models/model_mysql"
+	"models/model_redis"
 	user "user_srv/proto_user"
 
 	"strconv"

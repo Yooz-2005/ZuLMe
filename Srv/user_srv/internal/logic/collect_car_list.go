@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"ZuLMe/ZuLMe/models/model_mysql"
+	"models/model_mysql"
 	user "user_srv/proto_user"
 )
 

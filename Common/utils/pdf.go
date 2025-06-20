@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"models/model_mysql"
 	"os"
 	"os/exec"
 	"path/filepath"
-
-	"ZuLMe/ZuLMe/models/model_mysql"
 )
 
 // GenerateInvoicePDF 生成发票PDF (使用 wkhtmltopdf)

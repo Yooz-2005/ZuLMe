@@ -14,7 +14,8 @@ import {
   Breadcrumb,
   Divider,
   Carousel,
-  Rate
+  Rate,
+  message
 } from 'antd';
 import {
   HomeOutlined,
@@ -31,13 +32,15 @@ import {
   StarFilled,
   CheckCircleOutlined,
   DashboardOutlined,
-  SettingOutlined
+  SettingOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import vehicleService from '../../services/vehicleService';
 import { VEHICLE_STATUS_LABELS } from '../../utils/constants';
 import { getAllImages, handleImageError } from '../../utils/imageUtils';
+import ReservationForm from '../../components/ReservationForm';
 
 const { Header, Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -260,6 +263,14 @@ const VehicleDetail = () => {
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reservationVisible, setReservationVisible] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // 检查用户登录状态
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
 
   useEffect(() => {
     const fetchVehicleDetail = async () => {
@@ -275,6 +286,8 @@ const VehicleDetail = () => {
       try {
         const response = await vehicleService.getVehicleDetail(id);
         if (response && response.code === 200 && response.data && response.data.vehicle) {
+          console.log('车辆详情数据:', response.data.vehicle);
+          console.log('车辆状态:', response.data.vehicle.status);
           setVehicle(response.data.vehicle);
         } else {
           setError(response?.data || '车辆信息不存在');
@@ -289,6 +302,27 @@ const VehicleDetail = () => {
 
     fetchVehicleDetail();
   }, [id]);
+
+  // 处理预订按钮点击
+  const handleReservationClick = () => {
+    // 检查用户是否登录
+    const token = localStorage.getItem('token');
+    if (!token) {
+      message.warning('请先登录后再进行预订');
+      navigate('/login-register');
+      return;
+    }
+
+    setReservationVisible(true);
+  };
+
+  // 处理预订成功
+  const handleReservationSuccess = (reservationData) => {
+    setReservationVisible(false);
+    message.success('预订创建成功！您可以在个人中心查看预订详情。');
+    // 可以选择跳转到订单页面或个人中心
+    // navigate('/personal-center');
+  };
 
 
 
@@ -360,6 +394,14 @@ const VehicleDetail = () => {
             <Space>
               <Button onClick={() => navigate('/vehicles')}>返回列表</Button>
               <Button onClick={() => navigate('/')}>返回首页</Button>
+              {isLoggedIn && (
+                <Button
+                  icon={<UserOutlined />}
+                  onClick={() => navigate('/personal-center')}
+                >
+                  我的
+                </Button>
+              )}
             </Space>
           </Col>
         </Row>
@@ -737,10 +779,11 @@ const VehicleDetail = () => {
                     type="primary"
                     size="large"
                     block
-                    disabled={vehicle.status !== 'available'}
+                    disabled={false}
                     icon={<CheckCircleOutlined />}
+                    onClick={handleReservationClick}
                   >
-                    {vehicle.status === 'available' ? '立即预订' : '暂不可用'}
+                    立即预订
                   </ActionButton>
 
                   <Row gutter={12}>
@@ -806,8 +849,18 @@ const VehicleDetail = () => {
               </PriceCard>
             </Col>
           </Row>
+
+
         </ContentWrapper>
       </Content>
+
+      {/* 预订表单模态框 */}
+      <ReservationForm
+        visible={reservationVisible}
+        onCancel={() => setReservationVisible(false)}
+        onSuccess={handleReservationSuccess}
+        vehicle={vehicle}
+      />
     </StyledLayout>
   );
 };

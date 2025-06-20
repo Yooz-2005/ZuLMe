@@ -1,13 +1,14 @@
 package main
 
 import (
-	"ZuLMe/ZuLMe/Common/appconfig"
-	"ZuLMe/ZuLMe/Common/initialize"
+	"Common/appconfig"
+	"Common/initialize"
 	"admin_srv/grpc_admin"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
+
 	"net"
 )
 

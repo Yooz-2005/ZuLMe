@@ -1,11 +1,12 @@
 package main
 
 import (
-	"ZuLMe/ZuLMe/Common/appconfig"
-	"ZuLMe/ZuLMe/Common/initialize"
-	"google.golang.org/grpc"
+	"Common/appconfig"
+	"Common/initialize"
 	"invoice_srv/grpc_invoice"
 	"invoice_srv/internal"
+
+	"google.golang.org/grpc"
 )
 
 func main() {

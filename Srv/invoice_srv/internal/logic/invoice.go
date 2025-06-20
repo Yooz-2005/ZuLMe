@@ -1,13 +1,12 @@
 package logic
 
 import (
+	"Common/global"
+	"Common/utils"
 	"fmt"
 	invoice "invoice_srv/proto_invoice"
+	"models/model_mysql"
 	"time"
-
-	"ZuLMe/ZuLMe/Common/global"
-	"ZuLMe/ZuLMe/Common/utils"
-	"ZuLMe/ZuLMe/models/model_mysql"
 )
 
 // GenerateInvoice 生成发票
@@ -34,7 +33,7 @@ func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoi
 
 	// 4. 查询销售方信息 (Merchant) - 使用 merchant_id 作为发票创建者/销售方
 	merchant := &model_mysql.Merchant{}
-	if err := merchant.GetByID(in.MerchantId); err != nil {
+	if err := merchant.GetByID(uint(in.MerchantId)); err != nil {
 		// 如果找不到商家信息，可以根据业务需求选择报错或使用默认值
 		return &invoice.GenerateInvoiceResponse{Code: 500, Message: fmt.Errorf("查找销售方商家信息失败: %v", err).Error()}, nil
 	}

@@ -26,25 +26,55 @@ class VehicleService {
   // 搜索车辆
   async searchVehicles(searchParams) {
     try {
-      const params = {
-        location: searchParams.location,
-        start_date: searchParams.dates?.[0]?.format('YYYY-MM-DD'),
-        end_date: searchParams.dates?.[1]?.format('YYYY-MM-DD'),
-        vehicle_type: searchParams.carType,
-        page: searchParams.page || 1,
-        page_size: searchParams.pageSize || 12
-      };
-      
-      // 过滤掉空值
-      Object.keys(params).forEach(key => {
-        if (params[key] === undefined || params[key] === null || params[key] === '') {
-          delete params[key];
-        }
-      });
+      // 如果有日期范围，使用可用车辆接口；否则使用普通列表接口
+      const hasDateRange = searchParams.dates &&
+                           searchParams.dates.length === 2 &&
+                           searchParams.dates[0] &&
+                           searchParams.dates[1];
 
-      const response = await api.get('/vehicle/list', { params });
-      return response;
+      if (hasDateRange) {
+        // 使用可用车辆接口（支持日期范围搜索）
+        const params = {
+          start_date: searchParams.dates[0].format('YYYY-MM-DD'),
+          end_date: searchParams.dates[1].format('YYYY-MM-DD'),
+          type_id: searchParams.carType,
+          brand_id: searchParams.brandId,
+          page: searchParams.page || 1,
+          page_size: searchParams.pageSize || 12
+        };
+
+        // 过滤掉空值
+        Object.keys(params).forEach(key => {
+          if (params[key] === undefined || params[key] === null || params[key] === '') {
+            delete params[key];
+          }
+        });
+
+        const response = await api.post('/vehicle-inventory/available-vehicles', params);
+        return response;
+      } else {
+        // 使用普通车辆列表接口
+        const params = {
+          keyword: searchParams.location, // 将地点作为关键词搜索
+          type_id: searchParams.carType,
+          brand_id: searchParams.brandId,
+          page: searchParams.page || 1,
+          page_size: searchParams.pageSize || 12,
+          status: 1 // 只搜索可用状态的车辆
+        };
+
+        // 过滤掉空值
+        Object.keys(params).forEach(key => {
+          if (params[key] === undefined || params[key] === null || params[key] === '') {
+            delete params[key];
+          }
+        });
+
+        const response = await api.get('/vehicle/list', { params });
+        return response;
+      }
     } catch (error) {
+      console.error('搜索车辆失败:', error);
       throw new Error('搜索车辆失败');
     }
   }
@@ -159,17 +189,37 @@ class VehicleService {
   // 检查车辆可用性
   async checkAvailability(params) {
     try {
-      const response = await api.post('/vehicle/check-availability', params);
+      const response = await api.post('/vehicle-inventory/check-availability', params);
       return response;
     } catch (error) {
       throw new Error('检查车辆可用性失败');
     }
   }
 
+  // ==================== 网点管理方法 ====================
+
+  // 获取网点列表（商户列表）
+  async getLocationList(params = {}) {
+    try {
+      const queryParams = {
+        page: params.page || 1,
+        page_size: params.pageSize || 100, // 获取所有网点
+        status_filter: 1, // 只获取审核通过的商户
+        ...params
+      };
+
+      const response = await api.get('/admin/merchant/list', { params: queryParams });
+      return response;
+    } catch (error) {
+      console.error('获取网点列表失败:', error);
+      throw new Error('获取网点列表失败');
+    }
+  }
+
   // 创建预订
   async createReservation(data) {
     try {
-      const response = await api.post('/vehicle/create-reservation', data);
+      const response = await api.post('/vehicle-inventory/reservation/create', data);
       return response;
     } catch (error) {
       throw new Error('创建预订失败');
@@ -189,7 +239,7 @@ class VehicleService {
   // 获取可用车辆列表
   async getAvailableVehicles(params) {
     try {
-      const response = await api.get('/vehicle/available', { params });
+      const response = await api.post('/vehicle-inventory/available-vehicles', params);
       return response;
     } catch (error) {
       throw new Error('获取可用车辆失败');
@@ -209,7 +259,7 @@ class VehicleService {
   // 获取车辆库存日历
   async getVehicleInventory(params) {
     try {
-      const response = await api.get('/vehicle/inventory-calendar', { params });
+      const response = await api.get('/vehicle-inventory/calendar', { params });
       return response;
     } catch (error) {
       throw new Error('获取车辆库存日历失败');

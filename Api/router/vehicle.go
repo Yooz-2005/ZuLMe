@@ -2,7 +2,8 @@ package router
 
 import (
 	"Api/trigger"
-	"ZuLMe/ZuLMe/Common/pkg"
+	jwt "Common/pkg"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +12,7 @@ func RegisterVehicleRoutes(r *gin.Engine) {
 	vehicleGroup := r.Group("/vehicle")
 	{
 		// 需要认证的路由
-		vehicleGroup.Use(pkg.JWTAuth("merchant"))                  // 应用JWT认证中间件
+		vehicleGroup.Use(jwt.JWTAuth("merchant"))                  // 应用JWT认证中间件
 		vehicleGroup.POST("/create", trigger.CreateVehicleHandler) // 创建车辆
 		vehicleGroup.PUT("/update", trigger.UpdateVehicleHandler)  // 更新车辆
 		vehicleGroup.POST("/delete", trigger.DeleteVehicleHandler) // 删除车辆
@@ -38,7 +39,7 @@ func RegisterVehicleRoutes(r *gin.Engine) {
 	vehicleBrandGroup := r.Group("/vehicle-brand")
 	{
 		// 管理员路由（需要认证）
-		vehicleBrandGroup.Use(pkg.JWTAuth("admin"))                          // 应用JWT认证中间件
+		vehicleBrandGroup.Use(jwt.JWTAuth("admin"))                          // 应用JWT认证中间件
 		vehicleBrandGroup.POST("/create", trigger.CreateVehicleBrandHandler) // 创建车辆品牌
 		vehicleBrandGroup.PUT("/update", trigger.UpdateVehicleBrandHandler)  // 更新车辆品牌
 		vehicleBrandGroup.POST("/delete", trigger.DeleteVehicleBrandHandler) // 删除车辆品牌
@@ -62,8 +63,10 @@ func RegisterVehicleRoutes(r *gin.Engine) {
 	// 用户库存操作路由（需要用户认证）
 	userInventoryGroup := r.Group("/vehicle-inventory")
 	{
-		userInventoryGroup.Use(pkg.JWTAuth("2209"))                                      // 用户认证
-		userInventoryGroup.POST("/reservation/create", trigger.CreateReservationHandler) // 用户创建预订
+		userInventoryGroup.Use(jwt.JWTAuth("2209"))                                        // 用户认证
+		userInventoryGroup.POST("/reservation/create", trigger.CreateReservationHandler)   // 用户创建预订
+		userInventoryGroup.GET("/reservation/list", trigger.GetUserReservationListHandler) // 获取用户预订列表
+		userInventoryGroup.PUT("/reservation/cancel", trigger.CancelReservationHandler)    // 取消预订
 	}
 
 	// 订单相关路由已移动到 router/order.go 文件中
@@ -77,7 +80,7 @@ func RegisterVehicleRoutes(r *gin.Engine) {
 	// 商家库存管理路由（需要商家认证）
 	merchantInventoryGroup := r.Group("/vehicle-inventory")
 	{
-		merchantInventoryGroup.Use(pkg.JWTAuth("merchant"))                                        // 商家认证
+		merchantInventoryGroup.Use(jwt.JWTAuth("merchant"))                                        // 商家认证
 		merchantInventoryGroup.GET("/stats", trigger.GetInventoryStatsHandler)                     // 获取库存统计
 		merchantInventoryGroup.POST("/maintenance/set", trigger.SetMaintenanceHandler)             // 设置维护状态
 		merchantInventoryGroup.GET("/maintenance/schedule", trigger.GetMaintenanceScheduleHandler) // 获取维护计划

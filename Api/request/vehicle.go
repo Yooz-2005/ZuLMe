@@ -169,6 +169,11 @@ type UpdateReservationStatusRequest struct {
 	Status  string `json:"status" form:"status" binding:"required"` // rented, completed, cancelled
 }
 
+// CancelReservationRequest 取消预订请求
+type CancelReservationRequest struct {
+	ReservationID string `json:"reservation_id" form:"reservation_id" binding:"required"` // 预订ID，格式如 RES123
+}
+
 // GetAvailableVehiclesRequest 获取可用车辆请求
 type GetAvailableVehiclesRequest struct {
 	StartDate  string  `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
@@ -176,8 +181,11 @@ type GetAvailableVehiclesRequest struct {
 	MerchantID int64   `json:"merchant_id" form:"merchant_id"`                  // 可选，按商家筛选
 	TypeID     int64   `json:"type_id" form:"type_id"`                          // 可选，按类型筛选
 	BrandID    int64   `json:"brand_id" form:"brand_id"`                        // 可选，按品牌筛选
+	Status     int64   `json:"status" form:"status"`                            // 可选，按库存状态筛选 -1:全部 0:默认可用 1:可租用 2:已预订 3:租用中 4:维护中 5:不可用
 	PriceMin   float64 `json:"price_min" form:"price_min"`                      // 可选，最低价格
 	PriceMax   float64 `json:"price_max" form:"price_max"`                      // 可选，最高价格
+	Page       int64   `json:"page" form:"page"`                                // 页码
+	PageSize   int64   `json:"page_size" form:"page_size"`                      // 每页数量
 }
 
 // GetInventoryStatsRequest 获取库存统计请求
@@ -211,20 +219,4 @@ type GetInventoryReportRequest struct {
 	MerchantID int64  `json:"merchant_id" form:"merchant_id"`
 	StartDate  string `json:"start_date" form:"start_date" binding:"required"` // 格式: YYYY-MM-DD
 	EndDate    string `json:"end_date" form:"end_date" binding:"required"`     // 格式: YYYY-MM-DD
-}
-
-// CreateOrderFromReservationRequest 基于预订创建订单请求
-type CreateOrderFromReservationRequest struct {
-	ReservationID       int64   `json:"reservation_id" form:"reservation_id" binding:"required"`
-	PickupLocationID    int64   `json:"pickup_location_id" form:"pickup_location_id" binding:"required"`
-	ReturnLocationID    int64   `json:"return_location_id" form:"return_location_id" binding:"required"`
-	Notes               string  `json:"notes" form:"notes"`
-	PaymentMethod       int32   `json:"payment_method" form:"payment_method"`               // 1:支付宝 2:微信
-	ExpectedTotalAmount float64 `json:"expected_total_amount" form:"expected_total_amount"` // 预期总金额（前端计算）
-}
-
-// UpdateOrderStatusRequest 更新订单状态请求
-type UpdateOrderStatusRequest struct {
-	Status int32  `json:"status" form:"status" binding:"required"` // 订单状态
-	Reason string `json:"reason" form:"reason"`                    // 状态变更原因
 }

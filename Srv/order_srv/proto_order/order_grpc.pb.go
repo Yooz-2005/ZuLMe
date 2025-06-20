@@ -23,7 +23,8 @@ const (
 	Order_CreateOrderFromReservation_FullMethodName = "/order.Order/CreateOrderFromReservation"
 	Order_GetOrder_FullMethodName                   = "/order.Order/GetOrder"
 	Order_UpdateOrderStatus_FullMethodName          = "/order.Order/UpdateOrderStatus"
-	Order_AlipayNotify_FullMethodName               = "/order.Order/AlipayNotify"
+	Order_GetUserOrderList_FullMethodName           = "/order.Order/GetUserOrderList"
+	Order_CancelOrder_FullMethodName                = "/order.Order/CancelOrder"
 )
 
 // OrderClient is the client API for Order service.
@@ -35,8 +36,8 @@ type OrderClient interface {
 	CreateOrderFromReservation(ctx context.Context, in *CreateOrderFromReservationRequest, opts ...grpc.CallOption) (*CreateOrderFromReservationResponse, error)
 	GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 	UpdateOrderStatus(ctx context.Context, in *UpdateOrderStatusRequest, opts ...grpc.CallOption) (*UpdateOrderStatusResponse, error)
-	// 支付相关
-	AlipayNotify(ctx context.Context, in *AlipayNotifyRequest, opts ...grpc.CallOption) (*AlipayNotifyResponse, error)
+	GetUserOrderList(ctx context.Context, in *GetUserOrderListRequest, opts ...grpc.CallOption) (*GetUserOrderListResponse, error)
+	CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error)
 }
 
 type orderClient struct {
@@ -87,10 +88,20 @@ func (c *orderClient) UpdateOrderStatus(ctx context.Context, in *UpdateOrderStat
 	return out, nil
 }
 
-func (c *orderClient) AlipayNotify(ctx context.Context, in *AlipayNotifyRequest, opts ...grpc.CallOption) (*AlipayNotifyResponse, error) {
+func (c *orderClient) GetUserOrderList(ctx context.Context, in *GetUserOrderListRequest, opts ...grpc.CallOption) (*GetUserOrderListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AlipayNotifyResponse)
-	err := c.cc.Invoke(ctx, Order_AlipayNotify_FullMethodName, in, out, cOpts...)
+	out := new(GetUserOrderListResponse)
+	err := c.cc.Invoke(ctx, Order_GetUserOrderList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelOrderResponse)
+	err := c.cc.Invoke(ctx, Order_CancelOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -106,8 +117,8 @@ type OrderServer interface {
 	CreateOrderFromReservation(context.Context, *CreateOrderFromReservationRequest) (*CreateOrderFromReservationResponse, error)
 	GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
 	UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*UpdateOrderStatusResponse, error)
-	// 支付相关
-	AlipayNotify(context.Context, *AlipayNotifyRequest) (*AlipayNotifyResponse, error)
+	GetUserOrderList(context.Context, *GetUserOrderListRequest) (*GetUserOrderListResponse, error)
+	CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -130,8 +141,11 @@ func (UnimplementedOrderServer) GetOrder(context.Context, *GetOrderRequest) (*Ge
 func (UnimplementedOrderServer) UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*UpdateOrderStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrderStatus not implemented")
 }
-func (UnimplementedOrderServer) AlipayNotify(context.Context, *AlipayNotifyRequest) (*AlipayNotifyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AlipayNotify not implemented")
+func (UnimplementedOrderServer) GetUserOrderList(context.Context, *GetUserOrderListRequest) (*GetUserOrderListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserOrderList not implemented")
+}
+func (UnimplementedOrderServer) CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -226,20 +240,38 @@ func _Order_UpdateOrderStatus_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Order_AlipayNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AlipayNotifyRequest)
+func _Order_GetUserOrderList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserOrderListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).AlipayNotify(ctx, in)
+		return srv.(OrderServer).GetUserOrderList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Order_AlipayNotify_FullMethodName,
+		FullMethod: Order_GetUserOrderList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).AlipayNotify(ctx, req.(*AlipayNotifyRequest))
+		return srv.(OrderServer).GetUserOrderList(ctx, req.(*GetUserOrderListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CancelOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CancelOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CancelOrder(ctx, req.(*CancelOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -268,8 +300,12 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Order_UpdateOrderStatus_Handler,
 		},
 		{
-			MethodName: "AlipayNotify",
-			Handler:    _Order_AlipayNotify_Handler,
+			MethodName: "GetUserOrderList",
+			Handler:    _Order_GetUserOrderList_Handler,
+		},
+		{
+			MethodName: "CancelOrder",
+			Handler:    _Order_CancelOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

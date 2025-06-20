@@ -1,8 +1,8 @@
 package main
 
 import (
-	"ZuLMe/ZuLMe/Common/appconfig"
-	"ZuLMe/ZuLMe/Common/initialize"
+	"Common/appconfig"
+	"Common/initialize"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"

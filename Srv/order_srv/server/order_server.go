@@ -36,7 +36,12 @@ func (s *OrderServer) UpdateOrderStatus(ctx context.Context, req *order.UpdateOr
 	return logic.UpdateOrderStatus(ctx, req)
 }
 
-// AlipayNotify 支付宝异步通知
-func (s *OrderServer) AlipayNotify(ctx context.Context, req *order.AlipayNotifyRequest) (*order.AlipayNotifyResponse, error) {
-	return logic.AlipayNotify(ctx, req)
+// GetUserOrderList 获取用户订单列表
+func (s *OrderServer) GetUserOrderList(ctx context.Context, req *order.GetUserOrderListRequest) (*order.GetUserOrderListResponse, error) {
+	return logic.GetUserOrderList(ctx, req)
+}
+
+// CancelOrder 取消订单
+func (s *OrderServer) CancelOrder(ctx context.Context, req *order.CancelOrderRequest) (*order.CancelOrderResponse, error) {
+	return logic.CancelOrder(ctx, req)
 }

@@ -1,12 +1,14 @@
 package logic
 
 import (
-	"ZuLMe/ZuLMe/Common/global"
-	"ZuLMe/ZuLMe/models/model_mysql"
+	"Common/global"
 	"context"
 	"fmt"
+	"models/model_mysql"
 	"time"
 	vehicle "vehicle_srv/proto_vehicle"
+
+	"gorm.io/gorm"
 )
 
 // CheckVehicleAvailability 检查车辆可用性
@@ -257,10 +259,79 @@ func UpdateReservationStatus(ctx context.Context, req *vehicle.UpdateReservation
 	}, nil
 }
 
+// CancelReservation 取消预订
+func CancelReservation(ctx context.Context, req *vehicle.CancelReservationRequest) (*vehicle.CancelReservationResponse, error) {
+	if req.ReservationId == "" {
+		return &vehicle.CancelReservationResponse{
+			Code:    400,
+			Message: "预订ID不能为空",
+		}, nil
+	}
+
+	// 从预订ID中提取库存ID（格式：RES123 -> 123）
+	var inventoryID uint
+	if _, err := fmt.Sscanf(req.ReservationId, "RES%d", &inventoryID); err != nil {
+		return &vehicle.CancelReservationResponse{
+			Code:    400,
+			Message: "无效的预订ID格式",
+		}, nil
+	}
+
+	// 查找预订记录
+	var inventory model_mysql.VehicleInventory
+	if err := global.DB.Where("id = ?", inventoryID).First(&inventory).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return &vehicle.CancelReservationResponse{
+				Code:    404,
+				Message: "预订记录不存在",
+			}, nil
+		}
+		return &vehicle.CancelReservationResponse{
+			Code:    500,
+			Message: "查询预订记录失败",
+		}, err
+	}
+
+	// 检查预订状态，只有已预订状态才能取消
+	if inventory.Status != model_mysql.InventoryStatusReserved {
+		return &vehicle.CancelReservationResponse{
+			Code:    400,
+			Message: "只能取消已预订状态的预订",
+		}, nil
+	}
+
+	// 如果已经有关联订单且订单已支付，不允许取消
+	if inventory.OrderID > 0 {
+		var paymentStatus int
+		if err := global.DB.Table("orders").Select("payment_status").Where("id = ?", inventory.OrderID).Scan(&paymentStatus).Error; err == nil && paymentStatus == 2 {
+			return &vehicle.CancelReservationResponse{
+				Code:    400,
+				Message: "订单已支付，无法取消预订",
+			}, nil
+		}
+	}
+
+	// 更新预订状态为不可用（表示已取消）
+	inventory.Status = model_mysql.InventoryStatusUnavailable
+	inventory.Notes = "用户取消预订"
+
+	if err := global.DB.Save(&inventory).Error; err != nil {
+		return &vehicle.CancelReservationResponse{
+			Code:    500,
+			Message: "取消预订失败",
+		}, err
+	}
+
+	return &vehicle.CancelReservationResponse{
+		Code:    200,
+		Message: "预订已成功取消",
+	}, nil
+}
+
 // GetAvailableVehicles 获取可用车辆列表
 func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehiclesRequest) (*vehicle.GetAvailableVehiclesResponse, error) {
 	// 解析日期
-	startDate, err := time.Parse("2006-01-02", req.StartDate)
+	startDate, err := time.Parse("2006-01-02", req.GetStartDate())
 	if err != nil {
 		return &vehicle.GetAvailableVehiclesResponse{
 			Code:    400,
@@ -268,7 +339,7 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 		}, nil
 	}
 
-	endDate, err := time.Parse("2006-01-02", req.EndDate)
+	endDate, err := time.Parse("2006-01-02", req.GetEndDate())
 	if err != nil {
 		return &vehicle.GetAvailableVehiclesResponse{
 			Code:    400,
@@ -280,23 +351,23 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 	var allVehicles []model_mysql.Vehicle
 	var vehicleIDs []uint
 
-	// 构建查询条件
-	query := global.DB.Model(&model_mysql.Vehicle{}).Where("status = 1")
+	// 构建基础车辆查询条件（只查询上架的车辆）
+	query := global.DB.Model(&model_mysql.Vehicle{}).Where("status = 1") // 只查询上架的车辆
 
-	if req.MerchantId > 0 {
-		query = query.Where("merchant_id = ?", req.MerchantId)
+	if req.GetMerchantId() > 0 {
+		query = query.Where("merchant_id = ?", req.GetMerchantId())
 	}
-	if req.TypeId > 0 {
-		query = query.Where("type_id = ?", req.TypeId)
+	if req.GetTypeId() > 0 {
+		query = query.Where("type_id = ?", req.GetTypeId())
 	}
-	if req.BrandId > 0 {
-		query = query.Where("brand_id = ?", req.BrandId)
+	if req.GetBrandId() > 0 {
+		query = query.Where("brand_id = ?", req.GetBrandId())
 	}
-	if req.PriceMin > 0 {
-		query = query.Where("price >= ?", req.PriceMin)
+	if req.GetPriceMin() > 0 {
+		query = query.Where("price >= ?", req.GetPriceMin())
 	}
-	if req.PriceMax > 0 {
-		query = query.Where("price <= ?", req.PriceMax)
+	if req.GetPriceMax() > 0 {
+		query = query.Where("price <= ?", req.GetPriceMax())
 	}
 
 	if err := query.Find(&allVehicles).Error; err != nil {
@@ -311,25 +382,76 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 		vehicleIDs = append(vehicleIDs, v.ID)
 	}
 
-	// 检查库存可用性
-	inventoryModel := &model_mysql.VehicleInventory{}
-	availableVehicleIDs, err := inventoryModel.GetAvailableVehicles(startDate, endDate, vehicleIDs)
-	if err != nil {
+	if len(vehicleIDs) == 0 {
 		return &vehicle.GetAvailableVehiclesResponse{
-			Code:    500,
-			Message: "检查库存失败",
-		}, err
+			Code:     200,
+			Message:  "获取成功",
+			Vehicles: []*vehicle.VehicleInfo{},
+			Total:    0,
+		}, nil
 	}
 
-	// 过滤出可用的车辆
-	var availableVehicles []*vehicle.VehicleInfo
-	availableMap := make(map[uint]bool)
-	for _, id := range availableVehicleIDs {
-		availableMap[id] = true
+	// 根据库存状态筛选车辆
+	var filteredVehicleIDs []uint
+
+	if req.GetStatus() == -1 {
+		// 查询所有状态的车辆（包括有库存记录和无库存记录的）
+		filteredVehicleIDs = vehicleIDs
+	} else if req.GetStatus() > 0 {
+		// 查询指定库存状态的车辆
+		err := global.DB.Model(&model_mysql.VehicleInventory{}).
+			Select("DISTINCT vehicle_id").
+			Where("vehicle_id IN ? AND status = ? AND start_date <= ? AND end_date >= ?",
+				vehicleIDs, req.GetStatus(), endDate, startDate).
+			Pluck("vehicle_id", &filteredVehicleIDs).Error
+		if err != nil {
+			return &vehicle.GetAvailableVehiclesResponse{
+				Code:    500,
+				Message: "查询库存状态失败",
+			}, err
+		}
+	} else {
+		// 默认查询可用车辆（没有库存记录或库存状态为可租用的车辆）
+		var unavailableVehicleIDs []uint
+		err := global.DB.Model(&model_mysql.VehicleInventory{}).
+			Select("DISTINCT vehicle_id").
+			Where("vehicle_id IN ? AND status IN (?, ?, ?, ?) AND start_date <= ? AND end_date >= ?",
+				vehicleIDs,
+				model_mysql.InventoryStatusReserved,
+				model_mysql.InventoryStatusRented,
+				model_mysql.InventoryStatusMaintenance,
+				model_mysql.InventoryStatusUnavailable,
+				endDate, startDate).
+			Pluck("vehicle_id", &unavailableVehicleIDs).Error
+		if err != nil {
+			return &vehicle.GetAvailableVehiclesResponse{
+				Code:    500,
+				Message: "查询库存状态失败",
+			}, err
+		}
+
+		// 从所有车辆中排除不可用的车辆
+		unavailableMap := make(map[uint]bool)
+		for _, id := range unavailableVehicleIDs {
+			unavailableMap[id] = true
+		}
+
+		for _, id := range vehicleIDs {
+			if !unavailableMap[id] {
+				filteredVehicleIDs = append(filteredVehicleIDs, id)
+			}
+		}
+	}
+
+	// 过滤出符合条件的车辆
+	var allFilteredVehicles []*vehicle.VehicleInfo
+	filteredMap := make(map[uint]bool)
+	for _, id := range filteredVehicleIDs {
+		filteredMap[id] = true
 	}
 
 	for _, v := range allVehicles {
-		if availableMap[v.ID] {
+		if filteredMap[v.ID] {
 			vehicleInfo := &vehicle.VehicleInfo{
 				Id:          int64(v.ID),
 				MerchantId:  v.MerchantID,
@@ -349,15 +471,40 @@ func GetAvailableVehicles(ctx context.Context, req *vehicle.GetAvailableVehicles
 				CreatedAt:   v.CreatedAt.Format(time.RFC3339),
 				UpdatedAt:   v.UpdatedAt.Format(time.RFC3339),
 			}
-			availableVehicles = append(availableVehicles, vehicleInfo)
+			allFilteredVehicles = append(allFilteredVehicles, vehicleInfo)
 		}
+	}
+
+	// 处理分页
+	total := int64(len(allFilteredVehicles))
+	page := req.GetPage()
+	pageSize := req.GetPageSize()
+
+	// 设置默认分页参数
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 12
+	}
+
+	// 计算分页
+	offset := (page - 1) * pageSize
+	var pagedVehicles []*vehicle.VehicleInfo
+
+	if offset < total {
+		end := offset + pageSize
+		if end > total {
+			end = total
+		}
+		pagedVehicles = allFilteredVehicles[offset:end]
 	}
 
 	return &vehicle.GetAvailableVehiclesResponse{
 		Code:     200,
 		Message:  "获取成功",
-		Vehicles: availableVehicles,
-		Total:    int64(len(availableVehicles)),
+		Vehicles: pagedVehicles,
+		Total:    total,
 	}, nil
 }
 
@@ -646,5 +793,155 @@ func GetInventoryReport(ctx context.Context, req *vehicle.GetInventoryReportRequ
 		Maintenances:    report["maintenances"].(int64),
 		UsedCapacity:    report["used_capacity"].(int64),
 		UtilizationRate: report["utilization_rate"].(float64),
+	}, nil
+}
+
+// GetUserReservationList 获取用户预订列表
+func GetUserReservationList(ctx context.Context, req *vehicle.GetUserReservationListRequest) (*vehicle.GetUserReservationListResponse, error) {
+	// 参数验证
+	if req.UserId <= 0 {
+		return &vehicle.GetUserReservationListResponse{
+			Code:    400,
+			Message: "用户ID不能为空",
+		}, nil
+	}
+
+	// 设置默认分页参数
+	page := req.Page
+	pageSize := req.PageSize
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+
+	// 构建查询条件
+	query := global.DB.Model(&model_mysql.VehicleInventory{}).
+		Where("created_by = ?", req.UserId)
+
+	// 如果指定了状态筛选
+	if req.Status != "" {
+		// 将前端状态映射到数据库状态
+		var dbStatus int
+		switch req.Status {
+		case "processing":
+			dbStatus = model_mysql.InventoryStatusReserved // 处理中 -> 已预订
+		case "pending_payment":
+			dbStatus = model_mysql.InventoryStatusReserved // 等待付款 -> 已预订
+		case "confirmed":
+			dbStatus = model_mysql.InventoryStatusReserved // 预订成功 -> 已预订
+		case "in_use":
+			dbStatus = model_mysql.InventoryStatusRented // 租赁中 -> 已租用
+		case "completed":
+			dbStatus = model_mysql.InventoryStatusAvailable // 已完成 -> 可用
+		case "cancelled":
+			dbStatus = model_mysql.InventoryStatusUnavailable // 已取消 -> 不可用
+		default:
+			// 不筛选状态
+		}
+
+		if dbStatus > 0 {
+			query = query.Where("status = ?", dbStatus)
+		}
+	}
+
+	// 获取总数
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return &vehicle.GetUserReservationListResponse{
+			Code:    500,
+			Message: "查询预订总数失败",
+		}, err
+	}
+
+	// 获取预订列表
+	var inventories []model_mysql.VehicleInventory
+	offset := (page - 1) * pageSize
+	if err := query.Offset(int(offset)).Limit(int(pageSize)).
+		Order("created_at DESC").Find(&inventories).Error; err != nil {
+		return &vehicle.GetUserReservationListResponse{
+			Code:    500,
+			Message: "查询预订列表失败",
+		}, err
+	}
+
+	// 转换为响应格式
+	var reservations []*vehicle.ReservationInfo
+	for _, inventory := range inventories {
+		// 获取车辆信息
+		var vehicleModel model_mysql.Vehicle
+		if err := vehicleModel.GetByID(inventory.VehicleID); err != nil {
+			continue // 跳过无法获取车辆信息的记录
+		}
+
+		// 映射状态 - 修复状态逻辑
+		var status string
+		switch inventory.Status {
+		case model_mysql.InventoryStatusReserved:
+			// 检查是否有关联订单且已支付
+			if inventory.OrderID > 0 {
+				// 有订单ID，检查订单支付状态
+				var paymentStatus int
+				if err := global.DB.Table("orders").Select("payment_status").Where("id = ?", inventory.OrderID).Scan(&paymentStatus).Error; err == nil && paymentStatus == 2 {
+					status = "confirmed" // 已支付，预订成功 (payment_status = 2 表示已支付)
+				} else {
+					status = "pending_payment" // 有订单但未支付，等待付款
+				}
+			} else {
+				// 没有订单ID，说明还未创建订单，等待付款
+				status = "pending_payment"
+			}
+		case model_mysql.InventoryStatusRented:
+			status = "in_use" // 租赁中
+		case model_mysql.InventoryStatusAvailable:
+			status = "completed" // 已完成
+		case model_mysql.InventoryStatusUnavailable:
+			status = "cancelled" // 已取消
+		default:
+			status = "processing" // 处理中
+		}
+
+		reservation := &vehicle.ReservationInfo{
+			Id:             fmt.Sprintf("RES%d", inventory.ID),
+			VehicleId:      int64(inventory.VehicleID),
+			UserId:         int64(inventory.CreatedBy),
+			StartDate:      inventory.StartDate.Format("2006-01-02"),
+			EndDate:        inventory.EndDate.Format("2006-01-02"),
+			PickupLocation: vehicleModel.Location,                                                                        // 使用车辆所在网点地址作为取车地点
+			ReturnLocation: "",                                                                                           // 预订阶段不设置还车地点，支付时选择
+			TotalAmount:    float64(vehicleModel.Price) * float64(inventory.EndDate.Sub(inventory.StartDate).Hours()/24), // 计算总金额
+			Status:         status,
+			CreatedAt:      inventory.CreatedAt.Format(time.RFC3339),
+		}
+
+		reservation.Vehicle = &vehicle.VehicleInfo{
+			Id:          int64(vehicleModel.ID),
+			MerchantId:  vehicleModel.MerchantID,
+			TypeId:      vehicleModel.TypeID,
+			BrandId:     vehicleModel.BrandID,
+			Brand:       vehicleModel.Brand,
+			Style:       vehicleModel.Style,
+			Year:        vehicleModel.Year,
+			Color:       vehicleModel.Color,
+			Mileage:     vehicleModel.Mileage,
+			Price:       vehicleModel.Price,
+			Status:      vehicleModel.Status,
+			Description: vehicleModel.Description,
+			Images:      vehicleModel.Images,
+			Location:    vehicleModel.Location,
+			Contact:     vehicleModel.Contact,
+			CreatedAt:   vehicleModel.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:   vehicleModel.UpdatedAt.Format(time.RFC3339),
+		}
+
+		reservations = append(reservations, reservation)
+	}
+
+	return &vehicle.GetUserReservationListResponse{
+		Code:         200,
+		Message:      "获取成功",
+		Reservations: reservations,
+		Total:        total,
 	}, nil
 }

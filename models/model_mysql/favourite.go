@@ -1,7 +1,7 @@
 package model_mysql
 
 import (
-	"ZuLMe/ZuLMe/Common/global"
+	"Common/global"
 	"time"
 )
 

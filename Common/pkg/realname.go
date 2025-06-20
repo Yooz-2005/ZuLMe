@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"ZuLMe/ZuLMe/Common/initialize"
+	"Common/initialize"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"

@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"ZuLMe/ZuLMe/Common/pkg"
+	"Common/pkg"
 	user "user_srv/proto_user"
 )
 

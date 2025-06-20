@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"ZuLMe/ZuLMe/Common/global"
+	"Common/global"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v7"
 )

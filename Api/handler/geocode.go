@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"ZuLMe/ZuLMe/Common/services"
+	"Common/services"
 	"context"
 	"fmt"
 )

@@ -1,9 +1,9 @@
 package logic
 
 import (
-	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
 	"fmt"
+	"models/model_mysql"
 	"time"
 	vehicle "vehicle_srv/proto_vehicle"
 )

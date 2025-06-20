@@ -1,7 +1,7 @@
 package model_mysql
 
 import (
-	"ZuLMe/ZuLMe/Common/global"
+	"Common/global"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +20,6 @@ type Merchant struct {
 }
 
 // GetByID 根据ID获取商家信息
-func (m *Merchant) GetByID(id int64) error {
+func (m *Merchant) GetByID(id uint) error {
 	return global.DB.Where("id = ?", id).First(m).Error
 }

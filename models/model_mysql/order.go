@@ -1,7 +1,7 @@
 package model_mysql
 
 import (
-	"ZuLMe/ZuLMe/Common/global"
+	"Common/global"
 	"fmt"
 	"time"
 
@@ -60,6 +60,11 @@ func (o *Orders) UpdateStatus(id uint, status int32) error {
 	return global.DB.Model(&Orders{}).Where("id = ?", id).Update("status", status).Error
 }
 
+// UpdateStatus 根据订单号更新订单状态
+func (o *Orders) UpdateStatusByOrderSn(orderSn string, status int32) error {
+	return global.DB.Model(&Orders{}).Where("order_sn =?", orderSn).Update("status", status).Error
+}
+
 // UpdatePaymentStatus 更新支付状态
 func (o *Orders) UpdatePaymentStatus(id uint, paymentStatus int32) error {
 	return global.DB.Model(&Orders{}).Where("id = ?", id).Update("payment_status", paymentStatus).Error
@@ -79,6 +84,37 @@ func (o *Orders) UpdatePaymentInfo(id uint, paymentUrl, alipayTradeNo string) er
 // GenerateOrderSn 生成订单号
 func GenerateOrderSn() string {
 	return fmt.Sprintf("ORD%d", time.Now().Unix())
+}
+
+// GetUserOrderList 获取用户订单列表
+func (o *Orders) GetUserOrderList(userID uint, page, pageSize int, status, paymentStatus string) ([]Orders, int64, error) {
+	var orders []Orders
+	var total int64
+
+	query := global.DB.Model(&Orders{}).Where("user_id = ?", userID)
+
+	// 状态筛选
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
+	// 支付状态筛选
+	if paymentStatus != "" {
+		query = query.Where("payment_status = ?", paymentStatus)
+	}
+
+	// 获取总数
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 分页查询
+	offset := (page - 1) * pageSize
+	if err := query.Offset(offset).Limit(pageSize).Order("created_at DESC").Find(&orders).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return orders, total, nil
 }
 
 // CreateOrderFromReservation 基于预订创建订单
