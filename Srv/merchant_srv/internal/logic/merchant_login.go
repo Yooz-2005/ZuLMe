@@ -2,7 +2,7 @@ package logic
 
 import (
 	"Common/global"
-	jwt "Common/pkg"
+	"Common/pkg"
 	"context"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
@@ -32,8 +32,8 @@ func MerchantLogin(ctx context.Context, in *merchant.MerchantLoginRequest) (*mer
 	}
 
 	// 4. 生成Token (使用JWT库)
-	claims := jwt.CustomClaims{ID: existingMerchant.ID}
-	token, err := jwt.NewJWT("merchant").CreateToken(claims)
+	claims := pkg.CustomClaims{ID: existingMerchant.ID}
+	token, err := pkg.NewJWT("merchant").CreateToken(claims)
 	if err != nil {
 		return &merchant.MerchantLoginResponse{Code: 500, Message: "生成Token失败"}, err
 	}

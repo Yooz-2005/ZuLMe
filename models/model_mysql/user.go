@@ -32,7 +32,7 @@ func (u *User) UpdateUserByPhone(id int64, phone string) error {
 	return global.DB.Model(&User{}).Where("id =?", id).Update("phone", phone).Error
 }
 
-// CheckPhoneExistExcludingUser 檢查手機號碼是否已被註冊，並排除指定用戶ID
+// CheckPhoneExistExcludingUser 检查手机号码是否已经被注册，排除指定用户ID
 func (u *User) CheckPhoneExistExcludingUser(phone string) (bool, error) {
 	var count int64
 	err := global.DB.Model(&User{}).Where("phone = ?", phone).Count(&count).Error

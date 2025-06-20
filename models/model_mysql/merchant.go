@@ -2,7 +2,6 @@ package model_mysql
 
 import (
 	"Common/global"
-
 	"gorm.io/gorm"
 )
 

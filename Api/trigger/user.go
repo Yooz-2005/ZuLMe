@@ -88,3 +88,55 @@ func UpdateUserPhone(c *gin.Context) {
 	}
 	response.ResponseSuccess(c, updateUserPhone)
 }
+
+// todo用户实名认证
+func RealName(c *gin.Context) {
+	var data request.RealNameRequest
+	if err := c.ShouldBind(&data); err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+	userId := c.GetUint("userId")
+	realName, err := handler.RealName(c, &user.RealNameRequest{
+		UserId:   int64(userId),
+		RealName: data.RealName,
+		IdNumber: data.IdNumber,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+	response.ResponseSuccess(c, realName)
+}
+
+// todo收藏取消收藏车辆
+func CollectVehicle(c *gin.Context) {
+	var data request.CollectVehicleRequest
+	if err := c.ShouldBind(&data); err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+	userId := c.GetUint("userId")
+	collectVehicle, err := handler.CollectVehicle(c, &user.CollectVehicleRequest{
+		UserId:    int64(userId),
+		VehicleId: int64(data.VehicleId),
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+	response.ResponseSuccess(c, collectVehicle)
+}
+
+// todo 收藏车辆列表
+func CollectVehicleList(c *gin.Context) {
+	userId := c.GetUint("userId")
+	collectVehicleList, err := handler.CollectVehicleList(c, &user.CollectVehicleListRequest{
+		UserId: int64(userId),
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+	response.ResponseSuccess(c, collectVehicleList)
+}

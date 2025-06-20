@@ -4,9 +4,8 @@ import (
 	"Api/handler"
 	"Api/request"
 	"Api/response"
-	merchant "merchant_srv/proto_merchant"
-
 	"github.com/gin-gonic/gin"
+	merchant "merchant_srv/proto_merchant"
 )
 
 func MerchantRegisterHandler(c *gin.Context) {
