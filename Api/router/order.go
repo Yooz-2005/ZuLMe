@@ -2,8 +2,7 @@ package router
 
 import (
 	"Api/trigger"
-	jwt "Common/pkg"
-
+	"ZuLMe/ZuLMe/Common/pkg"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +16,7 @@ func InitOrderRouter(r *gin.Engine) {
 	// 用户订单操作路由（需要用户认证）
 	userOrderGroup := r.Group("/order")
 	{
-		userOrderGroup.Use(jwt.JWTAuth("2209"))                                                    // 用户认证
+		userOrderGroup.Use(pkg.JWTAuth("2209"))                                                    // 用户认证
 		userOrderGroup.POST("/create-from-reservation", trigger.CreateOrderFromReservationHandler) // 基于预订创建订单
 		userOrderGroup.GET("/detail/:order_id", trigger.GetOrderDetailHandler)                     // 获取订单详情
 		userOrderGroup.GET("/detail-by-sn/:order_sn", trigger.GetOrderDetailBySnHandler)           // 根据订单号获取详情
@@ -28,7 +27,7 @@ func InitOrderRouter(r *gin.Engine) {
 	// 商家订单管理路由（需要商家认证）
 	merchantOrderGroup := r.Group("/merchant/order")
 	{
-		merchantOrderGroup.Use(jwt.JWTAuth("2208"))                                     // 商家认证
+		merchantOrderGroup.Use(pkg.JWTAuth("2208"))                                     // 商家认证
 		merchantOrderGroup.GET("/list", trigger.GetMerchantOrderListHandler)            // 获取商家订单列表
 		merchantOrderGroup.PUT("/status/:order_id", trigger.MerchantUpdateOrderHandler) // 商家更新订单状态
 		merchantOrderGroup.GET("/statistics", trigger.GetOrderStatisticsHandler)        // 获取订单统计

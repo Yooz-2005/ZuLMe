@@ -49,9 +49,50 @@ message UpdateUserPhoneResponse {
   int64 UserId = 1;
   string Message = 2;
 }
+
+//todo 实名认证
+message RealNameRequest {
+  int64 UserId = 1;
+  string RealName = 2;
+  string idNumber = 3;
+}
+message RealNameResponse {
+  int64 UserId = 1;
+  string Message = 2;
+}
+
+//todo 收藏取消收藏车辆
+message CollectVehicleRequest {
+  int64 UserId = 1;
+  int64 VehicleId = 2;
+}
+message CollectVehicleResponse {
+  int64 UserId = 1;
+  string Message = 2;
+}
+
+
+//todo 获取收藏车辆列表
+message CollectVehicleListRequest {
+  int64 UserId = 1;
+}
+message CollectVehicleListResponse {
+  int64 UserId = 1;
+  repeated Vehicle VehicleList = 2;
+}
+
+message Vehicle {
+  int64 VehicleId = 1;
+  string VehicleName = 2;
+  string Image = 3;
+}
+
 service User {
   rpc SendCode(SendCodeRequest) returns(SendCodeResponse);//todo 短信验证码
   rpc UserRegister(UserRegisterRequest) returns(UserRegisterResponse); //todo 用户注册登录
   rpc UpdateUserProfile(UpdateUserProfileRequest) returns(UpdateUserProfileResponse); //todo 修改用户个人信息
   rpc UpdateUserPhone(UpdateUserPhoneRequest) returns(UpdateUserPhoneResponse); //todo 修改用户手机号
+  rpc RealName(RealNameRequest) returns(RealNameResponse); //todo 实名认证
+  rpc CollectVehicle(CollectVehicleRequest) returns(CollectVehicleResponse); //todo 收藏取消收藏车辆
+  rpc CollectVehicleList(CollectVehicleListRequest) returns(CollectVehicleListResponse); //todo 获取收藏车辆列表
 }

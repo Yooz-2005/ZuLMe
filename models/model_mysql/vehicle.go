@@ -1,8 +1,7 @@
 package model_mysql
 
 import (
-	"Common/global"
-
+	"ZuLMe/ZuLMe/Common/global"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +33,7 @@ const (
 )
 
 // TableName 设置表名
-func (Vehicle) TableName() string {
+func (v *Vehicle) TableName() string {
 	return "vehicles"
 }
 

@@ -2,15 +2,13 @@ package main
 
 import (
 	"Common/appconfig"
-	"log"
-	"net"
-
 	"Common/initialize"
-	order "order_srv/proto_order"
-	"order_srv/server"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"log"
+	"net"
+	order "order_srv/proto_order"
+	"order_srv/server"
 )
 
 func main() {

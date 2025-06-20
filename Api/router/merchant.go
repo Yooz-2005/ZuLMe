@@ -2,7 +2,6 @@ package router
 
 import (
 	"Api/trigger"
-
 	"github.com/gin-gonic/gin"
 )
 

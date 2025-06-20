@@ -1,8 +1,7 @@
 package model_mysql
 
 import (
-	"Common/global"
-
+	"ZuLMe/ZuLMe/Common/global"
 	"gorm.io/gorm"
 )
 
@@ -55,7 +54,7 @@ func (vb *VehicleBrand) GetList(page, pageSize int, isHot *int) ([]VehicleBrand,
 	var total int64
 
 	query := global.DB.Model(&VehicleBrand{}).Where("status = 1")
-	
+
 	// 如果指定了是否热门
 	if isHot != nil {
 		query = query.Where("is_hot = ?", *isHot)
@@ -86,11 +85,11 @@ func (vb *VehicleBrand) GetAll() ([]VehicleBrand, error) {
 func (vb *VehicleBrand) GetHotBrands(limit int) ([]VehicleBrand, error) {
 	var brands []VehicleBrand
 	query := global.DB.Where("status = 1 AND is_hot = 1").Order("sort DESC, id DESC")
-	
+
 	if limit > 0 {
 		query = query.Limit(limit)
 	}
-	
+
 	err := query.Find(&brands).Error
 	return brands, err
 }
@@ -114,11 +113,11 @@ func (vb *VehicleBrand) SetHot(id uint, isHot int) error {
 func (vb *VehicleBrand) CheckNameExists(name string, excludeID uint) (bool, error) {
 	var count int64
 	query := global.DB.Model(&VehicleBrand{}).Where("name = ?", name)
-	
+
 	if excludeID > 0 {
 		query = query.Where("id != ?", excludeID)
 	}
-	
+
 	err := query.Count(&count).Error
 	return count > 0, err
 }

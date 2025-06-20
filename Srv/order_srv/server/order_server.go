@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-
 	"order_srv/internal/logic"
 	order "order_srv/proto_order"
 )

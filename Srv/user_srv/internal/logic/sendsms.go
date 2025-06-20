@@ -1,11 +1,11 @@
 package logic
 
 import (
-	"Common/appconfig"
+	"ZuLMe/ZuLMe/Common/appconfig"
+	"ZuLMe/ZuLMe/models/model_redis"
 	"errors"
 	"log"
 	"math/rand"
-	"models/model_redis"
 	"strconv"
 	user "user_srv/proto_user"
 )

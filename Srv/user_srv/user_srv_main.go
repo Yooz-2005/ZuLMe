@@ -3,9 +3,10 @@ package main
 import (
 	"Common/appconfig"
 	"Common/initialize"
-	"google.golang.org/grpc"
 	"user_srv/grpc_user"
 	"user_srv/internal"
+
+	"google.golang.org/grpc"
 )
 
 func main() {

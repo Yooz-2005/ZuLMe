@@ -1,16 +1,16 @@
 package logic
 
 import (
-	"Common/global"
-	"Common/pkg"
-	"Common/utils"
-
+	"ZuLMe/ZuLMe/Common/global"
+	"ZuLMe/ZuLMe/Common/pkg"
+	"ZuLMe/ZuLMe/Common/utils"
+	"ZuLMe/ZuLMe/models/model_mysql"
+	"ZuLMe/ZuLMe/models/model_redis"
 	"errors"
 	"gorm.io/gorm"
-	"models/model_mysql"
-	"models/model_redis"
-	"strconv"
 	user "user_srv/proto_user"
+
+	"strconv"
 )
 
 // 生成Token响应的辅助函数

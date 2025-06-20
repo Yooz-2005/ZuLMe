@@ -1,10 +1,9 @@
 package model_mysql
 
 import (
+	"ZuLMe/ZuLMe/Common/global"
 	"fmt"
 	"time"
-
-	"Common/global"
 
 	"gorm.io/gorm"
 )

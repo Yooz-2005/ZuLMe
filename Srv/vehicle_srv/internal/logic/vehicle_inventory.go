@@ -1,10 +1,10 @@
 package logic
 
 import (
-	"Common/global"
+	"ZuLMe/ZuLMe/Common/global"
+	"ZuLMe/ZuLMe/models/model_mysql"
 	"context"
 	"fmt"
-	"models/model_mysql"
 	"time"
 	vehicle "vehicle_srv/proto_vehicle"
 )

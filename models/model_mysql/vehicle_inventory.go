@@ -1,7 +1,7 @@
 package model_mysql
 
 import (
-	"Common/global"
+	"ZuLMe/ZuLMe/Common/global"
 	"time"
 
 	"gorm.io/gorm"
