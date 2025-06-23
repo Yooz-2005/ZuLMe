@@ -87,6 +87,26 @@ const commentService = {
       console.error('获取用户评论失败:', error);
       throw error;
     }
+  },
+
+  // 添加车辆评论
+  addVehicleComment: async (vehicleId, data) => {
+    try {
+      const response = await api.post(`/vehicle/${vehicleId}/comments`, data);
+      return response;
+    } catch (error) {
+      throw new Error('添加评论失败');
+    }
+  },
+
+  // 删除车辆评论
+  deleteVehicleComment: async (vehicleId, commentId) => {
+    try {
+      const response = await api.delete(`/vehicle/${vehicleId}/comments/${commentId}`);
+      return response;
+    } catch (error) {
+      throw new Error('删除评论失败');
+    }
   }
 };
 

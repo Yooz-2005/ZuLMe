@@ -180,13 +180,13 @@ const LoginRegister = () => {
     try {
       const phone = form.getFieldValue('phone');
       if (!phone) {
-        message.error('請輸入手機號碼');
+        message.error('请输入手机号码');
         return;
       }
 
       // 驗證手機號碼格式
       if (!/^1[3-9]\d{9}$/.test(phone)) {
-        message.error('請輸入正確的手機號碼格式');
+        message.error('请输入正确的手机号码格式');
         return;
       }
 
@@ -194,7 +194,7 @@ const LoginRegister = () => {
       const response = await instance.post('/user/sendCode', { phone, source: "register" });
       
       if (response.data.code === 200) {
-        message.success('驗證碼已發送');
+        message.success('验证码已发送，请注意查收');
         // 開始倒計時
         setCountdown(60);
         const timer = setInterval(() => {
@@ -207,10 +207,10 @@ const LoginRegister = () => {
           });
         }, 1000);
       } else {
-        message.error(response.data.message || '發送驗證碼失敗');
+        message.error(response.data.message || '发送验证码失败');
       }
     } catch (error) {
-      message.error(error.response?.data?.message || '發送驗證碼失敗，請稍後重試');
+      message.error(error.response?.data?.message || '发送验证码失败，请稍后重试');
     } finally {
       setSendingCode(false);
     }
@@ -228,17 +228,17 @@ const LoginRegister = () => {
 
       if (response.data.code === 200) {
         message.success('登入成功！');
-        console.log('登入成功，後端返回數據:', response.data);
+        console.log('登入成功，后端返回:', response.data);
         console.log('準備儲存的 Token 值:', response.data.data.token);
         localStorage.setItem('token', response.data.data.token);
         console.log('登入成功後，localStorage 中的 token:', localStorage.getItem('token'));
         localStorage.setItem('userPhone', values.phone);
         navigate('/dashboard');
       } else {
-        message.error(response.data.msg || '登入失敗，請重試。');
+        message.error(response.data.msg || '登入失败，请重试');
       }
     } catch (error) {
-      message.error(error.response?.data?.msg || '登入失敗，請稍後重試');
+      message.error(error.response?.data?.msg || '登入失败，请重试');
     } finally {
       setLoading(false);
     }
@@ -267,23 +267,23 @@ const LoginRegister = () => {
             <Form.Item
               name="phone"
               rules={[
-                { required: true, message: '請輸入手機號碼!' },
-                { pattern: /^1[3-9]\d{9}$/, message: '請輸入正確的手機號碼格式!' }
+                { required: true, message: '请输入手机号码！' },
+                { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码格式!' }
               ]}
             >
-              <Input prefix={<UserOutlined />} placeholder="請輸入手機號碼" />
+              <Input prefix={<UserOutlined />} placeholder="请输入手机号码" />
             </Form.Item>
 
             <Form.Item
               name="code"
               rules={[
-                { required: true, message: '請輸入驗證碼!' },
-                { len: 6, message: '驗證碼應為6位數字!' }
+                { required: true, message: '请输入验证码!' },
+                { len: 5, message: '验证码应为5位数字!' }
               ]}
             >
               <Input
                 prefix={<SafetyOutlined />}
-                placeholder="請輸入驗證碼"
+                placeholder="请输入验证码"
                 addonAfter={
                   <Button 
                     type="primary" 
@@ -292,7 +292,7 @@ const LoginRegister = () => {
                     disabled={countdown > 0}
                     style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}
                   >
-                    {countdown > 0 ? `${countdown}秒後重試` : '獲取驗證碼'}
+                    {countdown > 0 ? `${countdown}秒后重试` : '获取验证码'}
                   </Button>
                 }
               />

@@ -38,10 +38,12 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import vehicleService from '../../services/vehicleService';
+import commentService from '../../services/commentService';
 import { VEHICLE_STATUS_LABELS } from '../../utils/constants';
 import { getAllImages, handleImageError } from '../../utils/imageUtils';
 import { checkBeforeReservation } from '../../utils/idempotencyUtils';
 import ReservationForm from '../../components/ReservationForm';
+import CommentList from '../../components/CommentList';
 
 const { Header, Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -266,12 +268,32 @@ const VehicleDetail = () => {
   const [error, setError] = useState(null);
   const [reservationVisible, setReservationVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
 
   // 检查用户登录状态
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
   }, []);
+
+  // 获取评论列表
+  const fetchComments = async () => {
+    if (!id) return;
+    setCommentsLoading(true);
+    try {
+      const response = await commentService.getVehicleComments(id);
+      if (response && response.code === 200) {
+        // 兼容后端返回格式，data.data 是评论数组
+        const commentArr = Array.isArray(response.data?.data) ? response.data.data : (response.data?.comments || []);
+        setComments(commentArr);
+      }
+    } catch (err) {
+      console.error('获取评论失败:', err);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchVehicleDetail = async () => {
@@ -290,6 +312,8 @@ const VehicleDetail = () => {
           console.log('车辆详情数据:', response.data.vehicle);
           console.log('车辆状态:', response.data.vehicle.status);
           setVehicle(response.data.vehicle);
+          // 获取评论列表
+          fetchComments();
         } else {
           setError(response?.data || '车辆信息不存在');
         }
@@ -327,8 +351,6 @@ const VehicleDetail = () => {
     // 可以选择跳转到订单页面或个人中心
     // navigate('/personal-center');
   };
-
-
 
   if (loading) {
     return (
@@ -854,7 +876,19 @@ const VehicleDetail = () => {
             </Col>
           </Row>
 
-
+          {/* 评论列表 */}
+          <Card
+            style={{
+              marginTop: 24,
+              borderRadius: 12,
+              border: '1px solid #e2e8f0'
+            }}
+          >
+            <CommentList
+              comments={comments}
+              loading={commentsLoading}
+            />
+          </Card>
         </ContentWrapper>
       </Content>
 

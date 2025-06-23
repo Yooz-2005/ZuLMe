@@ -172,8 +172,6 @@ const StyledTitle = styled(Title)`
   background-clip: text;
 `;
 
-
-
 const FeatureCard = styled(Card)`
   text-align: center;
   height: 100%;

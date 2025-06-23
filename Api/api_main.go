@@ -30,5 +30,6 @@ func main() {
 	router.LoadOrder(r)
 	router.CommentRouter(r)
 	router.RegisterMinioRoutes(r)
+
 	r.Run(":8888")
 }

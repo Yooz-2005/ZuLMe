@@ -23,17 +23,47 @@ class VehicleService {
     }
   }
 
+  // 使用ES搜索车辆（高级搜索）
+  async searchVehiclesWithES(searchParams) {
+    try {
+      const params = {
+        keyword: searchParams.keyword || searchParams.location,
+        type_id: searchParams.carType,
+        brand_id: searchParams.brandId,
+        price_min: searchParams.priceMin,
+        price_max: searchParams.priceMax,
+        year_min: searchParams.yearMin,
+        year_max: searchParams.yearMax,
+        page: searchParams.page || 1,
+        page_size: searchParams.pageSize || 12,
+        status: searchParams.status !== undefined ? searchParams.status : 1
+      };
+
+      // 过滤掉空值
+      Object.keys(params).forEach(key => {
+        if (params[key] === undefined || params[key] === null || params[key] === '') {
+          delete params[key];
+        }
+      });
+
+      const response = await api.get('/vehicle/search', { params });
+      return response;
+    } catch (error) {
+      console.error('ES搜索车辆失败:', error);
+      throw new Error('ES搜索车辆失败');
+    }
+  }
+
   // 搜索车辆
   async searchVehicles(searchParams) {
     try {
-      // 如果有日期范围，使用可用车辆接口；否则使用普通列表接口
+      // 如果有日期范围，使用可用车辆接口
       const hasDateRange = searchParams.dates &&
                            searchParams.dates.length === 2 &&
                            searchParams.dates[0] &&
                            searchParams.dates[1];
 
       if (hasDateRange) {
-        // 使用可用车辆接口（支持日期范围搜索）
         const params = {
           start_date: searchParams.dates[0].format('YYYY-MM-DD'),
           end_date: searchParams.dates[1].format('YYYY-MM-DD'),
@@ -53,9 +83,9 @@ class VehicleService {
         const response = await api.post('/vehicle-inventory/available-vehicles', params);
         return response;
       } else {
-        // 使用普通车辆列表接口
+        // 使用普通列表接口进行搜索
         const params = {
-          keyword: searchParams.location, // 将地点作为关键词搜索
+          keyword: searchParams.location,
           type_id: searchParams.carType,
           brand_id: searchParams.brandId,
           page: searchParams.page || 1,
