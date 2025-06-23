@@ -133,7 +133,7 @@ func CreateOrderFromReservation(ctx context.Context, req *order.CreateOrderFromR
 		}, err
 	}
 
-	// 7. 创建支付链接
+	// 7. 生成支付链接
 	pay := payment.NewAliPay()
 	amount := strconv.FormatFloat(orderModel.TotalAmount, 'f', -1, 64)
 	paymentURL := pay.Pay(vehicle.Brand, orderModel.OrderSn, amount)

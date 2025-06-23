@@ -14,7 +14,7 @@ func SetUserProfile(in *user.UpdateUserProfileRequest) (*user.UpdateUserProfileR
 	println("SetUserProfile: 接收到的 IdExpireDate:", in.IdExpireDate) // 添加日誌
 
 	var parsedDate *time.Time //用于存储解析后的时间
-	//为什么使用指针？
+	//为什么使用指针?
 	//如果 IdExpireDate 为空字符串，那么 parsedDate 应该为 nil，而不是指向一个无效的时间。
 	//如果 IdExpireDate 不为空字符串，那么 parsedDate 应该指向一个有效的时间。
 	if in.IdExpireDate != "" {

@@ -15,12 +15,12 @@ func CommentClient(ctx context.Context, handlerComment HandlerComment) (interfac
 		return nil, err
 	}
 	defer dial.Close()
-	
+
 	client := proto_comment.NewCommentServiceClient(dial)
 	res, err := handlerComment(ctx, client)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return res, nil
 }

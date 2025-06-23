@@ -129,6 +129,7 @@ message CheckUserUnpaidOrderResponse {
   OrderInfo unpaid_order = 4; // 如果有未支付订单，返回订单信息
 }
 
+
 service Order {
   rpc Ping(Request) returns(Response);
 
@@ -139,6 +140,5 @@ service Order {
   rpc GetUserOrderList(GetUserOrderListRequest) returns(GetUserOrderListResponse); // 获取用户订单列表
   rpc CancelOrder(CancelOrderRequest) returns(CancelOrderResponse); // 取消订单
   rpc CheckUserUnpaidOrder(CheckUserUnpaidOrderRequest) returns(CheckUserUnpaidOrderResponse); // 检查用户未支付订单
-
 
 }
