@@ -26,6 +26,7 @@ const (
 	User_RealName_FullMethodName           = "/user.User/RealName"
 	User_CollectVehicle_FullMethodName     = "/user.User/CollectVehicle"
 	User_CollectVehicleList_FullMethodName = "/user.User/CollectVehicleList"
+	User_CalculateDistance_FullMethodName  = "/user.User/CalculateDistance"
 )
 
 // UserClient is the client API for User service.
@@ -39,6 +40,7 @@ type UserClient interface {
 	RealName(ctx context.Context, in *RealNameRequest, opts ...grpc.CallOption) (*RealNameResponse, error)
 	CollectVehicle(ctx context.Context, in *CollectVehicleRequest, opts ...grpc.CallOption) (*CollectVehicleResponse, error)
 	CollectVehicleList(ctx context.Context, in *CollectVehicleListRequest, opts ...grpc.CallOption) (*CollectVehicleListResponse, error)
+	CalculateDistance(ctx context.Context, in *CalculateDistanceRequest, opts ...grpc.CallOption) (*CalculateDistanceResponse, error)
 }
 
 type userClient struct {
@@ -119,6 +121,16 @@ func (c *userClient) CollectVehicleList(ctx context.Context, in *CollectVehicleL
 	return out, nil
 }
 
+func (c *userClient) CalculateDistance(ctx context.Context, in *CalculateDistanceRequest, opts ...grpc.CallOption) (*CalculateDistanceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CalculateDistanceResponse)
+	err := c.cc.Invoke(ctx, User_CalculateDistance_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
@@ -130,6 +142,7 @@ type UserServer interface {
 	RealName(context.Context, *RealNameRequest) (*RealNameResponse, error)
 	CollectVehicle(context.Context, *CollectVehicleRequest) (*CollectVehicleResponse, error)
 	CollectVehicleList(context.Context, *CollectVehicleListRequest) (*CollectVehicleListResponse, error)
+	CalculateDistance(context.Context, *CalculateDistanceRequest) (*CalculateDistanceResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -160,6 +173,9 @@ func (UnimplementedUserServer) CollectVehicle(context.Context, *CollectVehicleRe
 }
 func (UnimplementedUserServer) CollectVehicleList(context.Context, *CollectVehicleListRequest) (*CollectVehicleListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CollectVehicleList not implemented")
+}
+func (UnimplementedUserServer) CalculateDistance(context.Context, *CalculateDistanceRequest) (*CalculateDistanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CalculateDistance not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 func (UnimplementedUserServer) testEmbeddedByValue()              {}
@@ -308,6 +324,24 @@ func _User_CollectVehicleList_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_CalculateDistance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CalculateDistanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).CalculateDistance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_CalculateDistance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).CalculateDistance(ctx, req.(*CalculateDistanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -342,6 +376,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CollectVehicleList",
 			Handler:    _User_CollectVehicleList_Handler,
+		},
+		{
+			MethodName: "CalculateDistance",
+			Handler:    _User_CalculateDistance_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -110,3 +110,18 @@ func CollectVehicleList(ctx context.Context, req *user.CollectVehicleListRequest
 	}
 	return userClient.(*user.CollectVehicleListResponse), nil
 }
+
+// todo计算用户到商家的距离
+func CalculateDistance(ctx context.Context, req *user.CalculateDistanceRequest) (*user.CalculateDistanceResponse, error) {
+	userClient, err := client.UserClient(ctx, func(ctx context.Context, in user.UserClient) (interface{}, error) {
+		distance, err := in.CalculateDistance(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return distance, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return userClient.(*user.CalculateDistanceResponse), nil
+}

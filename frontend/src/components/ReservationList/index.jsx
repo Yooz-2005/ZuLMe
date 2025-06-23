@@ -259,7 +259,7 @@ const ReservationList = ({ activeTab = 'all' }) => {
       const orderData = {
         reservation_id: numericReservationId, // 使用提取的数字ID
         return_location_id: selectedReturnLocation,
-        payment_method: "alipay", // 使用字符串格式
+        payment_method: 1, // 1表示支付宝，2表示微信
         notes: `还车地点：${returnLocations.find(loc => loc.id === selectedReturnLocation)?.name}`,
         expected_total_amount: parseFloat(reservation.total_amount) || 0
       };

@@ -36,6 +36,9 @@ func CommentRouter(router *gin.Engine) {
 		// 获取用户评论列表（需要用户登录）- 个人中心查看自己的评论
 		userCommentGroup.GET("/user/:user_id", trigger.GetUserCommentsHandler)
 
+		// 获取当前登录用户的评论列表（需要用户登录）- 个人中心查看自己的评论
+		userCommentGroup.GET("/user/my-comments", trigger.GetMyCommentsHandler)
+
 		// 更新评论（需要用户登录）- 用户修改自己的评论
 		userCommentGroup.PUT("/:comment_id", trigger.UpdateCommentHandler)
 

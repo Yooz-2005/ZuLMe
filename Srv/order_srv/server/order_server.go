@@ -45,3 +45,8 @@ func (s *OrderServer) GetUserOrderList(ctx context.Context, req *order.GetUserOr
 func (s *OrderServer) CancelOrder(ctx context.Context, req *order.CancelOrderRequest) (*order.CancelOrderResponse, error) {
 	return logic.CancelOrder(ctx, req)
 }
+
+// CheckUserUnpaidOrder 检查用户未支付订单
+func (s *OrderServer) CheckUserUnpaidOrder(ctx context.Context, req *order.CheckUserUnpaidOrderRequest) (*order.CheckUserUnpaidOrderResponse, error) {
+	return logic.CheckUserUnpaidOrder(ctx, req)
+}

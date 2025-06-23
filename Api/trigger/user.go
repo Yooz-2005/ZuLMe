@@ -4,8 +4,9 @@ import (
 	"Api/handler"
 	"Api/request"
 	"Api/response"
-	"github.com/gin-gonic/gin"
 	user "user_srv/proto_user"
+
+	"github.com/gin-gonic/gin"
 )
 
 // todo用户注册登录
@@ -15,8 +16,9 @@ func UserRegister(c *gin.Context) {
 		response.ResponseError(c, err.Error())
 	}
 	register, err := handler.UserRegister(c, &user.UserRegisterRequest{
-		Phone: data.Phone,
-		Code:  data.Code,
+		Phone:    data.Phone,
+		Code:     data.Code,
+		Location: data.Location,
 	})
 	if err != nil {
 		response.ResponseError(c, err.Error())
@@ -139,4 +141,31 @@ func CollectVehicleList(c *gin.Context) {
 		return
 	}
 	response.ResponseSuccess(c, collectVehicleList)
+}
+
+// todo 计算用户到商家的距离
+func CalculateDistance(c *gin.Context) {
+	var data request.CalculateDistanceRequest
+	if err := c.ShouldBind(&data); err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	// 获取用户ID (如果需要的话)
+	userId := c.GetUint("userId")
+	var userIdInt int64
+	if userId > 0 {
+		userIdInt = int64(userId)
+	}
+
+	distance, err := handler.CalculateDistance(c, &user.CalculateDistanceRequest{
+		Userid:   userIdInt,
+		Location: data.Location,
+		MerId:    data.MerchantID,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+	response.ResponseSuccess(c, distance)
 }

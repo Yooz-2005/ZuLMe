@@ -2,12 +2,12 @@ package request
 
 // CreateOrderFromReservationRequest 从预订创建订单请求
 type CreateOrderFromReservationRequest struct {
-	ReservationID       int64   `json:"reservation_id" from:"reservation_id" binding:"required"` // 预订ID
-	PickupLocationID    int64   `json:"pickup_location_id" from:"pickup_location_id"`            // 取车地点ID（可选，默认使用车辆所在门店）
-	ReturnLocationID    int64   `json:"return_location_id" from:"return_location_id"`            // 还车地点ID（可选，默认使用取车地点）
-	Notes               string  `json:"notes" from:"notes"`                                      // 订单备注
-	PaymentMethod       string  `json:"payment_method" from:"payment_method"`                    // 支付方式（alipay/wechat）
-	ExpectedTotalAmount float64 `json:"expected_total_amount" from:"expected_total_amount"`      // 预期总金额（用于验证）
+	ReservationID       int64   `json:"reservation_id" form:"reservation_id"`               // 预订ID
+	PickupLocationID    int64   `json:"pickup_location_id" form:"pickup_location_id"`       // 取车地点ID（可选，默认使用车辆所在门店）
+	ReturnLocationID    int64   `json:"return_location_id" form:"return_location_id"`       // 还车地点ID（可选，默认使用取车地点）
+	Notes               string  `json:"notes" form:"notes"`                                 // 订单备注
+	PaymentMethod       int32   `json:"payment_method" form:"payment_method"`               // 支付方式（1:支付宝 2:微信）
+	ExpectedTotalAmount float64 `json:"expected_total_amount" form:"expected_total_amount"` // 预期总金额（用于验证）
 }
 
 // UpdateOrderStatusRequest 更新订单状态请求

@@ -65,3 +65,12 @@ func (s ServerUser) CollectVehicleList(ctx context.Context, in *user.CollectVehi
 	}
 	return collect, nil
 }
+
+// CalculateDistance 计算用户到商家的距离
+func (s ServerUser) CalculateDistance(ctx context.Context, in *user.CalculateDistanceRequest) (*user.CalculateDistanceResponse, error) {
+	distance, err := logic.CalculateDistance(in)
+	if err != nil {
+		return nil, err
+	}
+	return distance, nil
+}

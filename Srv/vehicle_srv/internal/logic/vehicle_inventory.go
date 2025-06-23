@@ -112,6 +112,23 @@ func CreateReservation(ctx context.Context, req *vehicle.CreateReservationReques
 		}, nil
 	}
 
+	// 幂等性检查：检查用户是否有未支付的订单
+	var orderModel model_mysql.Orders
+	hasUnpaidOrder, unpaidOrder, err := orderModel.CheckUserHasUnpaidOrder(uint(req.UserId))
+	if err != nil {
+		return &vehicle.CreateReservationResponse{
+			Code:    500,
+			Message: "检查用户订单状态失败",
+		}, err
+	}
+
+	if hasUnpaidOrder {
+		return &vehicle.CreateReservationResponse{
+			Code:    400,
+			Message: fmt.Sprintf("您有未完成支付的订单（订单号：%s），请先完成支付后再进行新的预订", unpaidOrder.OrderSn),
+		}, nil
+	}
+
 	// 解析日期
 	startDate, err := time.Parse("2006-01-02", req.StartDate)
 	if err != nil {

@@ -40,6 +40,7 @@ import styled from 'styled-components';
 import vehicleService from '../../services/vehicleService';
 import { VEHICLE_STATUS_LABELS } from '../../utils/constants';
 import { getAllImages, handleImageError } from '../../utils/imageUtils';
+import { checkBeforeReservation } from '../../utils/idempotencyUtils';
 import ReservationForm from '../../components/ReservationForm';
 
 const { Header, Content } = Layout;
@@ -304,7 +305,7 @@ const VehicleDetail = () => {
   }, [id]);
 
   // 处理预订按钮点击
-  const handleReservationClick = () => {
+  const handleReservationClick = async () => {
     // 检查用户是否登录
     const token = localStorage.getItem('token');
     if (!token) {
@@ -313,11 +314,14 @@ const VehicleDetail = () => {
       return;
     }
 
-    setReservationVisible(true);
+    // 幂等性检查：确保用户没有未支付的订单
+    await checkBeforeReservation(() => {
+      setReservationVisible(true);
+    });
   };
 
   // 处理预订成功
-  const handleReservationSuccess = (reservationData) => {
+  const handleReservationSuccess = () => {
     setReservationVisible(false);
     message.success('预订创建成功！您可以在个人中心查看预订详情。');
     // 可以选择跳转到订单页面或个人中心

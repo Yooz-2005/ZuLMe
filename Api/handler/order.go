@@ -66,7 +66,6 @@ func GetUserOrderList(ctx context.Context, req *order.GetUserOrderListRequest) (
 	return orderClient.(*order.GetUserOrderListResponse), nil
 }
 
-
 // CancelOrder 取消订单
 func CancelOrder(ctx context.Context, req *order.CancelOrderRequest) (*order.CancelOrderResponse, error) {
 	orderClient, err := client.OrderClient(ctx, func(ctx context.Context, in order.OrderClient) (interface{}, error) {
@@ -80,4 +79,19 @@ func CancelOrder(ctx context.Context, req *order.CancelOrderRequest) (*order.Can
 		return nil, err
 	}
 	return orderClient.(*order.CancelOrderResponse), nil
+}
+
+// CheckUserUnpaidOrder 检查用户未支付订单
+func CheckUserUnpaidOrder(ctx context.Context, req *order.CheckUserUnpaidOrderRequest) (*order.CheckUserUnpaidOrderResponse, error) {
+	orderClient, err := client.OrderClient(ctx, func(ctx context.Context, in order.OrderClient) (interface{}, error) {
+		response, err := in.CheckUserUnpaidOrder(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return response, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return orderClient.(*order.CheckUserUnpaidOrderResponse), nil
 }

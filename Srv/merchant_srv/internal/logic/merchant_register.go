@@ -77,7 +77,31 @@ func MerchantRegister(ctx context.Context, in *merchant.MerchantRegisterRequest)
 		return &merchant.MerchantRegisterResponse{Code: 500, Message: "商户注册失败"}, result.Error
 	}
 
-	fmt.Printf("商户注册成功: Name=%s, Phone=%s, Email=%s\n", in.Name, in.Phone, in.Email)
+	// 6. 将商家位置信息存储到Redis Geo
+	if longitude != 0 && latitude != 0 {
+		geoService := services.NewRedisGeoService()
+		merchantLocation := &services.MerchantLocation{
+			MerchantID: int64(newMerchant.ID),
+			Name:       in.Name,
+			Address:    in.Location,
+			Longitude:  longitude,
+			Latitude:   latitude,
+		}
+
+		err := geoService.AddMerchantLocation(merchantLocation)
+		if err != nil {
+			fmt.Printf("警告: 商家位置信息存储到Redis失败: %v, 商家ID=%d\n", err, newMerchant.ID)
+			// Redis存储失败不影响注册流程，只记录警告
+		} else {
+			fmt.Printf("商家位置信息已存储到Redis: 商家ID=%d, 经度=%f, 纬度=%f\n",
+				newMerchant.ID, longitude, latitude)
+		}
+	} else {
+		fmt.Printf("警告: 商家经纬度为空，跳过Redis存储: 商家ID=%d\n", newMerchant.ID)
+	}
+
+	fmt.Printf("商户注册成功: Name=%s, Phone=%s, Email=%s, ID=%d\n",
+		in.Name, in.Phone, in.Email, newMerchant.ID)
 
 	return &merchant.MerchantRegisterResponse{Code: 200, Message: "注册成功"}, nil
 }

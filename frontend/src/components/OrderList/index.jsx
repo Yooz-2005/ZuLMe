@@ -23,10 +23,13 @@ import {
   ExclamationCircleOutlined,
   CheckCircleOutlined,
   SyncOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  StarOutlined
 } from '@ant-design/icons';
 import styled from 'styled-components';
 import orderService from '../../services/orderService';
+import commentService from '../../services/commentService';
+import CommentModal from '../CommentModal';
 import { parseImages, getDefaultImageByBrand } from '../../utils/imageUtils';
 
 const { Text, Title } = Typography;
@@ -55,6 +58,9 @@ const OrderList = ({ activeTab = 'all' }) => {
   const [loading, setLoading] = useState(false);
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [commentModalVisible, setCommentModalVisible] = useState(false);
+  const [commentOrder, setCommentOrder] = useState(null);
+  const [commentedOrders, setCommentedOrders] = useState(new Set());
 
   // 获取订单列表
   const fetchOrders = async () => {
@@ -62,7 +68,11 @@ const OrderList = ({ activeTab = 'all' }) => {
     try {
       const response = await orderService.getUserOrders();
       if (response && response.code === 200) {
-        setOrders(response.data?.orders || []);
+        const orderList = response.data?.orders || [];
+        setOrders(orderList);
+
+        // 检查哪些订单已经评价过
+        await checkOrdersCommented(orderList);
       }
     } catch (error) {
       message.error('获取订单列表失败');
@@ -70,6 +80,25 @@ const OrderList = ({ activeTab = 'all' }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 检查订单是否已评价
+  const checkOrdersCommented = async (orderList) => {
+    const commented = new Set();
+    for (const order of orderList) {
+      // 只检查已支付或已完成的订单
+      if (order.payment_status === 2 || order.status === 4) {
+        try {
+          const response = await commentService.checkOrderCommented(order.id);
+          if (response && response.code === 200 && response.commented) {
+            commented.add(order.id);
+          }
+        } catch (error) {
+          console.error(`检查订单 ${order.id} 评价状态失败:`, error);
+        }
+      }
+    }
+    setCommentedOrders(commented);
   };
 
   useEffect(() => {
@@ -242,6 +271,25 @@ const OrderList = ({ activeTab = 'all' }) => {
     message.success('支付链接已打开，请完成支付');
   };
 
+  // 判断是否可以评价
+  const canComment = (order) => {
+    // 只有已支付或已完成的订单才能评价
+    return order.payment_status === 2 || order.status === 4;
+  };
+
+  // 处理评价
+  const handleComment = (order) => {
+    setCommentOrder(order);
+    setCommentModalVisible(true);
+  };
+
+  // 评价成功回调
+  const handleCommentSuccess = () => {
+    // 将订单添加到已评价列表
+    setCommentedOrders(prev => new Set([...prev, commentOrder.id]));
+    message.success('评价提交成功！');
+  };
+
   const filteredOrders = getFilteredOrders();
 
   return (
@@ -317,6 +365,28 @@ const OrderList = ({ activeTab = 'all' }) => {
                         取消订单
                       </Button>
                     )}
+                    {canComment(order) && !commentedOrders.has(order.id) && (
+                      <Button
+                        type="primary"
+                        size="small"
+                        icon={<StarOutlined />}
+                        onClick={() => handleComment(order)}
+                        style={{ background: '#faad14', borderColor: '#faad14' }}
+                      >
+                        评价
+                      </Button>
+                    )}
+                    {canComment(order) && commentedOrders.has(order.id) && (
+                      <Tooltip title="您已评价过此订单">
+                        <Button
+                          size="small"
+                          icon={<StarOutlined />}
+                          disabled
+                        >
+                          已评价
+                        </Button>
+                      </Tooltip>
+                    )}
                   </Space>
                 </div>
               </div>
@@ -375,6 +445,17 @@ const OrderList = ({ activeTab = 'all' }) => {
           );
         })()}
       </Modal>
+
+      {/* 评价弹窗 */}
+      <CommentModal
+        visible={commentModalVisible}
+        onCancel={() => {
+          setCommentModalVisible(false);
+          setCommentOrder(null);
+        }}
+        onSuccess={handleCommentSuccess}
+        orderInfo={commentOrder}
+      />
     </>
   );
 };

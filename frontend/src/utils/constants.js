@@ -36,3 +36,39 @@ export const PAGINATION_CONFIG = {
   DEFAULT_PAGE_SIZE: 12,
   DEFAULT_PAGE: 1
 };
+
+// 订单状态
+export const ORDER_STATUS = {
+  PENDING: 1,    // 待支付
+  PAID: 2,       // 已支付
+  CANCELLED: 3,  // 已取消
+  COMPLETED: 4,  // 已完成
+  PICKED_UP: 5,  // 已取车
+  RETURNED: 6    // 已还车
+};
+
+// 订单状态中文映射
+export const ORDER_STATUS_LABELS = {
+  [ORDER_STATUS.PENDING]: '待支付',
+  [ORDER_STATUS.PAID]: '已支付',
+  [ORDER_STATUS.CANCELLED]: '已取消',
+  [ORDER_STATUS.COMPLETED]: '已完成',
+  [ORDER_STATUS.PICKED_UP]: '已取车',
+  [ORDER_STATUS.RETURNED]: '已还车'
+};
+
+// 支付状态
+export const PAYMENT_STATUS = {
+  PENDING: 1,    // 待支付
+  PAID: 2,       // 已支付
+  CANCELLED: 3,  // 已取消
+  COMPLETED: 4   // 已完成
+};
+
+// 支付状态中文映射
+export const PAYMENT_STATUS_LABELS = {
+  [PAYMENT_STATUS.PENDING]: '待支付',
+  [PAYMENT_STATUS.PAID]: '已支付',
+  [PAYMENT_STATUS.CANCELLED]: '已取消',
+  [PAYMENT_STATUS.COMPLETED]: '已完成'
+};

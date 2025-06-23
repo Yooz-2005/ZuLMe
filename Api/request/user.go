@@ -1,8 +1,9 @@
 package request
 
 type UserRegisterRequest struct {
-	Phone string `json:"phone" form:"phone"`
-	Code  string `json:"code" form:"code"`
+	Phone    string `json:"phone" form:"phone"`
+	Code     string `json:"code" form:"code"`
+	Location string `json:"location" form:"location"` // 用户地址
 }
 
 type SendCodeRequest struct {
@@ -34,4 +35,9 @@ type RealNameRequest struct {
 
 type CollectVehicleRequest struct {
 	VehicleId uint `json:"vehicle_id" form:"vehicle_id"`
+}
+
+type CalculateDistanceRequest struct {
+	Location   string `json:"location" form:"location"`       // 用户地址
+	MerchantID int64  `json:"merchant_id" form:"merchant_id"` // 商家ID
 }

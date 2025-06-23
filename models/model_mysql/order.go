@@ -2,6 +2,7 @@ package model_mysql
 
 import (
 	"Common/global"
+	"errors"
 	"fmt"
 	"time"
 
@@ -203,3 +204,41 @@ const (
 	PaymentMethodAlipay = 1 // 支付宝
 	PaymentMethodWechat = 2 // 微信
 )
+
+// CheckUserHasUnpaidOrder 检查用户是否有未支付的订单
+func (o *Orders) CheckUserHasUnpaidOrder(userID uint) (bool, *Orders, error) {
+	var unpaidOrder Orders
+	err := global.DB.Where("user_id = ? AND payment_status = ? AND status != ?",
+		userID, PaymentStatusPending, OrderStatusCancelled).
+		First(&unpaidOrder).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil, nil // 没有未支付订单
+		}
+		return false, nil, err // 数据库错误
+	}
+
+	return true, &unpaidOrder, nil // 有未支付订单
+}
+
+// GetUserUnpaidOrders 获取用户所有未支付的订单
+func (o *Orders) GetUserUnpaidOrders(userID uint) ([]Orders, error) {
+	var unpaidOrders []Orders
+	err := global.DB.Where("user_id = ? AND payment_status = ? AND status != ?",
+		userID, PaymentStatusPending, OrderStatusCancelled).
+		Find(&unpaidOrders).Error
+
+	return unpaidOrders, err
+}
+
+// GetExpiredUnpaidOrders 获取超时未支付的订单（5分钟）
+func (o *Orders) GetExpiredUnpaidOrders() ([]Orders, error) {
+	var expiredOrders []Orders
+	// 查询创建时间超过5分钟且状态为待支付的订单
+	err := global.DB.Where("payment_status = ? AND status = ? AND created_at < ?",
+		PaymentStatusPending, OrderStatusPending, time.Now().Add(-5*time.Minute)).
+		Find(&expiredOrders).Error
+
+	return expiredOrders, err
+}

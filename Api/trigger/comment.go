@@ -28,6 +28,8 @@ func CreateCommentHandler(c *gin.Context) {
 
 	// 添加调试信息
 	fmt.Printf("API层调试信息: OrderID=%d, UserID=%d\n", req.OrderID, userID)
+	fmt.Printf("API层接收到的Images数据: %+v\n", req.Images)
+	fmt.Printf("Images数组长度: %d\n", len(req.Images))
 
 	// 调用评论服务
 	commentResp, err := client.CommentClient(context.Background(), func(ctx context.Context, commentClient proto_comment.CommentServiceClient) (interface{}, error) {
@@ -189,6 +191,60 @@ func GetUserCommentsHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
 			"message": "用户ID格式错误",
+		})
+		return
+	}
+
+	// 获取分页参数
+	var req request.GetUserCommentsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		// 使用默认值
+		req.Page = 1
+		req.PageSize = 10
+	}
+
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+
+	commentResp, err := client.CommentClient(context.Background(), func(ctx context.Context, commentClient proto_comment.CommentServiceClient) (interface{}, error) {
+		return commentClient.GetUserComments(ctx, &proto_comment.GetUserCommentsRequest{
+			UserId:   uint32(userID),
+			Page:     req.Page,
+			PageSize: req.PageSize,
+		})
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "服务器内部错误",
+		})
+		return
+	}
+
+	resp := commentResp.(*proto_comment.GetUserCommentsResponse)
+	c.JSON(http.StatusOK, gin.H{
+		"code":      resp.Code,
+		"message":   resp.Message,
+		"data":      resp.Comments,
+		"total":     resp.Total,
+		"page":      resp.Page,
+		"page_size": resp.PageSize,
+	})
+}
+
+// GetMyCommentsHandler 获取当前登录用户的评论列表
+func GetMyCommentsHandler(c *gin.Context) {
+	// 从JWT中获取用户ID
+	userID := c.GetUint("userId")
+	if userID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "用户未登录",
 		})
 		return
 	}

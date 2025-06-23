@@ -36,6 +36,23 @@ func CreateOrderFromReservation(ctx context.Context, req *order.CreateOrderFromR
 		}, nil
 	}
 
+	// 幂等性检查：检查用户是否有未支付的订单
+	var checkOrderModel model_mysql.Orders
+	hasUnpaidOrder, unpaidOrder, err := checkOrderModel.CheckUserHasUnpaidOrder(uint(req.UserId))
+	if err != nil {
+		return &order.CreateOrderFromReservationResponse{
+			Code:    500,
+			Message: "检查用户订单状态失败",
+		}, err
+	}
+
+	if hasUnpaidOrder {
+		return &order.CreateOrderFromReservationResponse{
+			Code:    400,
+			Message: fmt.Sprintf("您有未完成支付的订单（订单号：%s），请先完成支付后再创建新订单", unpaidOrder.OrderSn),
+		}, nil
+	}
+
 	// 1. 验证预订是否存在且属于当前用户
 	var reservation model_mysql.VehicleInventory
 	if err := reservation.GetByID(uint(req.ReservationId)); err != nil {
@@ -495,5 +512,55 @@ func CancelOrder(ctx context.Context, req *order.CancelOrderRequest) (*order.Can
 	return &order.CancelOrderResponse{
 		Code:    200,
 		Message: "订单取消成功",
+	}, nil
+}
+
+// CheckUserUnpaidOrder 检查用户未支付订单
+func CheckUserUnpaidOrder(ctx context.Context, req *order.CheckUserUnpaidOrderRequest) (*order.CheckUserUnpaidOrderResponse, error) {
+	// 参数验证
+	if req.UserId <= 0 {
+		return &order.CheckUserUnpaidOrderResponse{
+			Code:    400,
+			Message: "用户ID不能为空",
+		}, nil
+	}
+
+	// 检查用户是否有未支付的订单
+	var orderModel model_mysql.Orders
+	hasUnpaidOrder, unpaidOrder, err := orderModel.CheckUserHasUnpaidOrder(uint(req.UserId))
+	if err != nil {
+		return &order.CheckUserUnpaidOrderResponse{
+			Code:    500,
+			Message: "检查订单状态失败",
+		}, err
+	}
+
+	if hasUnpaidOrder {
+		// 转换为响应格式
+		orderInfo := &order.OrderInfo{
+			Id:            int64(unpaidOrder.ID),
+			UserId:        int64(unpaidOrder.UserId),
+			VehicleId:     int64(unpaidOrder.VehicleId),
+			ReservationId: int64(unpaidOrder.ReservationId),
+			OrderSn:       unpaidOrder.OrderSn,
+			TotalAmount:   unpaidOrder.TotalAmount,
+			Status:        unpaidOrder.Status,
+			PaymentStatus: unpaidOrder.PaymentStatus,
+			PaymentUrl:    unpaidOrder.PaymentUrl,
+			CreatedAt:     unpaidOrder.CreatedAt.Format(time.RFC3339),
+		}
+
+		return &order.CheckUserUnpaidOrderResponse{
+			Code:           200,
+			Message:        fmt.Sprintf("您有未完成支付的订单（订单号：%s），请先完成支付", unpaidOrder.OrderSn),
+			HasUnpaidOrder: true,
+			UnpaidOrder:    orderInfo,
+		}, nil
+	}
+
+	return &order.CheckUserUnpaidOrderResponse{
+		Code:           200,
+		Message:        "没有未支付的订单",
+		HasUnpaidOrder: false,
 	}, nil
 }
