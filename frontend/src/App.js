@@ -7,6 +7,7 @@ import LoginRegister from './pages/LoginRegister';
 import VehicleList from './pages/VehicleList';
 import VehicleDetail from './pages/VehicleDetail';
 import SearchResults from './pages/SearchResults';
+
 import Dashboard from './pages/Dashboard';
 import PersonalCenter from './pages/PersonalCenter';
 import ImageTest from './components/ImageTest';
@@ -40,6 +41,7 @@ function App() {
           <Route path="/vehicles" element={<VehicleList />} />
           <Route path="/vehicle/:id" element={<VehicleDetail />} />
           <Route path="/search" element={<SearchResults />} />
+
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/personal-center" element={<PersonalCenter />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />

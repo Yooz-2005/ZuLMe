@@ -321,7 +321,7 @@ const MyInfoPage = ({ onPhoneUpdate }) => {
                         label="验证码"
                         rules={[
                             { required: true, message: '请输入验证码' },
-                            { pattern: /^\d{6}$/, message: '验证码必须是6位数字' }
+                            { pattern: /^\d{5}$/, message: '验证码必须是5位数字' }
                         ]}
                     >
                         <Input placeholder="请输入验证码" />

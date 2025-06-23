@@ -18,6 +18,7 @@ import styled from 'styled-components';
 import dayjs from 'dayjs';
 import VehicleCard from '../../components/VehicleCard';
 import SearchForm from '../../components/SearchForm';
+import AdvancedSearchForm from '../../components/AdvancedSearchForm';
 import vehicleService from '../../services/vehicleService';
 import { PAGINATION_CONFIG } from '../../utils/constants';
 
@@ -95,6 +96,22 @@ const SearchResults = () => {
       params.brandId = parseInt(urlParams.get('brand_id'));
     }
 
+    if (urlParams.get('price_min')) {
+      params.priceMin = parseFloat(urlParams.get('price_min'));
+    }
+
+    if (urlParams.get('price_max')) {
+      params.priceMax = parseFloat(urlParams.get('price_max'));
+    }
+
+    if (urlParams.get('year_min')) {
+      params.yearMin = parseInt(urlParams.get('year_min'));
+    }
+
+    if (urlParams.get('year_max')) {
+      params.yearMax = parseInt(urlParams.get('year_max'));
+    }
+
     return params;
   };
 
@@ -157,6 +174,18 @@ const SearchResults = () => {
     if (newSearchParams.brandId) {
       queryParams.append('brand_id', newSearchParams.brandId);
     }
+    if (newSearchParams.priceMin) {
+      queryParams.append('price_min', newSearchParams.priceMin);
+    }
+    if (newSearchParams.priceMax) {
+      queryParams.append('price_max', newSearchParams.priceMax);
+    }
+    if (newSearchParams.yearMin) {
+      queryParams.append('year_min', newSearchParams.yearMin);
+    }
+    if (newSearchParams.yearMax) {
+      queryParams.append('year_max', newSearchParams.yearMax);
+    }
 
     navigate(`/search?${queryParams.toString()}`, { replace: true });
   };
@@ -171,6 +200,14 @@ const SearchResults = () => {
     }
     if (searchParams.carType) {
       parts.push(`车型: ${searchParams.carType}`);
+    }
+    if (searchParams.priceMin || searchParams.priceMax) {
+      const priceText = `价格: ${searchParams.priceMin || 0}-${searchParams.priceMax || '不限'}元/天`;
+      parts.push(priceText);
+    }
+    if (searchParams.yearMin || searchParams.yearMax) {
+      const yearText = `年份: ${searchParams.yearMin || '不限'}-${searchParams.yearMax || '不限'}年`;
+      parts.push(yearText);
     }
     return parts.length > 0 ? parts.join(' | ') : '所有车辆';
   };
@@ -214,11 +251,12 @@ const SearchResults = () => {
           </Breadcrumb>
 
           <SearchSection>
-            <SearchForm 
+            <AdvancedSearchForm
               initialValues={searchParams}
               onSearch={handleSearch}
               showTitle={false}
               layout="horizontal"
+              showAdvanced={true}
             />
           </SearchSection>
 

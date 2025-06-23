@@ -3,10 +3,9 @@ package main
 import (
 	"Common/appconfig"
 	"Common/initialize"
+	"google.golang.org/grpc"
 	"invoice_srv/grpc_invoice"
 	"invoice_srv/internal"
-
-	"google.golang.org/grpc"
 )
 
 func main() {

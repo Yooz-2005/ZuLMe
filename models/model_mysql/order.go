@@ -118,44 +118,19 @@ func (o *Orders) GetUserOrderList(userID uint, page, pageSize int, status, payme
 	return orders, total, nil
 }
 
-// CreateOrderFromReservation 基于预订创建订单
-func (o *Orders) CreateOrderFromReservation(reservation *VehicleInventory, vehicle *Vehicle, pickupLocationID, returnLocationID uint, notes string, paymentMethod int32) error {
-	// 计算租赁天数
-	rentalDays := int32(reservation.EndDate.Sub(reservation.StartDate).Hours()/24) + 1
-
-	// 计算总金额
-	totalAmount := vehicle.Price * float64(rentalDays)
-
-	// 生成订单号
-	orderSn := GenerateOrderSn()
-
-	// 填充订单信息
-	o.UserId = reservation.CreatedBy
-	o.VehicleId = reservation.VehicleID
-	o.ReservationId = reservation.ID
-	o.OrderSn = orderSn
-	o.PickupLocationId = pickupLocationID
-	o.ReturnLocationId = returnLocationID
-	o.PickupTime = reservation.StartDate
-	o.ReturnTime = reservation.EndDate
-	o.RentalDays = rentalDays
-	o.DailyRate = vehicle.Price
-	o.TotalAmount = totalAmount
-	o.Status = 1 // 待支付
-	o.Payment = paymentMethod
-	o.PaymentStatus = 1 // 待支付
-	o.Notes = notes
-
-	return o.Create()
-}
-
 // CreateOrderFromReservationWithTx 基于预订创建订单（带事务）
 func (o *Orders) CreateOrderFromReservationWithTx(tx *gorm.DB, reservation *VehicleInventory, vehicle *Vehicle, pickupLocationID, returnLocationID uint, notes string, paymentMethod int32) error {
 	// 计算租赁天数
-	rentalDays := int32(reservation.EndDate.Sub(reservation.StartDate).Hours()/24) + 1
+	rentalDays := int32(reservation.EndDate.Sub(reservation.StartDate).Hours()/24) + 1 // 计算租赁天数 利用time.Duration的Hours()方法计算两个时间点之间的小时数，然后加1
 
-	// 计算总金额
-	totalAmount := vehicle.Price * float64(rentalDays)
+	// 计算基础价
+	baseAmount := vehicle.Price * float64(rentalDays)
+	// 服务费（10%）
+	serviceFee := baseAmount * 0.1
+	// 保险费（100元/天）
+	insuranceFee := float64(rentalDays) * 100
+	// 总价
+	totalAmount := baseAmount + serviceFee + insuranceFee
 
 	// 生成订单号
 	orderSn := GenerateOrderSn()
@@ -175,7 +150,7 @@ func (o *Orders) CreateOrderFromReservationWithTx(tx *gorm.DB, reservation *Vehi
 	o.Status = 1 // 待支付
 	o.Payment = paymentMethod
 	o.PaymentStatus = 1 // 待支付
-	o.Notes = notes
+	o.Notes = fmt.Sprintf("%s | 价格明细: 基础价:%.2f, 服务费:%.2f, 保险费:%.2f", notes, baseAmount, serviceFee, insuranceFee)
 
 	// 使用事务创建订单
 	return tx.Create(o).Error

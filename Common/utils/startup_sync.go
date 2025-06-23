@@ -41,7 +41,7 @@ func StartupSyncMerchantLocations() {
 
 // PeriodicSyncMerchantLocations 定期同步商家位置数据 (可选)
 func PeriodicSyncMerchantLocations(intervalHours int) {
-	ticker := time.NewTicker(time.Duration(intervalHours) * time.Hour)
+	ticker := time.NewTicker(time.Duration(intervalHours) * time.Hour) // 每小时执行一次
 	defer ticker.Stop()
 
 	fmt.Printf("⏰ 启动定期同步任务，间隔: %d 小时\n", intervalHours)

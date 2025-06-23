@@ -46,7 +46,22 @@ export const parseImages = (imagesString, brand = '') => {
   const images = imagesString
     .split(/[,，]/)  // 支持中文逗号和英文逗号
     .map(url => url.trim())
-    .filter(url => url.length > 0);
+    .filter(url => url.length > 0)
+    .map(url => {
+      // 如果已经是完整的URL（http或https开头），直接返回
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+
+      // 如果是相对路径，拼接基础URL
+      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8888';
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+
+      // 其他情况，拼接基础URL和路径
+      return `${baseUrl}/${url}`;
+    });
 
   console.log('解析后的图片数组:', images);
 
