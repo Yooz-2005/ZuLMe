@@ -2,6 +2,7 @@ package logic
 
 import (
 	"Common/global"
+	"Common/kuteng-RabbitMQ/SimpleRecieve"
 	"Common/payment"
 	"context"
 	"fmt"
@@ -488,5 +489,12 @@ func CancelOrder(ctx context.Context, req *order.CancelOrderRequest) (*order.Can
 	return &order.CancelOrderResponse{
 		Code:    200,
 		Message: "订单取消成功",
+	}, nil
+}
+
+func CreateOrderMessage(ctx context.Context, req *order.CreateOrderMessageRequest) (*order.CreateOrderMessageResponse, error) {
+	SimpleRecieve.SimpleReceive()
+	return &order.CreateOrderMessageResponse{
+		Ping: "成功",
 	}, nil
 }

@@ -20,11 +20,13 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Order_Ping_FullMethodName                       = "/order.Order/Ping"
+	Order_CreateOrder_FullMethodName                = "/order.Order/CreateOrder"
 	Order_CreateOrderFromReservation_FullMethodName = "/order.Order/CreateOrderFromReservation"
 	Order_GetOrder_FullMethodName                   = "/order.Order/GetOrder"
 	Order_UpdateOrderStatus_FullMethodName          = "/order.Order/UpdateOrderStatus"
 	Order_GetUserOrderList_FullMethodName           = "/order.Order/GetUserOrderList"
 	Order_CancelOrder_FullMethodName                = "/order.Order/CancelOrder"
+	Order_CreateOrderMessage_FullMethodName         = "/order.Order/CreateOrderMessage"
 )
 
 // OrderClient is the client API for Order service.
@@ -32,12 +34,14 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderClient interface {
 	Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
-	// 订单管理
+	// 訂單管理
+	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 	CreateOrderFromReservation(ctx context.Context, in *CreateOrderFromReservationRequest, opts ...grpc.CallOption) (*CreateOrderFromReservationResponse, error)
 	GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 	UpdateOrderStatus(ctx context.Context, in *UpdateOrderStatusRequest, opts ...grpc.CallOption) (*UpdateOrderStatusResponse, error)
 	GetUserOrderList(ctx context.Context, in *GetUserOrderListRequest, opts ...grpc.CallOption) (*GetUserOrderListResponse, error)
 	CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error)
+	CreateOrderMessage(ctx context.Context, in *CreateOrderMessageRequest, opts ...grpc.CallOption) (*CreateOrderMessageResponse, error)
 }
 
 type orderClient struct {
@@ -52,6 +56,16 @@ func (c *orderClient) Ping(ctx context.Context, in *Request, opts ...grpc.CallOp
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, Order_Ping_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateOrderResponse)
+	err := c.cc.Invoke(ctx, Order_CreateOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,17 +122,29 @@ func (c *orderClient) CancelOrder(ctx context.Context, in *CancelOrderRequest, o
 	return out, nil
 }
 
+func (c *orderClient) CreateOrderMessage(ctx context.Context, in *CreateOrderMessageRequest, opts ...grpc.CallOption) (*CreateOrderMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateOrderMessageResponse)
+	err := c.cc.Invoke(ctx, Order_CreateOrderMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
 type OrderServer interface {
 	Ping(context.Context, *Request) (*Response, error)
-	// 订单管理
+	// 訂單管理
+	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
 	CreateOrderFromReservation(context.Context, *CreateOrderFromReservationRequest) (*CreateOrderFromReservationResponse, error)
 	GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
 	UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*UpdateOrderStatusResponse, error)
 	GetUserOrderList(context.Context, *GetUserOrderListRequest) (*GetUserOrderListResponse, error)
 	CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error)
+	CreateOrderMessage(context.Context, *CreateOrderMessageRequest) (*CreateOrderMessageResponse, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -131,6 +157,9 @@ type UnimplementedOrderServer struct{}
 
 func (UnimplementedOrderServer) Ping(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+}
+func (UnimplementedOrderServer) CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
 func (UnimplementedOrderServer) CreateOrderFromReservation(context.Context, *CreateOrderFromReservationRequest) (*CreateOrderFromReservationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrderFromReservation not implemented")
@@ -146,6 +175,9 @@ func (UnimplementedOrderServer) GetUserOrderList(context.Context, *GetUserOrderL
 }
 func (UnimplementedOrderServer) CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
+}
+func (UnimplementedOrderServer) CreateOrderMessage(context.Context, *CreateOrderMessageRequest) (*CreateOrderMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOrderMessage not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -182,6 +214,24 @@ func _Order_Ping_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServer).Ping(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CreateOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CreateOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CreateOrder(ctx, req.(*CreateOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -276,6 +326,24 @@ func _Order_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_CreateOrderMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOrderMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CreateOrderMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CreateOrderMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CreateOrderMessage(ctx, req.(*CreateOrderMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -286,6 +354,10 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Ping",
 			Handler:    _Order_Ping_Handler,
+		},
+		{
+			MethodName: "CreateOrder",
+			Handler:    _Order_CreateOrder_Handler,
 		},
 		{
 			MethodName: "CreateOrderFromReservation",
@@ -306,6 +378,10 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelOrder",
 			Handler:    _Order_CancelOrder_Handler,
+		},
+		{
+			MethodName: "CreateOrderMessage",
+			Handler:    _Order_CreateOrderMessage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

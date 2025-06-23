@@ -7,3 +7,6 @@ Nacos:
 
 SendSms:
   Count: 5
+
+MinioSrv:
+  Addr: "localhost:50051"

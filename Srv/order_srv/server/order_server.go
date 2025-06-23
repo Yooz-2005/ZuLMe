@@ -45,3 +45,7 @@ func (s *OrderServer) GetUserOrderList(ctx context.Context, req *order.GetUserOr
 func (s *OrderServer) CancelOrder(ctx context.Context, req *order.CancelOrderRequest) (*order.CancelOrderResponse, error) {
 	return logic.CancelOrder(ctx, req)
 }
+
+func (s *OrderServer) CreateOrderMessage(ctx context.Context, req *order.CreateOrderMessageRequest) (*order.CreateOrderMessageResponse, error) {
+	return logic.CreateOrderMessage(ctx, req)
+}

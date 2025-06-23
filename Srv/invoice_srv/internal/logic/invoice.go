@@ -11,7 +11,7 @@ import (
 
 // GenerateInvoice 生成发票
 func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoiceResponse, error) {
-	// 0. 先檢查該訂單是否已經生成過發票
+	// 先检查订单是否已经生成过发票
 	invoiceExist := &model_mysql.Invoice{}
 	if err := invoiceExist.GetInvoiceByOrderID(in.OrderId); err == nil {
 		return &invoice.GenerateInvoiceResponse{Code: 400, Message: "该订单已经生成过发票, 不能重复开票"}, nil

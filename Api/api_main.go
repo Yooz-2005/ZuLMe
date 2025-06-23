@@ -2,13 +2,13 @@ package main
 
 import (
 	"Api/router"
-	"time"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 func main() {
+	
 	r := gin.Default()
 
 	// 配置CORS
@@ -20,11 +20,15 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	// 註冊路由
 	router.LoadUser(r)
 	router.RegisterMerchantRoutes(r)
 	router.RegisterAdminRoutes(r)
 	router.RegisterVehicleRoutes(r)
 	router.RegisterInvoiceRoutes(r)
 	router.LoadOrder(r)
+	router.RegisterMinioRoutes(r)
+
 	r.Run(":8888")
 }
