@@ -12,7 +12,6 @@ type Invoice struct {
 	OrderSn     string    `gorm:"column:order_sn;type:varchar(50);comment:订单编号;not null;" json:"order_sn"`                       // 订单编号
 	InvoiceNo   string    `gorm:"column:invoice_no;type:varchar(50);comment:发票号码;not null;" json:"invoice_no"`                   // 发票号码
 	InvoiceType int32     `gorm:"column:invoice_type;type:int;comment:发票类型1:电子发票2:纸质发票;not null;default:1;" json:"invoice_type"` // 发票类型1:电子发票2:纸质发票
-	Title       string    `gorm:"column:title;type:varchar(50);comment:发票标题;not null;" json:"title"`                             // 发票标题
 	TaxNumber   string    `gorm:"column:tax_number;type:varchar(255);comment:税号;not null;" json:"tax_number"`                    // 税号
 	Amount      float64   `gorm:"column:amount;type:decimal(10, 2);comment:发票金额;not null;" json:"amount"`                        // 发票金额
 	Status      int32     `gorm:"column:status;type:int;comment:发票状态1:待开2:已开3:已作废;not null;default:1;" json:"status"`            // 发票状态1:待开2:已开3:已作废

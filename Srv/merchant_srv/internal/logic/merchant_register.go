@@ -5,10 +5,9 @@ import (
 	"Common/services"
 	"context"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	merchant "merchant_srv/proto_merchant"
 	"models/model_mysql"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func MerchantRegister(ctx context.Context, in *merchant.MerchantRegisterRequest) (*merchant.MerchantRegisterResponse, error) {

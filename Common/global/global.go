@@ -4,7 +4,11 @@ import (
 	"context"
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-redis/redis/v8"
+
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/minio/minio-go/v7"
+
 	"gorm.io/gorm"
 )
 
@@ -15,4 +19,5 @@ var (
 	MongoClient *mongo.Client
 	Ctx         context.Context
 	Cancel      context.CancelFunc
+	Minio       *minio.Client
 )

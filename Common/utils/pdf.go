@@ -136,7 +136,6 @@ func GenerateInvoicePDF(invoice *model_mysql.Invoice, order *model_mysql.Orders,
 		Amount         float64
 		OrderSn        string
 		IssuerName     string
-		Title          string // For consistency with original invoice model
 		TaxNumber      string // For consistency with original invoice model
 		InvoiceTypeStr string // For consistency with original invoice model
 		StatusStr      string // For consistency with original invoice model
@@ -155,7 +154,6 @@ func GenerateInvoicePDF(invoice *model_mysql.Invoice, order *model_mysql.Orders,
 		Amount:         invoice.Amount,
 		OrderSn:        order.OrderSn,
 		IssuerName:     issuerName,
-		Title:          invoice.Title,
 		TaxNumber:      invoice.TaxNumber,
 		InvoiceTypeStr: getInvoiceTypeString(invoice.InvoiceType),
 		StatusStr:      getInvoiceStatusString(invoice.Status),

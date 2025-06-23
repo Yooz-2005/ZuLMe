@@ -11,6 +11,11 @@ import (
 
 // GenerateInvoice 生成发票
 func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoiceResponse, error) {
+	// 先检查订单是否已经生成过发票
+	invoiceExist := &model_mysql.Invoice{}
+	if err := invoiceExist.GetInvoiceByOrderID(in.OrderId); err == nil {
+		return &invoice.GenerateInvoiceResponse{Code: 400, Message: "该订单已经生成过发票, 不能重复开票"}, nil
+	}
 	// 1. 根据 OrderID 查找订单信息
 	order := &model_mysql.Orders{}
 	if err := order.GetByID(uint(in.OrderId)); err != nil {
@@ -39,6 +44,7 @@ func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoi
 	}
 
 	// 5. 构造 Invoice 对象
+	generatedTaxNumber := utils.GenerateTaxNumber(int64(order.UserId))
 	newInvoice := &model_mysql.Invoice{
 		OrderId:     int32(order.ID),
 		MerchantId:  int32(in.MerchantId),                        // <-- 新增：赋值 MerchantId
@@ -46,10 +52,9 @@ func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoi
 		OrderSn:     order.OrderSn,
 		Amount:      order.TotalAmount,
 		IssuedAt:    time.Now(),
-		Title:       in.InvoiceTitle,
-		TaxNumber:   in.TaxNumber, // 使用请求中传入的税号作为发票的税号（销售方税号）
-		InvoiceType: 1,            // Default to electronic invoice
-		Status:      1,            // Initial status "待开"
+		TaxNumber:   generatedTaxNumber, // 使用自自动生成的税号
+		InvoiceType: 1,                  // Default to electronic invoice
+		Status:      1,                  // Initial status "待开"
 		VehicleId:   int32(order.VehicleId),
 		VehicleName: vehicle.Brand, // 使用车辆品牌作为项目名称
 		RentalDays:  order.RentalDays,
