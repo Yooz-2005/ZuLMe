@@ -283,13 +283,19 @@ const VehicleDetail = () => {
     setCommentsLoading(true);
     try {
       const response = await commentService.getVehicleComments(id);
+      console.log('评论API响应:', response); // 添加调试日志
       if (response && response.code === 200) {
-        // 兼容后端返回格式，data.data 是评论数组
-        const commentArr = Array.isArray(response.data?.data) ? response.data.data : (response.data?.comments || []);
+        // 修正数据解析：API返回的data字段直接是评论数组
+        const commentArr = Array.isArray(response.data) ? response.data : [];
+        console.log('解析后的评论数组:', commentArr); // 添加调试日志
         setComments(commentArr);
+      } else {
+        console.log('评论API返回错误:', response);
+        setComments([]);
       }
     } catch (err) {
       console.error('获取评论失败:', err);
+      setComments([]);
     } finally {
       setCommentsLoading(false);
     }

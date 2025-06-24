@@ -2,9 +2,10 @@ package main
 
 import (
 	"Api/router"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 func main() {
@@ -20,6 +21,9 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	// 静态文件服务 - 提供PDF文件下载
+	r.Static("/invoices", "../invoices")
 
 	// 註冊路由
 	router.LoadUser(r)
