@@ -30,8 +30,8 @@ import styled from 'styled-components';
 import orderService from '../../services/orderService';
 import commentService from '../../services/commentService';
 import CommentModal from '../CommentModal';
+import InvoiceButton from '../InvoiceButton';
 import { parseImages, getDefaultImageByBrand } from '../../utils/imageUtils';
-import invoiceService from '../../services/invoiceService';
 
 const { Text, Title } = Typography;
 const { confirm } = Modal;
@@ -291,18 +291,7 @@ const OrderList = ({ activeTab = 'all' }) => {
     message.success('评价提交成功！');
   };
 
-  const handleInvoice = async (orderId) => {
-    try {
-      const res = await invoiceService.generateInvoice(orderId);
-      if (res.code === 200) {
-        message.success('发票申请成功！');
-      } else {
-        message.error(res.message || '发票申请失败');
-      }
-    } catch (err) {
-      message.error('发票申请异常');
-    }
-  };
+
 
   const filteredOrders = getFilteredOrders();
 
@@ -401,7 +390,12 @@ const OrderList = ({ activeTab = 'all' }) => {
                         </Button>
                       </Tooltip>
                     )}
-                   
+                    <InvoiceButton
+                      order={order}
+                      onInvoiceGenerated={(invoiceData) => {
+                        message.success(`发票 ${invoiceData.invoice_no} 开具成功！`);
+                      }}
+                    />
                   </Space>
                 </div>
               </div>

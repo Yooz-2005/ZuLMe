@@ -9,6 +9,11 @@ message GenerateInvoiceRequest {
   int64 merchant_id = 2;// 商户ID
 }
 
+message ApplyInvoiceForUserRequest {
+  int32 order_id = 1;
+  int64 user_id = 2;
+}
+
 message GenerateInvoiceResponse {
   int32 code = 1;
   string message = 2;
@@ -18,5 +23,10 @@ message GenerateInvoiceResponse {
 }
 
 service Invoice {
+<<<<<<< HEAD
   rpc GenerateInvoice(GenerateInvoiceRequest) returns (GenerateInvoiceResponse);// 生成发票
+=======
+  rpc GenerateInvoice(GenerateInvoiceRequest) returns (GenerateInvoiceResponse);
+  rpc ApplyInvoiceForUser(ApplyInvoiceForUserRequest) returns (GenerateInvoiceResponse);
+>>>>>>> 706caa0720aad605753e307e1998619c43e6d980
 }

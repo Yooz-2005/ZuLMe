@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"models/model_mysql"
 	"os"
 	"os/exec"
@@ -176,12 +175,27 @@ func GenerateInvoicePDF(invoice *model_mysql.Invoice, order *model_mysql.Orders,
 	htmlFileName := fmt.Sprintf("invoice_%s.html", invoice.InvoiceNo)
 	htmlFilePath := filepath.Join(os.TempDir(), htmlFileName)
 	// fmt.Printf("临时 HTML 文件路径: %s\n", htmlFilePath) // 调试用，可以打开
-	if err := ioutil.WriteFile(htmlFilePath, tpl.Bytes(), 0644); err != nil {
+	if err := os.WriteFile(htmlFilePath, tpl.Bytes(), 0644); err != nil {
 		return "", fmt.Errorf("写入临时 HTML 文件失败: %v", err)
 	}
 
-	// 确保 PDF 输出目录存在
-	outputDir := "invoices"
+	// 确保 PDF 输出目录存在 - 使用绝对路径
+	// 获取当前工作目录
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("获取当前工作目录失败: %v", err)
+	}
+
+	// 根据当前目录确定正确的invoices目录路径
+	var outputDir string
+	if filepath.Base(currentDir) == "invoice_srv" {
+		// 如果在invoice_srv目录中运行，需要回到项目根目录
+		outputDir = filepath.Join(filepath.Dir(filepath.Dir(currentDir)), "invoices")
+	} else {
+		// 如果在其他目录（如Api）中运行
+		outputDir = filepath.Join(filepath.Dir(currentDir), "invoices")
+	}
+
 	if err := os.MkdirAll(outputDir, 0755); err != nil { // 确保目录存在
 		if !os.IsExist(err) {
 			return "", fmt.Errorf("创建 PDF 输出目录失败: %v", err)
@@ -192,18 +206,57 @@ func GenerateInvoicePDF(invoice *model_mysql.Invoice, order *model_mysql.Orders,
 	pdfFileName := fmt.Sprintf("%s.pdf", invoice.InvoiceNo)
 	pdfPath := filepath.Join(outputDir, pdfFileName) // 确保路径正确
 
-	// 调用 wkhtmltopdf 命令生成 PDF (使用绝对路径)
-	const wkhtmltopdfPath = "C:\\down\\wkhtmltopdf\\bin\\wkhtmltopdf.exe" // 请根据您的实际安装路径修改
-	cmd := exec.Command(wkhtmltopdfPath, htmlFilePath, pdfPath)
-	cmd.Stderr = os.Stderr // 将错误输出重定向到标准错误，方便调试
+	// 调用 wkhtmltopdf 命令生成 PDF
+	// 首先尝试系统PATH中的wkhtmltopdf，如果失败则尝试指定路径
+	var cmd *exec.Cmd
+
+	// 尝试使用系统PATH中的wkhtmltopdf
+	cmd = exec.Command("wkhtmltopdf", "--page-size", "A4", "--encoding", "UTF-8", htmlFilePath, pdfPath)
+	cmd.Stderr = os.Stderr
+
 	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("调用 wkhtmltopdf 失败，请确保路径 '%s' 正确且 wkhtmltopdf 可执行。错误: %v", wkhtmltopdfPath, err)
+		// 如果系统PATH中没有，尝试使用指定路径
+		wkhtmltopdfPaths := []string{
+			"D:\\wkhtmltopdf\\bin\\wkhtmltopdf.exe",                // D盘安装路径
+			"C:\\down\\wkhtmltopdf\\bin\\wkhtmltopdf.exe",          // 原备用路径
+			"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe", // 默认安装路径
+		}
+
+		var lastErr error
+		pdfCreated := false
+
+		for _, wkhtmltopdfPath := range wkhtmltopdfPaths {
+			cmd = exec.Command(wkhtmltopdfPath, "--page-size", "A4", "--encoding", "UTF-8", htmlFilePath, pdfPath)
+			cmd.Stderr = os.Stderr
+			lastErr = cmd.Run()
+			if lastErr == nil {
+				pdfCreated = true
+				break
+			}
+		}
+
+		if !pdfCreated {
+			// 如果所有路径都失败，创建HTML文件作为替代
+			fmt.Printf("警告: wkhtmltopdf 不可用，将创建HTML文件作为替代。请安装 wkhtmltopdf 以生成PDF文件。\n")
+			fmt.Printf("尝试的路径: %v\n", wkhtmltopdfPaths)
+			fmt.Printf("最后的错误: %v\n", lastErr)
+
+			// 将HTML文件复制到输出目录作为替代
+			htmlOutputPath := filepath.Join(outputDir, fmt.Sprintf("%s.html", invoice.InvoiceNo))
+			if copyErr := os.WriteFile(htmlOutputPath, tpl.Bytes(), 0644); copyErr != nil {
+				return "", fmt.Errorf("创建HTML文件失败: %v", copyErr)
+			}
+			pdfPath = htmlOutputPath
+		}
 	}
 
 	// 清理临时 HTML 文件
 	os.Remove(htmlFilePath)
 
-	return pdfPath, nil
+	// 返回可访问的URL路径而不是本地文件路径
+	fileName := filepath.Base(pdfPath)
+	pdfURL := fmt.Sprintf("http://localhost:8888/invoices/%s", fileName)
+	return pdfURL, nil
 }
 
 // 辅助函数：根据发票类型代码获取字符串描述

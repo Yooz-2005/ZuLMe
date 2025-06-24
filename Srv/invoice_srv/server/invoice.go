@@ -17,3 +17,11 @@ func (s ServerInvoice) GenerateInvoice(ctx context.Context, in *invoice.Generate
 	}
 	return generateInvoice, nil
 }
+
+func (s ServerInvoice) ApplyInvoiceForUser(ctx context.Context, in *invoice.ApplyInvoiceForUserRequest) (*invoice.GenerateInvoiceResponse, error) {
+	generateInvoice, err := logic.ApplyInvoiceForUser(in)
+	if err != nil {
+		return nil, err
+	}
+	return generateInvoice, nil
+}

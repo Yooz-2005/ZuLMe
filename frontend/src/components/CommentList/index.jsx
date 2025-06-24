@@ -59,11 +59,22 @@ const adaptComments = (comments) => {
     } else if (Array.isArray(comment.images)) {
       images = comment.images;
     }
+
+    // 处理用户名显示逻辑
+    let displayName = '匿名用户';
+    if (comment.is_anonymous) {
+      displayName = '匿名用户';
+    } else if (comment.user_name) {
+      displayName = comment.user_name;
+    } else if (comment.user_id) {
+      displayName = `用户${comment.user_id}`;
+    }
+
     return {
       ...comment,
       user_avatar: comment.user_avatar || '',
-      user_name: comment.user_name || '匿名用户',
-      rating: comment.vehicle_rating || comment.service_rating || comment.rating || 5,
+      user_name: displayName,
+      rating: comment.rating || comment.vehicle_rating || comment.service_rating || 5,
       images,
       created_at: comment.created_at || comment.create_time || '',
       id: comment.id || comment._id || Math.random().toString(36).slice(2),
