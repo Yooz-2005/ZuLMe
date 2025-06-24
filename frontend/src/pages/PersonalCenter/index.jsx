@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Card, Typography, Row, Col, Input, Space, Tabs } from 'antd';
-import { UserOutlined, FileTextOutlined, AccountBookOutlined, WalletOutlined, MailOutlined, StarOutlined } from '@ant-design/icons';
+import { UserOutlined, FileTextOutlined, AccountBookOutlined, WalletOutlined, StarOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
 import MyInfoPage from './components/MyInfoPage'; // 导入 MyInfoPage
@@ -419,23 +419,6 @@ const PersonalCenter = () => {
                                             key: 'my_account_driving_license',
                                             icon: <UserOutlined />,
                                             label: '驾照认证',
-                                        },
-                                    ],
-                                },
-                                {
-                                    key: 'invoice_management_group',
-                                    label: '发票管理',
-                                    type: 'group',
-                                    children: [
-                                        {
-                                            key: 'invoice_apply',
-                                            icon: <MailOutlined />,
-                                            label: '根据订单开发票',
-                                        },
-                                        {
-                                            key: 'invoice_history',
-                                            icon: <MailOutlined />,
-                                            label: '开票历史记录',
                                         },
                                     ],
                                 },

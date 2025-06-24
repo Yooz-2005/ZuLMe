@@ -4,8 +4,9 @@ import (
 	"Common/global"
 	"context"
 	"fmt"
-	"github.com/minio/minio-go/v7"
 	"time"
+
+	"github.com/minio/minio-go/v7"
 )
 
 // ValidateMinioClient 驗證 MinIO 客戶端
@@ -63,4 +64,39 @@ func GeneratePresignedUrl(ctx context.Context, bucket, objectName string, expire
 // GetFileUrl 獲取文件訪問 URL
 func GetFileUrl(bucket, objectName string) string {
 	return fmt.Sprintf("http://14.103.149.192:9000/%s/%s", bucket, objectName)
+}
+
+// SetBucketPublic 設置存儲桶為公開訪問
+func SetBucketPublic(ctx context.Context, bucketName string) error {
+	client := global.Minio
+	if client == nil {
+		return fmt.Errorf("MinIO 客戶端未初始化")
+	}
+
+	// 確保 bucket 存在
+	err := EnsureBucketExists(ctx, bucketName)
+	if err != nil {
+		return err
+	}
+
+	// 設置公開讀取策略
+	publicPolicy := fmt.Sprintf(`{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Effect": "Allow",
+				"Principal": "*",
+				"Action": "s3:GetObject",
+				"Resource": "arn:aws:s3:::%s/*"
+			}
+		]
+	}`, bucketName)
+
+	err = client.SetBucketPolicy(ctx, bucketName, publicPolicy)
+	if err != nil {
+		return fmt.Errorf("設置存儲桶公開策略失敗: %v", err)
+	}
+
+	fmt.Printf("存儲桶 %s 已設置為公開訪問\n", bucketName)
+	return nil
 }
