@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Rate, Input, Upload, Button, message, Row, Col, Divider } from 'antd';
 import { PlusOutlined, StarOutlined } from '@ant-design/icons';
 import commentService from '../../services/commentService';
+import minioService from '../../services/minioService';
 import { processCommentImageUrl } from '../../utils/imageUtils';
 import './index.css';
 
@@ -48,33 +49,81 @@ const CommentModal = ({
 
   // 处理文件上传
   const handleUploadChange = ({ fileList: newFileList }) => {
-    // 为每个新上传的文件生成一个临时URL
-    const processedFileList = newFileList.map(file => {
-      if (file.originFileObj && !file.url && !file.preview) {
-        // 生成预览URL
-        file.preview = URL.createObjectURL(file.originFileObj);
-        // 生成一个临时的图片标识（实际项目中应该上传到服务器获取真实URL）
-        file.url = `temp_image_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${file.type.split('/')[1]}`;
+    setFileList(newFileList);
+  };
+
+  // 自定义上传函数
+  const customUpload = async ({ file, onSuccess, onError, onProgress }) => {
+    console.log('开始上传文件:', file.name, file.type, file.size);
+
+    try {
+      // 生成唯一的文件名
+      const timestamp = Date.now();
+      const randomStr = Math.random().toString(36).substring(2, 11);
+      const fileExtension = file.name.split('.').pop();
+      const objectName = `comments/${timestamp}_${randomStr}.${fileExtension}`;
+
+      console.log('生成的对象名:', objectName);
+
+      // 获取预签名URL
+      console.log('正在获取预签名URL...');
+      const presignedResponse = await minioService.getPresignedUrl({
+        bucket: 'zulme-06', // 使用正确的bucket名称
+        objectName: objectName,
+        expires: 3600 // 1小时有效期
+      });
+
+      console.log('预签名URL响应:', presignedResponse);
+
+      if (!presignedResponse.success) {
+        throw new Error(presignedResponse.message || '获取上传链接失败');
       }
-      return file;
-    });
-    setFileList(processedFileList);
+
+      // 使用预签名URL上传文件
+      console.log('正在上传文件到:', presignedResponse.data.url);
+      const uploadResponse = await fetch(presignedResponse.data.url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      console.log('上传响应状态:', uploadResponse.status, uploadResponse.statusText);
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error('上传失败响应:', errorText);
+        throw new Error(`文件上传失败: ${uploadResponse.status} ${uploadResponse.statusText}`);
+      }
+
+      // 构建文件访问URL
+      const fileUrl = `http://14.103.149.192:9000/zulme-06/${objectName}`;
+
+      console.log('文件上传成功，访问URL:', fileUrl);
+
+      // 标记上传成功，并保存文件URL
+      onSuccess({
+        url: fileUrl,
+        objectName: objectName
+      });
+
+      message.success('图片上传成功');
+    } catch (error) {
+      console.error('上传失败详细信息:', error);
+      onError(error);
+      message.error('图片上传失败: ' + error.message);
+    }
   };
 
   // 提交评论
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      // 处理图片：使用文件名或临时URL
-      const images = fileList.map(file => {
-        if (file.url) {
-          return file.url;
-        } else if (file.name) {
-          // 如果没有URL，使用文件名作为标识
-          return `uploaded_${file.name}`;
-        }
-        return '';
-      }).filter(Boolean);
+      // 处理图片：获取已上传的图片URL
+      const images = fileList
+        .filter(file => file.status === 'done' && file.response && file.response.url)
+        .map(file => file.response.url);
 
       console.log('准备提交的图片数据:', images); // 调试日志
 
@@ -122,15 +171,15 @@ const CommentModal = ({
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
     if (!isJpgOrPng) {
       message.error('只能上传 JPG/PNG 格式的图片!');
-      return false;
+      return Upload.LIST_IGNORE;
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
       message.error('图片大小不能超过 2MB!');
-      return false;
+      return Upload.LIST_IGNORE;
     }
-    // 阻止默认上传行为，我们手动处理
-    return false;
+    // 允许文件进入上传队列，但使用 customRequest 处理
+    return true;
   };
 
   const uploadButton = (
@@ -239,12 +288,7 @@ const CommentModal = ({
             onChange={handleUploadChange}
             beforeUpload={beforeUpload}
             maxCount={5}
-            customRequest={({ file, onSuccess }) => {
-              // 自定义上传处理，直接标记为成功
-              setTimeout(() => {
-                onSuccess("ok");
-              }, 0);
-            }}
+            customRequest={customUpload}
           >
             {fileList.length >= 5 ? null : uploadButton}
           </Upload>

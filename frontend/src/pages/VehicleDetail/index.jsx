@@ -26,6 +26,7 @@ import {
   LeftOutlined,
   RightOutlined,
   HeartOutlined,
+  HeartFilled,
   ShareAltOutlined,
   PhoneOutlined,
   MessageOutlined,
@@ -39,6 +40,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import vehicleService from '../../services/vehicleService';
 import commentService from '../../services/commentService';
+import favoriteService from '../../services/favoriteService';
 import { VEHICLE_STATUS_LABELS } from '../../utils/constants';
 import { getAllImages, handleImageError } from '../../utils/imageUtils';
 import { checkBeforeReservation } from '../../utils/idempotencyUtils';
@@ -270,12 +272,52 @@ const VehicleDetail = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   // 检查用户登录状态
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
   }, []);
+
+  // 检查收藏状态
+  const checkFavoriteStatus = async () => {
+    if (!isLoggedIn || !id) return;
+
+    try {
+      const favoriteList = await favoriteService.getFavoriteList();
+      const isFav = favoriteService.isVehicleFavorited(parseInt(id), favoriteList);
+      setIsFavorited(isFav);
+    } catch (error) {
+      console.error('检查收藏状态失败:', error);
+    }
+  };
+
+  // 处理收藏操作
+  const handleFavoriteClick = async () => {
+    if (!isLoggedIn) {
+      message.warning('请先登录后再收藏');
+      navigate('/login-register');
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      const response = await favoriteService.toggleCollect(parseInt(id));
+      if (response.code === 200) {
+        setIsFavorited(!isFavorited);
+        message.success(response.data?.Message || (isFavorited ? '取消收藏成功' : '收藏成功'));
+      } else {
+        message.error(response.message || '操作失败');
+      }
+    } catch (error) {
+      message.error('操作失败，请稍后重试');
+      console.error('收藏操作失败:', error);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   // 获取评论列表
   const fetchComments = async () => {
@@ -320,6 +362,8 @@ const VehicleDetail = () => {
           setVehicle(response.data.vehicle);
           // 获取评论列表
           fetchComments();
+          // 检查收藏状态
+          checkFavoriteStatus();
         } else {
           setError(response?.data || '车辆信息不存在');
         }
@@ -332,7 +376,7 @@ const VehicleDetail = () => {
     };
 
     fetchVehicleDetail();
-  }, [id]);
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 处理预订按钮点击
   const handleReservationClick = async () => {
@@ -820,8 +864,19 @@ const VehicleDetail = () => {
 
                   <Row gutter={12}>
                     <Col span={12}>
-                      <ActionButton size="large" block icon={<HeartOutlined />}>
-                        收藏
+                      <ActionButton
+                        size="large"
+                        block
+                        icon={isFavorited ? <HeartFilled style={{ color: '#ff4d4f' }} /> : <HeartOutlined />}
+                        loading={favoriteLoading}
+                        onClick={handleFavoriteClick}
+                        style={isFavorited ? {
+                          borderColor: '#ff4d4f',
+                          color: '#ff4d4f',
+                          background: 'rgba(255, 77, 79, 0.1)'
+                        } : {}}
+                      >
+                        {isFavorited ? '已收藏' : '收藏'}
                       </ActionButton>
                     </Col>
                     <Col span={12}>

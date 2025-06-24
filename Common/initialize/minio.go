@@ -4,9 +4,10 @@ import (
 	"Common/global"
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"log"
 )
 
 // MinioInit minio連接初始化
@@ -31,5 +32,26 @@ func MinioInit() {
 	if !ok {
 		log.Fatalf("bucket %s 不存在", cos.Bucket)
 	}
+
+	// 設置存儲桶為公開訪問
+	publicPolicy := fmt.Sprintf(`{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Effect": "Allow",
+				"Principal": "*",
+				"Action": "s3:GetObject",
+				"Resource": "arn:aws:s3:::%s/*"
+			}
+		]
+	}`, cos.Bucket)
+
+	err = client.SetBucketPolicy(context.Background(), cos.Bucket, publicPolicy)
+	if err != nil {
+		log.Printf("設置存儲桶公開策略失敗: %v", err)
+	} else {
+		fmt.Printf("存儲桶 %s 已設置為公開訪問\n", cos.Bucket)
+	}
+
 	fmt.Printf("minio連接成功， 端點: 14.103.149.192:9000，默認 bucket: %s\n", cos.Bucket)
 }

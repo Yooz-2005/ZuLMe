@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Card, Typography, Row, Col, Input, Space, Tabs } from 'antd';
-import { UserOutlined, FileTextOutlined, AccountBookOutlined, WalletOutlined, MailOutlined, StarOutlined } from '@ant-design/icons';
+import { UserOutlined, FileTextOutlined, AccountBookOutlined, WalletOutlined, StarOutlined, HeartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
 import MyInfoPage from './components/MyInfoPage'; // 导入 MyInfoPage
 import ReservationList from '../../components/ReservationList'; // 导入预订列表组件
 import OrderList from '../../components/OrderList'; // 导入订单列表组件
 import UserCommentList from '../../components/UserCommentList'; // 导入用户评价组件
+import FavoriteList from '../../components/FavoriteList'; // 导入收藏列表组件
 import { checkUnpaidOrderOnPageLoad } from '../../utils/idempotencyUtils';
 import styled from 'styled-components';
 
@@ -311,6 +312,8 @@ const PersonalCenter = () => {
                         <UserCommentList />
                     </Card>
                 );
+            case 'my_favorites':
+                return <FavoriteList />;
             // 可以添加更多 case 来渲染其他内容
             default:
                 return null;
@@ -371,6 +374,11 @@ const PersonalCenter = () => {
                                             icon: <StarOutlined />,
                                             label: '我的评价',
                                         },
+                                        {
+                                            key: 'my_favorites',
+                                            icon: <HeartOutlined />,
+                                            label: '我的收藏',
+                                        },
                                     ],
                                 },
                                 {
@@ -419,23 +427,6 @@ const PersonalCenter = () => {
                                             key: 'my_account_driving_license',
                                             icon: <UserOutlined />,
                                             label: '驾照认证',
-                                        },
-                                    ],
-                                },
-                                {
-                                    key: 'invoice_management_group',
-                                    label: '发票管理',
-                                    type: 'group',
-                                    children: [
-                                        {
-                                            key: 'invoice_apply',
-                                            icon: <MailOutlined />,
-                                            label: '根据订单开发票',
-                                        },
-                                        {
-                                            key: 'invoice_history',
-                                            icon: <MailOutlined />,
-                                            label: '开票历史记录',
                                         },
                                     ],
                                 },
