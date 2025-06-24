@@ -70,6 +70,17 @@ const orderService = {
       console.error('更新订单状态失败:', error);
       throw error;
     }
+  },
+
+  // 检查用户未支付订单
+  checkUnpaidOrder: async () => {
+    try {
+      const response = await api.get('/order/check-unpaid');
+      return response;
+    } catch (error) {
+      console.error('检查未支付订单失败:', error);
+      throw error;
+    }
   }
 };
 

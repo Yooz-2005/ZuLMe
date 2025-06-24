@@ -12,7 +12,8 @@ import {
   Card,
   message,
   Spin,
-  Alert
+  Alert,
+  Divider
 } from 'antd';
 import { CalendarOutlined, ClockCircleOutlined, CarOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
@@ -100,48 +101,43 @@ const VehicleInfoCard = styled(Card)`
 `;
 
 const PriceDisplay = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 24px;
+  background: #f8f9fa;
   border-radius: 12px;
-  margin: 24px 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+  padding: 16px;
+  margin-top: 16px;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-    pointer-events: none;
+  .price-details {
+    .price-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: #4b5563;
+      font-size: 14px;
+    }
   }
 
-  .price-label {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 16px;
-    margin-bottom: 8px;
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  }
+  .price-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .price-label {
+      font-size: 16px;
+      color: #1f2937;
+      font-weight: 500;
+    }
 
-  .price-value {
-    color: white;
-    font-size: 32px;
-    font-weight: 800;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    position: relative;
-    z-index: 1;
-  }
+    .price-value {
+      font-size: 24px;
+      color: #f5222d;
+      font-weight: 600;
 
-  .price-unit {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 18px;
-    margin-left: 6px;
-    font-weight: 500;
+      .price-unit {
+        font-size: 14px;
+        margin-left: 4px;
+        font-weight: normal;
+      }
+    }
   }
 `;
 
@@ -252,9 +248,17 @@ const ReservationForm = ({
   // 计算价格
   const calculatePrice = (dates) => {
     if (dates && dates.length === 2 && vehicle?.price) {
-      const days = dates[1].diff(dates[0], 'day');
+      const days = dates[1].diff(dates[0], 'day') + 1;
+      const basePrice = days * vehicle.price;
+      
+      // 服务费（10%）
+      const serviceFee = basePrice * 0.1;
+      
+      // 保险费（每天100元）
+      const insuranceFee = days * 100;
+      
       setTotalDays(days);
-      setTotalPrice(days * vehicle.price);
+      setTotalPrice(basePrice + serviceFee + insuranceFee);
     } else {
       setTotalDays(0);
       setTotalPrice(0);
@@ -449,10 +453,27 @@ const ReservationForm = ({
 
         {totalDays > 0 && (
           <PriceDisplay>
-            <div className="price-label">租用 {totalDays} 天，总费用</div>
-            <div className="price-value">
-              ¥{totalPrice.toLocaleString()}
-              <span className="price-unit">元</span>
+            <div className="price-details">
+              <div className="price-item">
+                <span>基础租金（{totalDays}天）</span>
+                <span>¥{(totalDays * vehicle.price).toLocaleString()}</span>
+              </div>
+              <div className="price-item">
+                <span>服务费（10%）</span>
+                <span>¥{(totalDays * vehicle.price * 0.1).toLocaleString()}</span>
+              </div>
+              <div className="price-item">
+                <span>保险费（¥100/天）</span>
+                <span>¥{(totalDays * 100).toLocaleString()}</span>
+              </div>
+            </div>
+            <Divider style={{ margin: '12px 0' }} />
+            <div className="price-total">
+              <div className="price-label">总费用</div>
+              <div className="price-value">
+                ¥{totalPrice.toLocaleString()}
+                <span className="price-unit">元</span>
+              </div>
             </div>
           </PriceDisplay>
         )}

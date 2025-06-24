@@ -25,6 +25,7 @@ const (
 	Order_UpdateOrderStatus_FullMethodName          = "/order.Order/UpdateOrderStatus"
 	Order_GetUserOrderList_FullMethodName           = "/order.Order/GetUserOrderList"
 	Order_CancelOrder_FullMethodName                = "/order.Order/CancelOrder"
+	Order_CheckUserUnpaidOrder_FullMethodName       = "/order.Order/CheckUserUnpaidOrder"
 )
 
 // OrderClient is the client API for Order service.
@@ -38,6 +39,7 @@ type OrderClient interface {
 	UpdateOrderStatus(ctx context.Context, in *UpdateOrderStatusRequest, opts ...grpc.CallOption) (*UpdateOrderStatusResponse, error)
 	GetUserOrderList(ctx context.Context, in *GetUserOrderListRequest, opts ...grpc.CallOption) (*GetUserOrderListResponse, error)
 	CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error)
+	CheckUserUnpaidOrder(ctx context.Context, in *CheckUserUnpaidOrderRequest, opts ...grpc.CallOption) (*CheckUserUnpaidOrderResponse, error)
 }
 
 type orderClient struct {
@@ -108,6 +110,16 @@ func (c *orderClient) CancelOrder(ctx context.Context, in *CancelOrderRequest, o
 	return out, nil
 }
 
+func (c *orderClient) CheckUserUnpaidOrder(ctx context.Context, in *CheckUserUnpaidOrderRequest, opts ...grpc.CallOption) (*CheckUserUnpaidOrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckUserUnpaidOrderResponse)
+	err := c.cc.Invoke(ctx, Order_CheckUserUnpaidOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
@@ -119,6 +131,7 @@ type OrderServer interface {
 	UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*UpdateOrderStatusResponse, error)
 	GetUserOrderList(context.Context, *GetUserOrderListRequest) (*GetUserOrderListResponse, error)
 	CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error)
+	CheckUserUnpaidOrder(context.Context, *CheckUserUnpaidOrderRequest) (*CheckUserUnpaidOrderResponse, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -146,6 +159,9 @@ func (UnimplementedOrderServer) GetUserOrderList(context.Context, *GetUserOrderL
 }
 func (UnimplementedOrderServer) CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
+}
+func (UnimplementedOrderServer) CheckUserUnpaidOrder(context.Context, *CheckUserUnpaidOrderRequest) (*CheckUserUnpaidOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckUserUnpaidOrder not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -276,6 +292,24 @@ func _Order_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_CheckUserUnpaidOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckUserUnpaidOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CheckUserUnpaidOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CheckUserUnpaidOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CheckUserUnpaidOrder(ctx, req.(*CheckUserUnpaidOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -306,6 +340,10 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelOrder",
 			Handler:    _Order_CancelOrder_Handler,
+		},
+		{
+			MethodName: "CheckUserUnpaidOrder",
+			Handler:    _Order_CheckUserUnpaidOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

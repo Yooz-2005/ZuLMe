@@ -65,4 +65,59 @@ api.interceptors.response.use(
   }
 );
 
+// ==================== 收藏相关API ====================
+
+// 收藏/取消收藏车辆
+export const collectVehicle = async (vehicleId) => {
+  try {
+    const response = await api.post('/user/collect', {
+      vehicle_id: vehicleId
+    });
+    return response;
+  } catch (error) {
+    console.error('收藏操作失败:', error);
+    throw error;
+  }
+};
+
+// 获取用户收藏列表
+export const getCollectVehicleList = async () => {
+  try {
+    const response = await api.get('/user/collectList');
+    return response;
+  } catch (error) {
+    console.error('获取收藏列表失败:', error);
+    throw error;
+  }
+};
+
+// ==================== 地理位置相关API ====================
+
+// 根据地址获取经纬度坐标
+export const getCoordinatesByAddress = async (address) => {
+  try {
+    const response = await api.post('/geocode/coordinates', {
+      address: address
+    });
+    return response;
+  } catch (error) {
+    console.error('获取坐标失败:', error);
+    throw error;
+  }
+};
+
+// 计算用户到商家的距离
+export const calculateDistance = async (userAddress, merchantId) => {
+  try {
+    const response = await api.post('/user/calculateDistance', {
+      location: userAddress,
+      merchant_id: merchantId
+    });
+    return response;
+  } catch (error) {
+    console.error('计算距离失败:', error);
+    throw error;
+  }
+};
+
 export default api;

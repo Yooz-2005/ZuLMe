@@ -1,0 +1,61 @@
+.user-comment-list {
+  .ant-list-item {
+    padding: 16px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ant-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  .ant-card-actions {
+    background: #fafafa;
+    border-top: 1px solid #f0f0f0;
+
+    li {
+      margin: 8px 0;
+    }
+  }
+
+  .ant-rate {
+    .ant-rate-star {
+      margin-right: 4px;
+    }
+  }
+
+  .ant-image {
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ant-empty {
+    margin: 40px 0;
+  }
+
+  .ant-pagination {
+    margin-top: 24px;
+    text-align: center;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .user-comment-list {
+    .ant-col {
+      margin-bottom: 16px;
+    }
+    
+    .ant-card-actions {
+      li {
+        margin: 4px 0;
+      }
+    }
+  }
+}

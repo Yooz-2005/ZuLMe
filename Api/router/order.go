@@ -24,6 +24,7 @@ func InitOrderRouter(r *gin.Engine) {
 		userOrderGroup.PUT("/status/:order_id", trigger.UpdateOrderStatusHandler)                  // 更新订单状态
 		userOrderGroup.POST("/cancel/:order_id", trigger.CancelOrderHandler)                       // 取消订单
 		userOrderGroup.GET("/list", trigger.GetUserOrderListHandler)                               // 获取用户订单列表
+		userOrderGroup.GET("/check-unpaid", trigger.CheckUserUnpaidOrderHandler)                   // 检查用户未支付订单
 	}
 
 	// 商家订单管理路由（需要商家认证）
@@ -40,6 +41,14 @@ func InitOrderRouter(r *gin.Engine) {
 	{
 		paymentGroup.POST("/alipay/notify", trigger.AlipayNotifyHandler) // 支付宝异步通知
 		paymentGroup.GET("/alipay/return", trigger.AlipayReturnHandler)  // 支付宝同步返回
+		paymentGroup.GET("/test", trigger.TestCallbackHandler)           // 测试回调接口
+		paymentGroup.POST("/test", trigger.TestCallbackHandler)          // 测试回调接口
+	}
+
+	// 测试相关路由（仅用于开发测试）
+	testGroup := r.Group("/test")
+	{
+		testGroup.PUT("/payment/status/:order_sn", trigger.ManualUpdatePaymentStatusHandler) // 手动更新支付状态
 	}
 
 	// 订单管理路由（内部调用，可选择是否需要认证）

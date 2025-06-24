@@ -25,6 +25,8 @@ const (
 	Vehicle_DeleteVehicle_FullMethodName           = "/vehicle.Vehicle/DeleteVehicle"
 	Vehicle_GetVehicle_FullMethodName              = "/vehicle.Vehicle/GetVehicle"
 	Vehicle_ListVehicles_FullMethodName            = "/vehicle.Vehicle/ListVehicles"
+	Vehicle_SearchVehicles_FullMethodName          = "/vehicle.Vehicle/SearchVehicles"
+	Vehicle_SyncVehicleToEs_FullMethodName         = "/vehicle.Vehicle/SyncVehicleToEs"
 	Vehicle_CreateVehicleType_FullMethodName       = "/vehicle.Vehicle/CreateVehicleType"
 	Vehicle_UpdateVehicleType_FullMethodName       = "/vehicle.Vehicle/UpdateVehicleType"
 	Vehicle_DeleteVehicleType_FullMethodName       = "/vehicle.Vehicle/DeleteVehicleType"
@@ -61,6 +63,9 @@ type VehicleClient interface {
 	DeleteVehicle(ctx context.Context, in *DeleteVehicleRequest, opts ...grpc.CallOption) (*DeleteVehicleResponse, error)
 	GetVehicle(ctx context.Context, in *GetVehicleRequest, opts ...grpc.CallOption) (*GetVehicleResponse, error)
 	ListVehicles(ctx context.Context, in *ListVehiclesRequest, opts ...grpc.CallOption) (*ListVehiclesResponse, error)
+	SearchVehicles(ctx context.Context, in *ListVehiclesRequest, opts ...grpc.CallOption) (*ListVehiclesResponse, error)
+	// 车辆同步到es
+	SyncVehicleToEs(ctx context.Context, in *SyncVehicleToEsRequest, opts ...grpc.CallOption) (*SyncVehicleToEsResponse, error)
 	// 车辆类型管理
 	CreateVehicleType(ctx context.Context, in *CreateVehicleTypeRequest, opts ...grpc.CallOption) (*CreateVehicleTypeResponse, error)
 	UpdateVehicleType(ctx context.Context, in *UpdateVehicleTypeRequest, opts ...grpc.CallOption) (*UpdateVehicleTypeResponse, error)
@@ -151,6 +156,26 @@ func (c *vehicleClient) ListVehicles(ctx context.Context, in *ListVehiclesReques
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListVehiclesResponse)
 	err := c.cc.Invoke(ctx, Vehicle_ListVehicles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) SearchVehicles(ctx context.Context, in *ListVehiclesRequest, opts ...grpc.CallOption) (*ListVehiclesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListVehiclesResponse)
+	err := c.cc.Invoke(ctx, Vehicle_SearchVehicles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vehicleClient) SyncVehicleToEs(ctx context.Context, in *SyncVehicleToEsRequest, opts ...grpc.CallOption) (*SyncVehicleToEsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SyncVehicleToEsResponse)
+	err := c.cc.Invoke(ctx, Vehicle_SyncVehicleToEs_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -398,6 +423,9 @@ type VehicleServer interface {
 	DeleteVehicle(context.Context, *DeleteVehicleRequest) (*DeleteVehicleResponse, error)
 	GetVehicle(context.Context, *GetVehicleRequest) (*GetVehicleResponse, error)
 	ListVehicles(context.Context, *ListVehiclesRequest) (*ListVehiclesResponse, error)
+	SearchVehicles(context.Context, *ListVehiclesRequest) (*ListVehiclesResponse, error)
+	// 车辆同步到es
+	SyncVehicleToEs(context.Context, *SyncVehicleToEsRequest) (*SyncVehicleToEsResponse, error)
 	// 车辆类型管理
 	CreateVehicleType(context.Context, *CreateVehicleTypeRequest) (*CreateVehicleTypeResponse, error)
 	UpdateVehicleType(context.Context, *UpdateVehicleTypeRequest) (*UpdateVehicleTypeResponse, error)
@@ -451,6 +479,12 @@ func (UnimplementedVehicleServer) GetVehicle(context.Context, *GetVehicleRequest
 }
 func (UnimplementedVehicleServer) ListVehicles(context.Context, *ListVehiclesRequest) (*ListVehiclesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListVehicles not implemented")
+}
+func (UnimplementedVehicleServer) SearchVehicles(context.Context, *ListVehiclesRequest) (*ListVehiclesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchVehicles not implemented")
+}
+func (UnimplementedVehicleServer) SyncVehicleToEs(context.Context, *SyncVehicleToEsRequest) (*SyncVehicleToEsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncVehicleToEs not implemented")
 }
 func (UnimplementedVehicleServer) CreateVehicleType(context.Context, *CreateVehicleTypeRequest) (*CreateVehicleTypeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateVehicleType not implemented")
@@ -646,6 +680,42 @@ func _Vehicle_ListVehicles_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VehicleServer).ListVehicles(ctx, req.(*ListVehiclesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_SearchVehicles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListVehiclesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).SearchVehicles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_SearchVehicles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).SearchVehicles(ctx, req.(*ListVehiclesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vehicle_SyncVehicleToEs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncVehicleToEsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VehicleServer).SyncVehicleToEs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vehicle_SyncVehicleToEs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VehicleServer).SyncVehicleToEs(ctx, req.(*SyncVehicleToEsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1094,6 +1164,14 @@ var Vehicle_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListVehicles",
 			Handler:    _Vehicle_ListVehicles_Handler,
+		},
+		{
+			MethodName: "SearchVehicles",
+			Handler:    _Vehicle_SearchVehicles_Handler,
+		},
+		{
+			MethodName: "SyncVehicleToEs",
+			Handler:    _Vehicle_SyncVehicleToEs_Handler,
 		},
 		{
 			MethodName: "CreateVehicleType",

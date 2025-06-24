@@ -26,6 +26,7 @@ import {
   LeftOutlined,
   RightOutlined,
   HeartOutlined,
+  HeartFilled,
   ShareAltOutlined,
   PhoneOutlined,
   MessageOutlined,
@@ -38,9 +39,13 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import vehicleService from '../../services/vehicleService';
+import commentService from '../../services/commentService';
+import favoriteService from '../../services/favoriteService';
 import { VEHICLE_STATUS_LABELS } from '../../utils/constants';
 import { getAllImages, handleImageError } from '../../utils/imageUtils';
+import { checkBeforeReservation } from '../../utils/idempotencyUtils';
 import ReservationForm from '../../components/ReservationForm';
+import CommentList from '../../components/CommentList';
 
 const { Header, Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -265,12 +270,78 @@ const VehicleDetail = () => {
   const [error, setError] = useState(null);
   const [reservationVisible, setReservationVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   // 检查用户登录状态
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
   }, []);
+
+  // 检查收藏状态
+  const checkFavoriteStatus = async () => {
+    if (!isLoggedIn || !id) return;
+
+    try {
+      const favoriteList = await favoriteService.getFavoriteList();
+      const isFav = favoriteService.isVehicleFavorited(parseInt(id), favoriteList);
+      setIsFavorited(isFav);
+    } catch (error) {
+      console.error('检查收藏状态失败:', error);
+    }
+  };
+
+  // 处理收藏操作
+  const handleFavoriteClick = async () => {
+    if (!isLoggedIn) {
+      message.warning('请先登录后再收藏');
+      navigate('/login-register');
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      const response = await favoriteService.toggleCollect(parseInt(id));
+      if (response.code === 200) {
+        setIsFavorited(!isFavorited);
+        message.success(response.data?.Message || (isFavorited ? '取消收藏成功' : '收藏成功'));
+      } else {
+        message.error(response.message || '操作失败');
+      }
+    } catch (error) {
+      message.error('操作失败，请稍后重试');
+      console.error('收藏操作失败:', error);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
+  // 获取评论列表
+  const fetchComments = async () => {
+    if (!id) return;
+    setCommentsLoading(true);
+    try {
+      const response = await commentService.getVehicleComments(id);
+      console.log('评论API响应:', response); // 添加调试日志
+      if (response && response.code === 200) {
+        // 修正数据解析：API返回的data字段直接是评论数组
+        const commentArr = Array.isArray(response.data) ? response.data : [];
+        console.log('解析后的评论数组:', commentArr); // 添加调试日志
+        setComments(commentArr);
+      } else {
+        console.log('评论API返回错误:', response);
+        setComments([]);
+      }
+    } catch (err) {
+      console.error('获取评论失败:', err);
+      setComments([]);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchVehicleDetail = async () => {
@@ -289,6 +360,10 @@ const VehicleDetail = () => {
           console.log('车辆详情数据:', response.data.vehicle);
           console.log('车辆状态:', response.data.vehicle.status);
           setVehicle(response.data.vehicle);
+          // 获取评论列表
+          fetchComments();
+          // 检查收藏状态
+          checkFavoriteStatus();
         } else {
           setError(response?.data || '车辆信息不存在');
         }
@@ -301,10 +376,10 @@ const VehicleDetail = () => {
     };
 
     fetchVehicleDetail();
-  }, [id]);
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 处理预订按钮点击
-  const handleReservationClick = () => {
+  const handleReservationClick = async () => {
     // 检查用户是否登录
     const token = localStorage.getItem('token');
     if (!token) {
@@ -313,18 +388,19 @@ const VehicleDetail = () => {
       return;
     }
 
-    setReservationVisible(true);
+    // 幂等性检查：确保用户没有未支付的订单
+    await checkBeforeReservation(() => {
+      setReservationVisible(true);
+    });
   };
 
   // 处理预订成功
-  const handleReservationSuccess = (reservationData) => {
+  const handleReservationSuccess = () => {
     setReservationVisible(false);
     message.success('预订创建成功！您可以在个人中心查看预订详情。');
     // 可以选择跳转到订单页面或个人中心
     // navigate('/personal-center');
   };
-
-
 
   if (loading) {
     return (
@@ -788,8 +864,19 @@ const VehicleDetail = () => {
 
                   <Row gutter={12}>
                     <Col span={12}>
-                      <ActionButton size="large" block icon={<HeartOutlined />}>
-                        收藏
+                      <ActionButton
+                        size="large"
+                        block
+                        icon={isFavorited ? <HeartFilled style={{ color: '#ff4d4f' }} /> : <HeartOutlined />}
+                        loading={favoriteLoading}
+                        onClick={handleFavoriteClick}
+                        style={isFavorited ? {
+                          borderColor: '#ff4d4f',
+                          color: '#ff4d4f',
+                          background: 'rgba(255, 77, 79, 0.1)'
+                        } : {}}
+                      >
+                        {isFavorited ? '已收藏' : '收藏'}
                       </ActionButton>
                     </Col>
                     <Col span={12}>
@@ -850,7 +937,19 @@ const VehicleDetail = () => {
             </Col>
           </Row>
 
-
+          {/* 评论列表 */}
+          <Card
+            style={{
+              marginTop: 24,
+              borderRadius: 12,
+              border: '1px solid #e2e8f0'
+            }}
+          >
+            <CommentList
+              comments={comments}
+              loading={commentsLoading}
+            />
+          </Card>
         </ContentWrapper>
       </Content>
 

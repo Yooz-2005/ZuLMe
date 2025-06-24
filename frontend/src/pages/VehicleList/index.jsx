@@ -24,7 +24,8 @@ import {
   AppstoreOutlined,
   BarsOutlined,
   SortAscendingOutlined,
-  UserOutlined
+  UserOutlined,
+  EnvironmentOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -277,6 +278,10 @@ const VehicleList = () => {
                   </StyledNavButton>
                 </>
               )}
+              <StyledNavButton onClick={() => navigate('/map-demo')}>
+                <EnvironmentOutlined style={{ marginRight: 8 }} />
+                地图导航
+              </StyledNavButton>
               <StyledNavButton onClick={() => navigate('/')}>
                 <HomeOutlined style={{ marginRight: 8 }} />
                 返回首页

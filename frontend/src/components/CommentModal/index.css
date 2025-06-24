@@ -1,0 +1,61 @@
+.comment-modal .order-info-section {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.comment-modal .order-info-section h4 {
+  margin: 0 0 12px 0;
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.comment-modal .order-info-section p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.comment-modal .ant-rate {
+  font-size: 20px;
+}
+
+.comment-modal .ant-upload-select-picture-card {
+  width: 80px;
+  height: 80px;
+}
+
+.comment-modal .ant-upload-list-picture-card .ant-upload-list-item {
+  width: 80px;
+  height: 80px;
+}
+
+.comment-modal .ant-form-item-label > label {
+  font-weight: 600;
+  color: #333;
+}
+
+.comment-modal .ant-input {
+  border-radius: 6px;
+}
+
+.comment-modal .ant-btn {
+  border-radius: 6px;
+  height: 40px;
+  font-weight: 500;
+}
+
+.comment-modal .ant-btn-primary {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+}
+
+.comment-modal .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+}
+
+.comment-modal .ant-divider {
+  margin: 16px 0;
+}

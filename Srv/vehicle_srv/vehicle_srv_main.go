@@ -4,11 +4,13 @@ import (
 	"Common/appconfig"
 	"Common/initialize"
 	"fmt"
+	"net"
+	"vehicle_srv/grpc_vehicle"
+	"vehicle_srv/internal/logic"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	"net"
-	"vehicle_srv/grpc_vehicle"
 )
 
 func main() {
@@ -18,6 +20,11 @@ func main() {
 	initialize.MysqlInit()
 	initialize.RedisInit()
 	initialize.InitES()
+
+	// 创建车辆ES索引
+	if err := logic.CreateVehicleIndex(); err != nil {
+		fmt.Printf("创建车辆ES索引失败: %v\n", err)
+	}
 
 	// 创建 gRPC 服务器
 	gServer := grpc.NewServer()

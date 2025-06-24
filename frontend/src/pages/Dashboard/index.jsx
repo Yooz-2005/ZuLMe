@@ -205,6 +205,9 @@ const Dashboard = () => {
               <StyledNavButton onClick={() => navigate('/vehicles')}>
                 租豪车
               </StyledNavButton>
+              <StyledNavButton onClick={() => navigate('/map-demo')}>
+                地图导航
+              </StyledNavButton>
               {userPhone ? (
                 <>
                   <StyledUserButton type="link" style={{ color: '#fff' }}>{userPhone}</StyledUserButton>

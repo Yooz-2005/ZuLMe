@@ -3,6 +3,7 @@ package main
 import (
 	"Common/appconfig"
 	"Common/initialize"
+	"Common/utils"
 	"fmt"
 	"merchant_srv/grpc_merchant"
 	"net"
@@ -28,7 +29,8 @@ func main() {
 	// 注册商家服务
 	grpc_merchant.RegisterMerchantServices(gServer)
 
-	// 自动迁移商家模型
+	// 启动同步商家地理位置任务
+	utils.StartupSyncMerchantLocations()
 
 	// 监听端口
 	lis, err := net.Listen("tcp", ":8002") // 假设商家服务运行在8002端口

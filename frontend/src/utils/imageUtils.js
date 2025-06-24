@@ -46,7 +46,22 @@ export const parseImages = (imagesString, brand = '') => {
   const images = imagesString
     .split(/[,，]/)  // 支持中文逗号和英文逗号
     .map(url => url.trim())
-    .filter(url => url.length > 0);
+    .filter(url => url.length > 0)
+    .map(url => {
+      // 如果已经是完整的URL（http或https开头），直接返回
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+
+      // 如果是相对路径，拼接基础URL
+      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8888';
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+
+      // 其他情况，拼接基础URL和路径
+      return `${baseUrl}/${url}`;
+    });
 
   console.log('解析后的图片数组:', images);
 
@@ -132,4 +147,55 @@ export const preloadImages = (imageUrls) => {
   });
 
   return Promise.all(promises);
+};
+
+/**
+ * 处理评论图片URL
+ * @param {string} imageUrl - 原始图片URL
+ * @returns {string} - 处理后的图片URL
+ */
+export const processCommentImageUrl = (imageUrl) => {
+  if (!imageUrl) {
+    return getCommentDefaultImage();
+  }
+
+  // 如果已经是完整的URL（http或https开头），直接返回
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+
+  // 如果是临时图片标识符，返回默认图片
+  if (imageUrl.startsWith('temp_image_') || imageUrl.startsWith('uploaded_')) {
+    return getCommentDefaultImage();
+  }
+
+  // 如果是相对路径，拼接基础URL
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8888';
+  if (imageUrl.startsWith('/')) {
+    return `${baseUrl}${imageUrl}`;
+  }
+
+  // 其他情况，拼接基础URL和路径
+  return `${baseUrl}/${imageUrl}`;
+};
+
+/**
+ * 获取评论默认图片
+ * @returns {string} - 默认图片的base64编码
+ */
+export const getCommentDefaultImage = () => {
+  return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNCAzMkM0Ni4wOTE0IDMyIDY0IDQ5LjkwODYgNjQgNzJINzJDNzIgNDUuNDkwMyA1MC41MDk3IDI0IDI0IDI0VjMyWiIgZmlsbD0iI0Q5RDlEOSIvPgo8cGF0aCBkPSJNMjQgNDBDNDEuNjczIDQwIDU2IDU0LjMyNyA1NiA3Mkg2NEM2NCA0OS45MDg2IDQ2LjA5MTQgMzIgMjQgMzJWNDBaIiBmaWxsPSIjQkZCRkJGIi8+CjxjaXJjbGUgY3g9IjI0IiBjeT0iNzIiIHI9IjgiIGZpbGw9IiNEOUQ5RDkiLz4KPC9zdmc+";
+};
+
+/**
+ * 处理评论图片数组
+ * @param {Array} images - 图片URL数组
+ * @returns {Array} - 处理后的图片URL数组
+ */
+export const processCommentImages = (images) => {
+  if (!Array.isArray(images)) {
+    return [];
+  }
+
+  return images.map(processCommentImageUrl).filter(Boolean);
 };

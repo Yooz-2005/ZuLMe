@@ -20,11 +20,19 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	// 静态文件服务 - 提供PDF文件下载
+	r.Static("/invoices", "../invoices")
+
+	// 註冊路由
 	router.LoadUser(r)
 	router.RegisterMerchantRoutes(r)
 	router.RegisterAdminRoutes(r)
 	router.RegisterVehicleRoutes(r)
 	router.RegisterInvoiceRoutes(r)
 	router.LoadOrder(r)
+	router.CommentRouter(r)
+	router.RegisterMinioRoutes(r)
+
 	r.Run(":8888")
 }

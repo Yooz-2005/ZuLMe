@@ -25,3 +25,11 @@ func (s ServerMerchant) MerchantLogin(ctx context.Context, in *merchant.Merchant
 	}
 	return login, nil
 }
+
+func (s ServerMerchant) GetLocationList(ctx context.Context, in *merchant.GetLocationListRequest) (*merchant.GetLocationListResponse, error) {
+	locationList, err := logic.GetLocationList(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return locationList, nil
+}

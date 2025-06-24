@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	MerchantService_MerchantRegister_FullMethodName = "/merchant.MerchantService/MerchantRegister"
 	MerchantService_MerchantLogin_FullMethodName    = "/merchant.MerchantService/MerchantLogin"
+	MerchantService_GetLocationList_FullMethodName  = "/merchant.MerchantService/GetLocationList"
 )
 
 // MerchantServiceClient is the client API for MerchantService service.
@@ -33,6 +34,8 @@ type MerchantServiceClient interface {
 	MerchantRegister(ctx context.Context, in *MerchantRegisterRequest, opts ...grpc.CallOption) (*MerchantRegisterResponse, error)
 	// 商家登录
 	MerchantLogin(ctx context.Context, in *MerchantLoginRequest, opts ...grpc.CallOption) (*MerchantLoginResponse, error)
+	// 获取网点列表
+	GetLocationList(ctx context.Context, in *GetLocationListRequest, opts ...grpc.CallOption) (*GetLocationListResponse, error)
 }
 
 type merchantServiceClient struct {
@@ -63,6 +66,16 @@ func (c *merchantServiceClient) MerchantLogin(ctx context.Context, in *MerchantL
 	return out, nil
 }
 
+func (c *merchantServiceClient) GetLocationList(ctx context.Context, in *GetLocationListRequest, opts ...grpc.CallOption) (*GetLocationListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetLocationListResponse)
+	err := c.cc.Invoke(ctx, MerchantService_GetLocationList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MerchantServiceServer is the server API for MerchantService service.
 // All implementations must embed UnimplementedMerchantServiceServer
 // for forward compatibility.
@@ -73,6 +86,8 @@ type MerchantServiceServer interface {
 	MerchantRegister(context.Context, *MerchantRegisterRequest) (*MerchantRegisterResponse, error)
 	// 商家登录
 	MerchantLogin(context.Context, *MerchantLoginRequest) (*MerchantLoginResponse, error)
+	// 获取网点列表
+	GetLocationList(context.Context, *GetLocationListRequest) (*GetLocationListResponse, error)
 	mustEmbedUnimplementedMerchantServiceServer()
 }
 
@@ -88,6 +103,9 @@ func (UnimplementedMerchantServiceServer) MerchantRegister(context.Context, *Mer
 }
 func (UnimplementedMerchantServiceServer) MerchantLogin(context.Context, *MerchantLoginRequest) (*MerchantLoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MerchantLogin not implemented")
+}
+func (UnimplementedMerchantServiceServer) GetLocationList(context.Context, *GetLocationListRequest) (*GetLocationListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLocationList not implemented")
 }
 func (UnimplementedMerchantServiceServer) mustEmbedUnimplementedMerchantServiceServer() {}
 func (UnimplementedMerchantServiceServer) testEmbeddedByValue()                         {}
@@ -146,6 +164,24 @@ func _MerchantService_MerchantLogin_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MerchantService_GetLocationList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLocationListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServiceServer).GetLocationList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MerchantService_GetLocationList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServiceServer).GetLocationList(ctx, req.(*GetLocationListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MerchantService_ServiceDesc is the grpc.ServiceDesc for MerchantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -160,6 +196,10 @@ var MerchantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MerchantLogin",
 			Handler:    _MerchantService_MerchantLogin_Handler,
+		},
+		{
+			MethodName: "GetLocationList",
+			Handler:    _MerchantService_GetLocationList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

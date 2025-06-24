@@ -16,3 +16,9 @@ type MerchantLoginRequest struct {
 	Phone    string `json:"phone" form:"phone" binding:"required"`
 	Password string `json:"password" form:"password" binding:"required"`
 }
+
+type GetLocationListRequest struct {
+	Page         int32 `json:"page" form:"page"`
+	PageSize     int32 `json:"page_size" form:"page_size"`
+	StatusFilter int32 `json:"status_filter" form:"status_filter"` // 筛选审核状态：0-未审核，1-审核通过，2-审核失败
+}

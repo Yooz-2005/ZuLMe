@@ -539,6 +539,16 @@ message GetUserReservationListResponse {
   int64 total = 4;
 }
 
+// 创建车辆将车辆信息存入es
+message SyncVehicleToEsRequest{
+
+}
+
+message SyncVehicleToEsResponse{
+  int64 code = 1;
+  string message = 2;
+}
+
 service Vehicle {
   rpc Ping(Request) returns(Response);
 
@@ -548,6 +558,10 @@ service Vehicle {
   rpc DeleteVehicle(DeleteVehicleRequest) returns(DeleteVehicleResponse); // 删除车辆
   rpc GetVehicle(GetVehicleRequest) returns(GetVehicleResponse); // 获取车辆详情
   rpc ListVehicles(ListVehiclesRequest) returns(ListVehiclesResponse); // 获取车辆列表
+  rpc SearchVehicles(ListVehiclesRequest) returns(ListVehiclesResponse); // 使用ES搜索车辆
+
+  // 车辆同步到es
+  rpc SyncVehicleToEs(SyncVehicleToEsRequest) returns(SyncVehicleToEsResponse);
 
   // 车辆类型管理
   rpc CreateVehicleType(CreateVehicleTypeRequest) returns(CreateVehicleTypeResponse); // 创建车辆类型

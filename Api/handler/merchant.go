@@ -33,3 +33,17 @@ func MerchantLogin(ctx context.Context, req *merchant.MerchantLoginRequest) (*me
 	}
 	return merchantClient.(*merchant.MerchantLoginResponse), nil
 }
+
+func GetLocationList(ctx context.Context, req *merchant.GetLocationListRequest) (*merchant.GetLocationListResponse, error) {
+	merchantClient, err := client.MerchantClient(ctx, func(ctx context.Context, in merchant.MerchantServiceClient) (interface{}, error) {
+		locationList, err := in.GetLocationList(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return locationList, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return merchantClient.(*merchant.GetLocationListResponse), nil
+}

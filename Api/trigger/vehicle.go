@@ -205,6 +205,78 @@ func ListVehiclesHandler(c *gin.Context) {
 	})
 }
 
+// SearchVehiclesHandler 使用ES搜索车辆处理器
+func SearchVehiclesHandler(c *gin.Context) {
+	var req request.ListVehiclesRequest
+	if err := c.ShouldBind(&req); err != nil {
+		response.ResponseError400(c, err.Error())
+		return
+	}
+
+	// 设置默认值
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+
+	// 处理status参数：如果没有明确指定status，设置为-1表示不筛选
+	status := req.Status
+	if c.Query("status") == "" && c.PostForm("status") == "" {
+		status = -1 // 没有传递status参数时，设置为-1表示不筛选
+	}
+
+	searchRes, err := handler.SearchVehicles(c, &vehicle.ListVehiclesRequest{
+		Page:       req.Page,
+		PageSize:   req.PageSize,
+		Keyword:    req.Keyword,
+		MerchantId: req.MerchantID,
+		TypeId:     req.TypeID,
+		BrandId:    req.BrandID,
+		Status:     status,
+		PriceMin:   req.PriceMin,
+		PriceMax:   req.PriceMax,
+		YearMin:    req.YearMin,
+		YearMax:    req.YearMax,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if searchRes.Code != 200 {
+		response.ResponseError400(c, searchRes.Message)
+		return
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message":  searchRes.Message,
+		"vehicles": searchRes.Vehicles,
+		"total":    searchRes.Total,
+		"page":     req.Page,
+		"pageSize": req.PageSize,
+	})
+}
+
+// SyncVehicleToEsHandler 同步车辆到ES处理器
+func SyncVehicleToEsHandler(c *gin.Context) {
+	syncRes, err := handler.SyncVehicleToEs(c, &vehicle.SyncVehicleToEsRequest{})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if syncRes.Code != 200 {
+		response.ResponseError400(c, syncRes.Message)
+		return
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message": syncRes.Message,
+	})
+}
+
 // ==================== 车辆类型处理器 ====================
 
 // CreateVehicleTypeHandler 创建车辆类型处理器
@@ -814,11 +886,11 @@ func GetInventoryStatsHandler(c *gin.Context) {
 
 	response.ResponseSuccess(c, gin.H{
 		"message":     statsRes.Message,
-		"total":       statsRes.Total,
-		"available":   statsRes.Available,
-		"reserved":    statsRes.Reserved,
-		"rented":      statsRes.Rented,
-		"maintenance": statsRes.Maintenance,
+		"total":       statsRes.Total,       // 总车辆数
+		"available":   statsRes.Available,   // 可用车辆数
+		"reserved":    statsRes.Reserved,    // 已预订车辆数
+		"rented":      statsRes.Rented,      // 租用中车辆数
+		"maintenance": statsRes.Maintenance, // 维护中车辆数
 	})
 }
 

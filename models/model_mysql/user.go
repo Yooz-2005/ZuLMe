@@ -10,7 +10,9 @@ type User struct {
 	CreatedAt time.Time `gorm:"column:created_at;type:datetime(3);default:NULL;" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;type:datetime(3);default:NULL;" json:"updated_at"`
 	DeletedAt time.Time `gorm:"column:deleted_at;type:datetime(3);default:NULL;" json:"deleted_at"`
-	Phone     string    `gorm:"column:phone;type:varchar(20);comment:''手机号'';default:NULL;" json:"phone"` // ''手机号''
+	Phone     string    `gorm:"column:phone;type:varchar(20);comment:''手机号'';default:NULL;" json:"phone"`       // ''手机号''
+	Location  string    `gorm:"column:location;type:varchar(255);comment:''地址'';default:NULL;" json:"location"` // ''地址''
+	LatAndLon string    `gorm:"column:lat_and_lon;type:varchar(255);comment:''经纬度'';default:NULL;" json:"lat_and_lon"`
 }
 
 func (u *User) TableName() string {

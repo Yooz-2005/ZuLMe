@@ -13,6 +13,7 @@ message SendCodeResponse{
 message UserRegisterRequest {
   string Phone = 1;
   string Code = 2;
+  string Location = 3;
 }
 
 message UserRegisterResponse {
@@ -87,6 +88,19 @@ message Vehicle {
   string Image = 3;
 }
 
+//todo 计算用户到商家的距离
+message CalculateDistanceRequest{
+  int64 Userid = 1;
+  string location = 2;
+  int64 MerId = 3;
+}
+
+message CalculateDistanceResponse{
+  int64 Userid = 1;
+  int64 MerId = 2;
+  string distance = 3;
+}
+
 service User {
   rpc SendCode(SendCodeRequest) returns(SendCodeResponse);//todo 短信验证码
   rpc UserRegister(UserRegisterRequest) returns(UserRegisterResponse); //todo 用户注册登录
@@ -95,4 +109,6 @@ service User {
   rpc RealName(RealNameRequest) returns(RealNameResponse); //todo 实名认证
   rpc CollectVehicle(CollectVehicleRequest) returns(CollectVehicleResponse); //todo 收藏取消收藏车辆
   rpc CollectVehicleList(CollectVehicleListRequest) returns(CollectVehicleListResponse); //todo 获取收藏车辆列表
+
+  rpc CalculateDistance(CalculateDistanceRequest) returns(CalculateDistanceResponse); //todo 计算用户到商家的距离
 }

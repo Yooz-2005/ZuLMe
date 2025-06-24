@@ -6,6 +6,7 @@ import (
 	"Api/response"
 	"fmt"
 	"strconv"
+	"time"
 
 	order "order_srv/proto_order"
 
@@ -27,15 +28,12 @@ func CreateOrderFromReservationHandler(c *gin.Context) {
 		return
 	}
 
-	// 转换支付方式字符串为数字
-	var paymentMethod int32
-	switch req.PaymentMethod {
-	case "alipay":
-		paymentMethod = 1
-	case "wechat":
-		paymentMethod = 2
-	default:
-		response.ResponseError400(c, "不支持的支付方式")
+	// 调试：打印接收到的支付方式
+	fmt.Printf("🔍 接收到的支付方式: %d (类型: %T)\n", req.PaymentMethod, req.PaymentMethod)
+
+	// 验证支付方式
+	if req.PaymentMethod != 1 && req.PaymentMethod != 2 {
+		response.ResponseError400(c, fmt.Sprintf("不支持的支付方式: %d，请使用 1(支付宝) 或 2(微信)", req.PaymentMethod))
 		return
 	}
 
@@ -46,7 +44,7 @@ func CreateOrderFromReservationHandler(c *gin.Context) {
 		PickupLocationId:    req.PickupLocationID,
 		ReturnLocationId:    req.ReturnLocationID,
 		Notes:               req.Notes,
-		PaymentMethod:       paymentMethod,
+		PaymentMethod:       req.PaymentMethod,
 		ExpectedTotalAmount: req.ExpectedTotalAmount,
 	})
 	if err != nil {
@@ -236,10 +234,32 @@ func UpdateOrderStatusHandler(c *gin.Context) {
 	})
 }
 
+// TestCallbackHandler 测试回调接口是否可达
+func TestCallbackHandler(c *gin.Context) {
+	fmt.Printf("=== 测试回调接口被访问 ===\n")
+	fmt.Printf("时间: %s\n", time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Printf("请求方法: %s\n", c.Request.Method)
+	fmt.Printf("请求URL: %s\n", c.Request.URL.String())
+	fmt.Printf("客户端IP: %s\n", c.ClientIP())
+
+	c.JSON(200, gin.H{
+		"message": "回调接口测试成功",
+		"time":    time.Now().Format("2006-01-02 15:04:05"),
+		"method":  c.Request.Method,
+		"url":     c.Request.URL.String(),
+		"ip":      c.ClientIP(),
+	})
+}
+
 // AlipayNotifyHandler 支付宝异步通知处理器
 func AlipayNotifyHandler(c *gin.Context) {
 	// 记录收到回调的日志
 	fmt.Printf("=== 收到支付宝回调通知 ===\n")
+	fmt.Printf("时间: %s\n", time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Printf("请求方法: %s\n", c.Request.Method)
+	fmt.Printf("请求URL: %s\n", c.Request.URL.String())
+	fmt.Printf("客户端IP: %s\n", c.ClientIP())
+	fmt.Printf("请求头: %+v\n", c.Request.Header)
 
 	// 解析表单数据
 	if err := c.Request.ParseForm(); err != nil {
@@ -271,6 +291,9 @@ func AlipayNotifyHandler(c *gin.Context) {
 
 	fmt.Printf("订单号: %s, 交易号: %s, 状态: %s, 金额: %s\n",
 		outTradeNo, tradeNo, tradeStatus, totalAmount)
+
+	// TODO: 这里应该添加支付宝签名验证，但为了测试先跳过
+	// 在生产环境中必须验证签名以确保回调的真实性
 
 	// 直接调用logic层处理支付回调，不通过gRPC
 	var orderStatus int32
@@ -506,5 +529,96 @@ func DeleteOrderHandler(c *gin.Context) {
 	// TODO: 实现订单软删除的逻辑
 	response.ResponseSuccess(c, gin.H{
 		"message": "功能开发中",
+	})
+}
+
+// CheckUserUnpaidOrderHandler 检查用户未支付订单处理器
+func CheckUserUnpaidOrderHandler(c *gin.Context) {
+	// 从JWT中获取用户ID
+	userID := c.GetUint("userId")
+	if userID == 0 {
+		response.ResponseError400(c, "用户ID不能为空")
+		return
+	}
+
+	// 调用订单微服务检查未支付订单
+	checkRes, err := handler.CheckUserUnpaidOrder(c, &order.CheckUserUnpaidOrderRequest{
+		UserId: int64(userID),
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if checkRes.Code != 200 {
+		response.ResponseError400(c, checkRes.Message)
+		return
+	}
+
+	if checkRes.HasUnpaidOrder {
+		response.ResponseSuccess(c, gin.H{
+			"has_unpaid_order": true,
+			"unpaid_order": gin.H{
+				"order_id":     checkRes.UnpaidOrder.Id,
+				"order_sn":     checkRes.UnpaidOrder.OrderSn,
+				"total_amount": checkRes.UnpaidOrder.TotalAmount,
+				"payment_url":  checkRes.UnpaidOrder.PaymentUrl,
+				"created_at":   checkRes.UnpaidOrder.CreatedAt,
+			},
+			"message": checkRes.Message,
+		})
+	} else {
+		response.ResponseSuccess(c, gin.H{
+			"has_unpaid_order": false,
+			"message":          checkRes.Message,
+		})
+	}
+}
+
+// ManualUpdatePaymentStatusHandler 手动更新支付状态处理器（仅用于测试）
+func ManualUpdatePaymentStatusHandler(c *gin.Context) {
+	// 获取订单号
+	orderSn := c.Param("order_sn")
+	if orderSn == "" {
+		response.ResponseError400(c, "订单号不能为空")
+		return
+	}
+
+	// 获取要更新的状态
+	var req struct {
+		Status int32 `json:"status"` // 2表示已支付
+	}
+	if err := c.ShouldBind(&req); err != nil {
+		response.ResponseError400(c, err.Error())
+		return
+	}
+
+	if req.Status != 2 {
+		response.ResponseError400(c, "目前只支持更新为已支付状态(status=2)")
+		return
+	}
+
+	fmt.Printf("🔧 手动更新订单支付状态: %s -> %d\n", orderSn, req.Status)
+
+	// 调用logic层更新订单状态
+	updateRes, err := handler.UpdateOrderStatus(c, &order.UpdateOrderStatusRequest{
+		OrderSn: orderSn,
+		Status:  req.Status,
+	})
+	if err != nil {
+		fmt.Printf("更新订单状态失败: %v\n", err)
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if updateRes.Code != 200 {
+		fmt.Printf("更新订单状态失败: %s\n", updateRes.Message)
+		response.ResponseError400(c, updateRes.Message)
+		return
+	}
+
+	fmt.Printf("手动更新支付状态成功: %s\n", updateRes.Message)
+	response.ResponseSuccess(c, gin.H{
+		"message": updateRes.Message,
 	})
 }

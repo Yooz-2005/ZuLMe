@@ -1,7 +1,11 @@
 package request
 
+// GenerateInvoiceRequest 商家开发票请求
 type GenerateInvoiceRequest struct {
-	OrderID      int    `json:"order_id" form:"order_id"`
-	InvoiceTitle string `json:"invoice_title"  form:"invoice_title"`
-	TaxNumber    string `json:"tax_number"  form:"tax_number"`
+	OrderID int `json:"order_id" form:"order_id"`
+}
+
+// ApplyInvoiceRequest 用户申请开发票请求
+type ApplyInvoiceRequest struct {
+	OrderID int `json:"order_id" form:"order_id" binding:"required"`
 }

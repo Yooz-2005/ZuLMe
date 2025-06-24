@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Card, Typography, Row, Col, Input, Space, Tabs } from 'antd';
-import { UserOutlined, FileTextOutlined, AccountBookOutlined, WalletOutlined, MailOutlined } from '@ant-design/icons';
+import { UserOutlined, FileTextOutlined, AccountBookOutlined, WalletOutlined, StarOutlined, HeartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
 import MyInfoPage from './components/MyInfoPage'; // 导入 MyInfoPage
 import ReservationList from '../../components/ReservationList'; // 导入预订列表组件
 import OrderList from '../../components/OrderList'; // 导入订单列表组件
+import UserCommentList from '../../components/UserCommentList'; // 导入用户评价组件
+import FavoriteList from '../../components/FavoriteList'; // 导入收藏列表组件
+import { checkUnpaidOrderOnPageLoad } from '../../utils/idempotencyUtils';
 import styled from 'styled-components';
 
-const { Header, Sider, Content, Footer } = Layout; // 添加 Footer
+const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
 const { Search } = Input;
-const { TabPane } = Tabs;
 
 // 定义 styled-components
 const StyledLayout = styled(Layout)`
@@ -129,6 +131,15 @@ const PersonalCenter = () => {
         return () => {
             window.removeEventListener('storage', handleStorageChange);
         };
+    }, []);
+
+    // 页面加载时检查未支付订单
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            // 只有在用户已登录时才检查
+            checkUnpaidOrderOnPageLoad();
+        }
     }, []);
 
     const handleLogout = () => {
@@ -289,6 +300,20 @@ const PersonalCenter = () => {
                 );
             case 'my_account_info':
                 return <MyInfoPage onPhoneUpdate={handlePhoneUpdate} />;
+            case 'my_comments':
+                return (
+                    <Card title="我的评价" extra={(
+                        <Space>
+                            <Search placeholder="请输入订单号或车辆名称" onSearch={() => {}} style={{ width: 200 }} />
+                            <Button>查询</Button>
+                            <Button>清除</Button>
+                        </Space>
+                    )}>
+                        <UserCommentList />
+                    </Card>
+                );
+            case 'my_favorites':
+                return <FavoriteList />;
             // 可以添加更多 case 来渲染其他内容
             default:
                 return null;
@@ -306,6 +331,9 @@ const PersonalCenter = () => {
                         <Space size="large">
                             <StyledNavButton onClick={() => navigate('/dashboard')}>
                                 首页
+                            </StyledNavButton>
+                            <StyledNavButton onClick={() => navigate('/map-demo')}>
+                                地图导航
                             </StyledNavButton>
                             {currentPhoneNumber ? (
                                 <>
@@ -343,6 +371,16 @@ const PersonalCenter = () => {
                                             key: 'my_orders_management',
                                             icon: <AccountBookOutlined />,
                                             label: '订单管理',
+                                        },
+                                        {
+                                            key: 'my_comments',
+                                            icon: <StarOutlined />,
+                                            label: '我的评价',
+                                        },
+                                        {
+                                            key: 'my_favorites',
+                                            icon: <HeartOutlined />,
+                                            label: '我的收藏',
                                         },
                                     ],
                                 },
@@ -392,23 +430,6 @@ const PersonalCenter = () => {
                                             key: 'my_account_driving_license',
                                             icon: <UserOutlined />,
                                             label: '驾照认证',
-                                        },
-                                    ],
-                                },
-                                {
-                                    key: 'invoice_management_group',
-                                    label: '发票管理',
-                                    type: 'group',
-                                    children: [
-                                        {
-                                            key: 'invoice_apply',
-                                            icon: <MailOutlined />,
-                                            label: '根据订单开发票',
-                                        },
-                                        {
-                                            key: 'invoice_history',
-                                            icon: <MailOutlined />,
-                                            label: '开票历史记录',
                                         },
                                     ],
                                 },

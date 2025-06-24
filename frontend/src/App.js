@@ -7,12 +7,17 @@ import LoginRegister from './pages/LoginRegister';
 import VehicleList from './pages/VehicleList';
 import VehicleDetail from './pages/VehicleDetail';
 import SearchResults from './pages/SearchResults';
+
 import Dashboard from './pages/Dashboard';
 import PersonalCenter from './pages/PersonalCenter';
 import ImageTest from './components/ImageTest';
 import VehicleDebug from './pages/VehicleDebug';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentTest from './pages/PaymentTest';
+import LocationTest from './pages/LocationTest';
+import MapDemo from './pages/MapDemo';
+import MapTest from './pages/MapTest';
+import ApiTest from './pages/ApiTest';
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
@@ -40,12 +45,17 @@ function App() {
           <Route path="/vehicles" element={<VehicleList />} />
           <Route path="/vehicle/:id" element={<VehicleDetail />} />
           <Route path="/search" element={<SearchResults />} />
+
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/personal-center" element={<PersonalCenter />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/payment/test" element={<PaymentTest />} />
           <Route path="/image-test" element={<ImageTest />} />
           <Route path="/vehicle-debug" element={<VehicleDebug />} />
+          <Route path="/location-test" element={<LocationTest />} />
+          <Route path="/map-demo" element={<MapDemo />} />
+          <Route path="/map-test" element={<MapTest />} />
+          <Route path="/api-test" element={<ApiTest />} />
         </Routes>
       </Router>
     </ConfigProvider>

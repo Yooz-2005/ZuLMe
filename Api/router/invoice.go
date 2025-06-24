@@ -8,13 +8,22 @@ import (
 
 func RegisterInvoiceRoutes(r *gin.Engine) {
 
-	invoiceGroup := r.Group("/invoice")
+	// 商家发票管理路由（需要商家认证）
+	merchantInvoiceGroup := r.Group("/merchant/invoice")
 	{
-		invoiceGroup.Use(pkg.JWTAuth("merchant"))
+		merchantInvoiceGroup.Use(pkg.JWTAuth("merchant"))
 		{
-			invoiceGroup.POST("/generate", trigger.GenerateInvoice)
+			merchantInvoiceGroup.POST("/generate", trigger.GenerateInvoice) // 商家直接开发票
 		}
+	}
 
+	// 用户发票申请路由（需要用户认证）
+	userInvoiceGroup := r.Group("/invoice")
+	{
+		userInvoiceGroup.Use(pkg.JWTAuth("2209")) // 用户认证
+		{
+			userInvoiceGroup.POST("/apply", trigger.ApplyInvoiceForUser) // 用户申请开发票
+		}
 	}
 
 }

@@ -28,6 +28,7 @@ func DeleteVerificationCode(source, phone string) error {
 	return global.Rdb.Del(ctx, key).Err()
 }
 
+// 增加发送次数   每天只能发送五次  24小时有效
 func IncrementSMSCount(phone string, source string) (int64, error) {
 	ctx := context.Background()
 	countKey := fmt.Sprintf("sms:count:%s:%s", source, phone)

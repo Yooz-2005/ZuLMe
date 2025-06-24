@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package comment;
+
+option go_package = "./proto_comment";
+
+// 评论服务
+service CommentService {
+  // 创建评论
+  rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
+  
+  // 获取评论详情
+  rpc GetComment(GetCommentRequest) returns (GetCommentResponse);
+  
+  // 获取订单评论
+  rpc GetOrderComment(GetOrderCommentRequest) returns (GetCommentResponse);
+  
+  // 获取车辆评论列表
+  rpc GetVehicleComments(GetVehicleCommentsRequest) returns (GetVehicleCommentsResponse);
+  
+  // 获取用户评论列表
+  rpc GetUserComments(GetUserCommentsRequest) returns (GetUserCommentsResponse);
+  
+  // 获取车辆评论统计
+  rpc GetVehicleStats(GetVehicleStatsRequest) returns (GetVehicleStatsResponse);
+  
+  // 更新评论
+  rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse);
+  
+  // 删除评论
+  rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse);
+  
+  // 商家回复评论
+  rpc ReplyComment(ReplyCommentRequest) returns (ReplyCommentResponse);
+  
+  // 检查订单是否已评论
+  rpc CheckOrderCommented(CheckOrderCommentedRequest) returns (CheckOrderCommentedResponse);
+}
+
+// 评论信息
+message CommentInfo {
+  string id = 1;
+  uint32 order_id = 2;
+  uint32 user_id = 3;
+  uint32 vehicle_id = 4;
+  int32 rating = 5;
+  string content = 6;
+  repeated string images = 7;
+  int32 service_rating = 8;
+  int32 vehicle_rating = 9;
+  int32 clean_rating = 10;
+  bool is_anonymous = 11;
+  int32 status = 12;
+  string reply_content = 13;
+  string reply_time = 14;
+  string created_at = 15;
+  string updated_at = 16;
+}
+
+// 评论统计信息
+message CommentStats {
+  int64 total_comments = 1;
+  double average_rating = 2;
+  int64 five_star_count = 3;
+  int64 four_star_count = 4;
+  int64 three_star_count = 5;
+  int64 two_star_count = 6;
+  int64 one_star_count = 7;
+  double service_rating = 8;
+  double vehicle_rating = 9;
+  double clean_rating = 10;
+}
+
+// 创建评论请求
+message CreateCommentRequest {
+  uint32 order_id = 1;
+  uint32 user_id = 2;
+  uint32 vehicle_id = 3;
+  int32 rating = 4;
+  string content = 5;
+  repeated string images = 6;
+  int32 service_rating = 7;
+  int32 vehicle_rating = 8;
+  int32 clean_rating = 9;
+  bool is_anonymous = 10;
+}
+
+// 创建评论响应
+message CreateCommentResponse {
+  int64 code = 1;
+  string message = 2;
+  CommentInfo comment = 3;
+}
+
+// 获取评论请求
+message GetCommentRequest {
+  string comment_id = 1;
+}
+
+// 获取评论响应
+message GetCommentResponse {
+  int64 code = 1;
+  string message = 2;
+  CommentInfo comment = 3;
+}
+
+// 获取订单评论请求
+message GetOrderCommentRequest {
+  uint32 order_id = 1;
+}
+
+// 获取车辆评论列表请求
+message GetVehicleCommentsRequest {
+  uint32 vehicle_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+// 获取车辆评论列表响应
+message GetVehicleCommentsResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated CommentInfo comments = 3;
+  int64 total = 4;
+  int32 page = 5;
+  int32 page_size = 6;
+}
+
+// 获取用户评论列表请求
+message GetUserCommentsRequest {
+  uint32 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+// 获取用户评论列表响应
+message GetUserCommentsResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated CommentInfo comments = 3;
+  int64 total = 4;
+  int32 page = 5;
+  int32 page_size = 6;
+}
+
+// 获取车辆评论统计请求
+message GetVehicleStatsRequest {
+  uint32 vehicle_id = 1;
+}
+
+// 获取车辆评论统计响应
+message GetVehicleStatsResponse {
+  int64 code = 1;
+  string message = 2;
+  CommentStats stats = 3;
+}
+
+// 更新评论请求
+message UpdateCommentRequest {
+  string comment_id = 1;
+  int32 rating = 2;
+  string content = 3;
+  repeated string images = 4;
+  int32 service_rating = 5;
+  int32 vehicle_rating = 6;
+  int32 clean_rating = 7;
+  bool is_anonymous = 8;
+  uint32 user_id = 9;
+}
+
+// 更新评论响应
+message UpdateCommentResponse {
+  int64 code = 1;
+  string message = 2;
+  CommentInfo comment = 3;
+}
+
+// 删除评论请求
+message DeleteCommentRequest {
+  string comment_id = 1;
+  uint32 user_id = 2;
+}
+
+// 删除评论响应
+message DeleteCommentResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 商家回复评论请求
+message ReplyCommentRequest {
+  string comment_id = 1;
+  string reply_content = 2;
+  uint32 merchant_id = 3;
+}
+
+// 商家回复评论响应
+message ReplyCommentResponse {
+  int64 code = 1;
+  string message = 2;
+  CommentInfo comment = 3;
+}
+
+// 检查订单是否已评论请求
+message CheckOrderCommentedRequest {
+  uint32 order_id = 1;
+}
+
+// 检查订单是否已评论响应
+message CheckOrderCommentedResponse {
+  int64 code = 1;
+  string message = 2;
+  bool commented = 3;
+}

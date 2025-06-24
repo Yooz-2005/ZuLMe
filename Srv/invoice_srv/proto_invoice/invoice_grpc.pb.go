@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Invoice_GenerateInvoice_FullMethodName = "/invoice.Invoice/GenerateInvoice"
+	Invoice_GenerateInvoice_FullMethodName     = "/invoice.Invoice/GenerateInvoice"
+	Invoice_ApplyInvoiceForUser_FullMethodName = "/invoice.Invoice/ApplyInvoiceForUser"
 )
 
 // InvoiceClient is the client API for Invoice service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InvoiceClient interface {
 	GenerateInvoice(ctx context.Context, in *GenerateInvoiceRequest, opts ...grpc.CallOption) (*GenerateInvoiceResponse, error)
+	ApplyInvoiceForUser(ctx context.Context, in *ApplyInvoiceForUserRequest, opts ...grpc.CallOption) (*GenerateInvoiceResponse, error)
 }
 
 type invoiceClient struct {
@@ -47,11 +49,22 @@ func (c *invoiceClient) GenerateInvoice(ctx context.Context, in *GenerateInvoice
 	return out, nil
 }
 
+func (c *invoiceClient) ApplyInvoiceForUser(ctx context.Context, in *ApplyInvoiceForUserRequest, opts ...grpc.CallOption) (*GenerateInvoiceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GenerateInvoiceResponse)
+	err := c.cc.Invoke(ctx, Invoice_ApplyInvoiceForUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InvoiceServer is the server API for Invoice service.
 // All implementations must embed UnimplementedInvoiceServer
 // for forward compatibility.
 type InvoiceServer interface {
 	GenerateInvoice(context.Context, *GenerateInvoiceRequest) (*GenerateInvoiceResponse, error)
+	ApplyInvoiceForUser(context.Context, *ApplyInvoiceForUserRequest) (*GenerateInvoiceResponse, error)
 	mustEmbedUnimplementedInvoiceServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedInvoiceServer struct{}
 
 func (UnimplementedInvoiceServer) GenerateInvoice(context.Context, *GenerateInvoiceRequest) (*GenerateInvoiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateInvoice not implemented")
+}
+func (UnimplementedInvoiceServer) ApplyInvoiceForUser(context.Context, *ApplyInvoiceForUserRequest) (*GenerateInvoiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ApplyInvoiceForUser not implemented")
 }
 func (UnimplementedInvoiceServer) mustEmbedUnimplementedInvoiceServer() {}
 func (UnimplementedInvoiceServer) testEmbeddedByValue()                 {}
@@ -104,6 +120,24 @@ func _Invoice_GenerateInvoice_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Invoice_ApplyInvoiceForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ApplyInvoiceForUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InvoiceServer).ApplyInvoiceForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Invoice_ApplyInvoiceForUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InvoiceServer).ApplyInvoiceForUser(ctx, req.(*ApplyInvoiceForUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Invoice_ServiceDesc is the grpc.ServiceDesc for Invoice service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var Invoice_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateInvoice",
 			Handler:    _Invoice_GenerateInvoice_Handler,
+		},
+		{
+			MethodName: "ApplyInvoiceForUser",
+			Handler:    _Invoice_ApplyInvoiceForUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

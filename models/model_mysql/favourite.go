@@ -23,7 +23,8 @@ func (f *Favourite) TableName() string {
 
 // 查看车辆是否收藏
 func (f *Favourite) IsCollectVehicle(vehicleId, userId int64) bool {
-	err := global.DB.Where("vehicle_id =? and user_id = ?", vehicleId, userId).First(f).Error
+	// 只检查未删除的收藏记录
+	err := global.DB.Where("vehicle_id = ? AND user_id = ? AND deleted_at IS NULL", vehicleId, userId).First(f).Error
 	if err != nil {
 		return false
 	}
@@ -54,7 +55,8 @@ func (f *Favourite) CancelCollectVehicle(vehicleId, userId int64) error {
 // 查看用户收藏的车辆
 func (f *Favourite) GetUserCollectVehicle(userId int64) ([]*Favourite, error) {
 	var favourite []*Favourite
-	err := global.DB.Where("user_id =?", userId).Find(&favourite).Error
+	// 只查询未删除的收藏记录
+	err := global.DB.Where("user_id = ? AND deleted_at IS NULL", userId).Find(&favourite).Error
 	if err != nil {
 		return nil, err
 	}

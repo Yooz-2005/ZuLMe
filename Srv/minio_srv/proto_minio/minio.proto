@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package minio;
+option go_package=".;minio";
+
+message GetPresignedUrlRequest {
+  string bucket = 1;// 桶名
+  string object_name = 2;// 文件名
+  int64 expires = 3; // 过期时间
+  string content_type = 4; // 类型
+}
+
+message GetPresignedUrlResponse {
+  bool success = 1;
+  string url = 2;
+  string method = 3;// http方法
+  string expires_at = 4;// 过期时间
+  string message = 5;
+}
+
+service Minio {
+  rpc GetPresignedUrl(GetPresignedUrlRequest) returns(GetPresignedUrlResponse);
+}

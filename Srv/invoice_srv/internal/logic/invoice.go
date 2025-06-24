@@ -11,6 +11,11 @@ import (
 
 // GenerateInvoice 生成发票
 func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoiceResponse, error) {
+	// 先检查订单是否已经生成过发票
+	invoiceExist := &model_mysql.Invoice{}
+	if err := invoiceExist.GetInvoiceByOrderID(in.OrderId); err == nil {
+		return &invoice.GenerateInvoiceResponse{Code: 400, Message: "该订单已经生成过发票, 不能重复开票"}, nil
+	}
 	// 1. 根据 OrderID 查找订单信息
 	order := &model_mysql.Orders{}
 	if err := order.GetByID(uint(in.OrderId)); err != nil {
@@ -39,6 +44,7 @@ func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoi
 	}
 
 	// 5. 构造 Invoice 对象
+	generatedTaxNumber := utils.GenerateTaxNumber(int64(order.UserId))
 	newInvoice := &model_mysql.Invoice{
 		OrderId:     int32(order.ID),
 		MerchantId:  int32(in.MerchantId),                        // <-- 新增：赋值 MerchantId
@@ -46,10 +52,9 @@ func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoi
 		OrderSn:     order.OrderSn,
 		Amount:      order.TotalAmount,
 		IssuedAt:    time.Now(),
-		Title:       in.InvoiceTitle,
-		TaxNumber:   in.TaxNumber, // 使用请求中传入的税号作为发票的税号（销售方税号）
-		InvoiceType: 1,            // Default to electronic invoice
-		Status:      1,            // Initial status "待开"
+		TaxNumber:   generatedTaxNumber, // 使用自自动生成的税号
+		InvoiceType: 1,                  // Default to electronic invoice
+		Status:      1,                  // Initial status "待开"
 		VehicleId:   int32(order.VehicleId),
 		VehicleName: vehicle.Brand, // 使用车辆品牌作为项目名称
 		RentalDays:  order.RentalDays,
@@ -98,4 +103,43 @@ func GenerateInvoice(in *invoice.GenerateInvoiceRequest) (*invoice.GenerateInvoi
 		InvoiceNo: newInvoice.InvoiceNo,
 		PdfUrl:    pdfPath,
 	}, nil
+}
+
+// ApplyInvoiceForUser 用户申请开发票
+func ApplyInvoiceForUser(in *invoice.ApplyInvoiceForUserRequest) (*invoice.GenerateInvoiceResponse, error) {
+	// 1. 根据 OrderID 查找订单信息
+	order := &model_mysql.Orders{}
+	if err := order.GetByID(uint(in.OrderId)); err != nil {
+		return &invoice.GenerateInvoiceResponse{Code: 404, Message: fmt.Errorf("查找订单失败: %v", err).Error()}, nil
+	}
+
+	// 2. 验证订单是否属于该用户
+	if order.UserId != uint(in.UserId) {
+		return &invoice.GenerateInvoiceResponse{Code: 403, Message: "无权限为该订单开具发票"}, nil
+	}
+
+	// 3. 验证订单状态是否为已支付
+	if order.Status != model_mysql.OrderStatusPaid {
+		return &invoice.GenerateInvoiceResponse{Code: 400, Message: "只有已支付的订单才能开具发票"}, nil
+	}
+
+	// 4. 检查订单是否已经生成过发票
+	invoiceExist := &model_mysql.Invoice{}
+	if err := invoiceExist.GetInvoiceByOrderID(in.OrderId); err == nil {
+		return &invoice.GenerateInvoiceResponse{Code: 400, Message: "该订单已经生成过发票, 不能重复开票"}, nil
+	}
+
+	// 5. 获取订单对应的车辆信息（用于获取商家ID）
+	vehicle := &model_mysql.Vehicle{}
+	if err := vehicle.GetByID(uint(order.VehicleId)); err != nil {
+		return &invoice.GenerateInvoiceResponse{Code: 404, Message: fmt.Errorf("查找车辆信息失败: %v", err).Error()}, nil
+	}
+
+	// 6. 调用原有的开发票逻辑，使用车辆对应的商家ID
+	generateReq := &invoice.GenerateInvoiceRequest{
+		OrderId:    in.OrderId,
+		MerchantId: int64(vehicle.MerchantID), // 使用车辆对应的商家ID
+	}
+
+	return GenerateInvoice(generateReq)
 }
