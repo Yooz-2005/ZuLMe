@@ -91,4 +91,33 @@ export const getCollectVehicleList = async () => {
   }
 };
 
+// ==================== 地理位置相关API ====================
+
+// 根据地址获取经纬度坐标
+export const getCoordinatesByAddress = async (address) => {
+  try {
+    const response = await api.post('/geocode/coordinates', {
+      address: address
+    });
+    return response;
+  } catch (error) {
+    console.error('获取坐标失败:', error);
+    throw error;
+  }
+};
+
+// 计算用户到商家的距离
+export const calculateDistance = async (userAddress, merchantId) => {
+  try {
+    const response = await api.post('/user/calculateDistance', {
+      location: userAddress,
+      merchant_id: merchantId
+    });
+    return response;
+  } catch (error) {
+    console.error('计算距离失败:', error);
+    throw error;
+  }
+};
+
 export default api;

@@ -13,6 +13,9 @@ func RegisterMerchantRoutes(r *gin.Engine) {
 		merchantGroup.POST("/register", trigger.MerchantRegisterHandler)
 		merchantGroup.POST("/login", trigger.MerchantLoginHandler)
 
+		// 公开的网点列表接口（不需要认证）
+		merchantGroup.GET("/locations", trigger.GetMerchantLocationsHandler) // 获取所有审核通过的商家网点
+
 		// 商家位置管理接口 (管理员功能)
 		locationGroup := merchantGroup.Group("/location")
 		{

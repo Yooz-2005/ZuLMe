@@ -3,9 +3,10 @@ package services
 import (
 	"Common/global"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"strconv"
 	"strings"
+
+	"github.com/go-redis/redis/v8"
 
 	"golang.org/x/net/context"
 )
@@ -194,6 +195,19 @@ func (s *RedisGeoService) RemoveMerchantLocation(merchantID int64) error {
 	}
 
 	fmt.Printf("成功删除商家%d的位置信息\n", merchantID)
+	return nil
+}
+
+// ClearAllMerchants 清理所有商家位置数据
+func (s *RedisGeoService) ClearAllMerchants() error {
+	key := "merchants:locations"
+
+	err := s.client.Del(s.ctx, key).Err()
+	if err != nil {
+		return fmt.Errorf("清理商家位置数据失败: %v", err)
+	}
+
+	fmt.Printf("成功清理所有商家位置数据\n")
 	return nil
 }
 

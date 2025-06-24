@@ -35,10 +35,42 @@ message MerchantLoginResponse {
     string token = 3; // 登录成功后返回的token
 }
 
+// 获取网点列表请求
+message GetLocationListRequest {
+    int32 page = 1;
+    int32 page_size = 2;
+    int32 status_filter = 3; // 筛选审核状态：0-未审核，1-审核通过，2-审核失败
+}
+
+// 网点信息
+message LocationInfo {
+    int64 id = 1;
+    string name = 2;
+    string phone = 3;
+    string email = 4;
+    int32 status = 5;
+    string location = 6;        // 网点地址
+    string business_time = 7;   // 营业时间
+    double longitude = 8;       // 经度
+    double latitude = 9;        // 纬度
+    string created_at = 10;
+    string updated_at = 11;
+}
+
+// 获取网点列表响应
+message GetLocationListResponse {
+    int32 code = 1;
+    string message = 2;
+    repeated LocationInfo locations = 3;
+    int64 total = 4; // 总记录数
+}
+
 // 商家服务
 service MerchantService {
     // 商家注册
     rpc MerchantRegister(MerchantRegisterRequest) returns (MerchantRegisterResponse);
     // 商家登录
     rpc MerchantLogin(MerchantLoginRequest) returns (MerchantLoginResponse);
+    // 获取网点列表
+    rpc GetLocationList(GetLocationListRequest) returns (GetLocationListResponse);
 }

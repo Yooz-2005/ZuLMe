@@ -112,3 +112,65 @@ func UpdateMerchantLocationHandler(c *gin.Context) {
 	}
 	response.ResponseSuccess(c, "商家位置信息更新成功")
 }
+
+// GetMerchantLocationsHandler 获取所有审核通过的商家网点列表（公开接口）
+func GetMerchantLocationsHandler(c *gin.Context) {
+	var req request.GetLocationListRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.ResponseError400(c, err.Error())
+		return
+	}
+
+	// 设置默认值
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 100
+	}
+	if req.StatusFilter < 0 {
+		req.StatusFilter = 1 // 默认只获取审核通过的商户
+	}
+
+	// 调用merchant服务
+	locationListRes, err := handler.GetLocationList(c, &merchant.GetLocationListRequest{
+		Page:         req.Page,
+		PageSize:     req.PageSize,
+		StatusFilter: req.StatusFilter,
+	})
+	if err != nil {
+		response.ResponseError(c, err.Error())
+		return
+	}
+
+	if locationListRes.Code != 200 {
+		response.ResponseError400(c, locationListRes.Message)
+		return
+	}
+
+	// 转换为前端需要的格式
+	var merchantList []gin.H
+	for _, location := range locationListRes.Locations {
+		merchantList = append(merchantList, gin.H{
+			"id":            location.Id,
+			"name":          location.Name,
+			"phone":         location.Phone,
+			"email":         location.Email,
+			"status":        location.Status,
+			"location":      location.Location,
+			"business_time": location.BusinessTime,
+			"longitude":     location.Longitude,
+			"latitude":      location.Latitude,
+			"created_at":    location.CreatedAt,
+			"updated_at":    location.UpdatedAt,
+		})
+	}
+
+	response.ResponseSuccess(c, gin.H{
+		"message":   locationListRes.Message,
+		"merchants": merchantList,
+		"total":     locationListRes.Total,
+		"page":      req.Page,
+		"page_size": req.PageSize,
+	})
+}

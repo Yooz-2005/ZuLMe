@@ -332,6 +332,9 @@ const PersonalCenter = () => {
                             <StyledNavButton onClick={() => navigate('/dashboard')}>
                                 首页
                             </StyledNavButton>
+                            <StyledNavButton onClick={() => navigate('/map-demo')}>
+                                地图导航
+                            </StyledNavButton>
                             {currentPhoneNumber ? (
                                 <>
                                     <StyledUserButton type="link" style={{ color: '#fff' }}>{currentPhoneNumber}</StyledUserButton>

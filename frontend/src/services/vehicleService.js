@@ -238,7 +238,7 @@ class VehicleService {
         ...params
       };
 
-      const response = await api.get('/admin/merchant/list', { params: queryParams });
+      const response = await api.get('/merchant/locations', { params: queryParams });
       return response;
     } catch (error) {
       console.error('获取网点列表失败:', error);
