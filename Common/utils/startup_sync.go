@@ -40,6 +40,8 @@ func StartupSyncMerchantLocations() {
 }
 
 // PeriodicSyncMerchantLocations 定期同步商家位置数据 (可选)
+//定期同步防止数据不一致
+//商家位置发生变更 及时更新 定期同步双重保障
 func PeriodicSyncMerchantLocations(intervalHours int) {
 	ticker := time.NewTicker(time.Duration(intervalHours) * time.Hour) // 每小时执行一次
 	defer ticker.Stop()
@@ -47,9 +49,9 @@ func PeriodicSyncMerchantLocations(intervalHours int) {
 	fmt.Printf("⏰ 启动定期同步任务，间隔: %d 小时\n", intervalHours)
 
 	for {
-		select {
-		case <-ticker.C:
-			fmt.Println("🔄 开始定期同步商家位置数据...")
+		select {//使用select语句监听定时器通道
+		case <-ticker.C: //监听定时器信号
+			fmt.Println("🔄 开始定期同步商家位置数据...")//执行同步逻辑
 
 			err := SyncExistingMerchantsToRedis()
 			if err != nil {
@@ -60,6 +62,7 @@ func PeriodicSyncMerchantLocations(intervalHours int) {
 		}
 	}
 }
+
 
 // CheckRedisConnection 检查Redis连接状态
 func CheckRedisConnection() error {
