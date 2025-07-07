@@ -86,7 +86,7 @@ func startOrderTimeoutScheduler() {
 	log.Printf("   ⏰ 执行频率: 每2分钟检查一次超时订单")
 	log.Printf("   🆔 任务ID: %d", entryID)
 
-	// 立即执行一次检查
+	// 立即行执一次检查
 	go checkAndCancelExpiredOrders()
 }
 

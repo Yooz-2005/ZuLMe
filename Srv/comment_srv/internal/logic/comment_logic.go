@@ -2,6 +2,7 @@ package logic
 
 import (
 	"Common/global"
+	"Common/pkg"
 	"context"
 	"fmt"
 	"models/model_mongodb"
@@ -46,21 +47,36 @@ func (cl *CommentLogic) CreateComment(orderID, userID, vehicleID uint, rating in
 
 	// 4. 检查是否已经评论过（暂时注释掉用于调试）
 	fmt.Printf("跳过检查订单 %d 是否已评论过（调试模式）\n", orderID)
-	// exists, err := model_mongodb.CheckOrderCommentExists(orderID)
-	// if err != nil {
-	// 	fmt.Printf("检查订单评论状态失败: orderID=%d, error=%v\n", orderID, err)
-	// 	return nil, fmt.Errorf("检查订单评论状态失败: %v", err)
-	// }
-	// if exists {
-	// 	return nil, fmt.Errorf("该订单已经评论过了")
-	// }
+	exists, err := model_mongodb.CheckOrderCommentExists(orderID)
+	if err != nil {
+		fmt.Printf("检查订单评论状态失败: orderID=%d, error=%v\n", orderID, err)
+		return nil, fmt.Errorf("检查订单评论状态失败: %v", err)
+	}
+	if exists {
+		return nil, fmt.Errorf("该订单已经评论过了")
+	}
 
 	// 5. 验证评分范围
 	if rating < 1 || rating > 5 || serviceRating < 1 || serviceRating > 5 || vehicleRating < 1 || vehicleRating > 5 || cleanRating < 1 || cleanRating > 5 {
 		return nil, fmt.Errorf("评分必须在1-5之间")
 	}
 
-	// 6. 创建评论
+	// 6. 百度敏感词过滤审核
+	fmt.Printf("开始进行评论内容审核: %s\n", content)
+	isValid, reason, err := pkg.IsTextValid(content)
+	if err != nil {
+		fmt.Printf("内容审核API调用失败: %v\n", err)
+		// 如果审核API失败，可以选择允许评论通过或者拒绝
+		// 这里选择记录错误但允许评论通过，避免因为API问题影响用户体验
+		fmt.Printf("警告：内容审核失败，但允许评论通过\n")
+	} else if !isValid {
+		fmt.Printf("评论内容审核不通过: %s\n", reason)
+		return nil, fmt.Errorf("评论内容包含敏感信息，请修改后重新提交")
+	} else {
+		fmt.Printf("评论内容审核通过: %s\n", reason)
+	}
+
+	// 7. 创建评论
 	fmt.Printf("开始创建评论对象\n")
 	comment := &model_mongodb.Comment{
 		OrderID:       orderID,
@@ -155,7 +171,22 @@ func (cl *CommentLogic) UpdateComment(commentID string, userID uint, rating int3
 		return nil, fmt.Errorf("评论创建超过24小时，不允许修改")
 	}
 
-	// 5. 更新评论内容
+	// 5. 百度敏感词过滤审核
+	fmt.Printf("开始进行更新评论内容审核: %s\n", content)
+	isValid, reason, err := pkg.IsTextValid(content)
+	if err != nil {
+		fmt.Printf("内容审核API调用失败: %v\n", err)
+		// 如果审核API失败，可以选择允许评论通过或者拒绝
+		// 这里选择记录错误但允许评论通过，避免因为API问题影响用户体验
+		fmt.Printf("警告：内容审核失败，但允许评论更新\n")
+	} else if !isValid {
+		fmt.Printf("更新评论内容审核不通过: %s\n", reason)
+		return nil, fmt.Errorf("评论内容包含敏感信息，请修改后重新提交")
+	} else {
+		fmt.Printf("更新评论内容审核通过: %s\n", reason)
+	}
+
+	// 6. 更新评论内容
 	comment.Rating = rating
 	comment.Content = content
 	comment.Images = images
@@ -216,7 +247,22 @@ func (cl *CommentLogic) ReplyComment(commentID string, replyContent string, merc
 		return nil, fmt.Errorf("该评论已经回复过了")
 	}
 
-	// 4. 添加回复
+	// 4. 百度敏感词过滤审核
+	fmt.Printf("开始进行商家回复内容审核: %s\n", replyContent)
+	isValid, reason, err := pkg.IsTextValid(replyContent)
+	if err != nil {
+		fmt.Printf("回复内容审核API调用失败: %v\n", err)
+		// 如果审核API失败，可以选择允许回复通过或者拒绝
+		// 这里选择记录错误但允许回复通过，避免因为API问题影响商家体验
+		fmt.Printf("警告：回复内容审核失败，但允许回复通过\n")
+	} else if !isValid {
+		fmt.Printf("商家回复内容审核不通过: %s\n", reason)
+		return nil, fmt.Errorf("回复内容包含敏感信息，请修改后重新提交")
+	} else {
+		fmt.Printf("商家回复内容审核通过: %s\n", reason)
+	}
+
+	// 5. 添加回复
 	now := time.Now()
 	comment.ReplyContent = replyContent
 	comment.ReplyTime = &now
