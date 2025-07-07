@@ -5,15 +5,18 @@ import (
 	"Common/pkg"
 	"Common/services"
 	"Common/utils"
+	proto_coupon "Srv/coupon_srv/proto_coupon"
+	"context"
 	"errors"
 	"fmt"
 	"models/model_mysql"
 	"models/model_redis"
+	"strconv"
 	user "user_srv/proto_user"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/gorm"
-
-	"strconv"
 )
 
 // 生成Token响应的辅助函数
@@ -105,6 +108,17 @@ func UserRegister(in *user.UserRegisterRequest) (*user.UserRegisterResponse, err
 		fmt.Printf("数据库事务失败: %v\n", err)
 		return nil, err
 	}
+
+	// 为新用户发放新人大礼包优惠券
+	fmt.Printf("开始为新用户发放新人大礼包优惠券\n")
+	err = grantNewbieCoupon(uint(newUser.Id))
+	if err != nil {
+		// 优惠券发放失败不影响注册流程，只记录日志
+		fmt.Printf("新人优惠券发放失败: %v\n", err)
+	} else {
+		fmt.Printf("新人优惠券发放成功\n")
+	}
+
 	// 删除验证码
 	err = model_redis.DeleteVerificationCode("register", in.Phone)
 	if err != nil {
@@ -112,4 +126,36 @@ func UserRegister(in *user.UserRegisterRequest) (*user.UserRegisterResponse, err
 	}
 	return generateTokenResponse(newUser.Id)
 
+}
+
+// grantNewbieCoupon 为新用户发放新人大礼包优惠券
+func grantNewbieCoupon(userID uint) error {
+	// 通过gRPC调用优惠券微服务
+	conn, err := grpc.Dial("localhost:8006", grpc.WithTransportCredentials(insecure.NewCredentials())) // 连接优惠券服务
+	if err != nil {
+		return fmt.Errorf("连接优惠券服务失败: %v", err)
+	}
+	defer conn.Close()
+
+	// 创建优惠券服务客户端
+	couponClient := proto_coupon.NewCouponServiceClient(conn)
+
+	// 调用发放优惠券接口
+	req := &proto_coupon.GrantCouponRequest{
+		UserId:       uint64(userID),
+		ActivityCode: "NEWBIE_GIFT_2025",
+		Source:       "AUTO_GRANT",
+	}
+
+	resp, err := couponClient.GrantCoupon(context.Background(), req)
+	if err != nil {
+		return fmt.Errorf("调用优惠券服务失败: %v", err)
+	}
+
+	if resp.Code != 200 {
+		return fmt.Errorf("优惠券发放失败: %s", resp.Message)
+	}
+
+	fmt.Printf("新人优惠券发放成功，用户ID: %d\n", userID)
+	return nil
 }

@@ -1,0 +1,269 @@
+syntax = "proto3";
+
+package coupon;
+option go_package = ".;proto_coupon";
+
+// 优惠券服务
+service CouponService {
+  // 发放优惠券
+  rpc GrantCoupon(GrantCouponRequest) returns (GrantCouponResponse);
+
+  // 获取用户优惠券列表
+  rpc GetUserCoupons(GetUserCouponsRequest) returns (GetUserCouponsResponse);
+
+  // 获取用户可用优惠券
+  rpc GetAvailableCoupons(GetAvailableCouponsRequest) returns (GetAvailableCouponsResponse);
+
+  // 验证优惠券
+  rpc ValidateCoupon(ValidateCouponRequest) returns (ValidateCouponResponse);
+
+  // 使用优惠券
+  rpc UseCoupon(UseCouponRequest) returns (UseCouponResponse);
+
+  // ===== 活动管理接口 =====
+  // 创建活动
+  rpc CreateActivity(CreateActivityRequest) returns (CreateActivityResponse);
+
+  // 更新活动
+  rpc UpdateActivity(UpdateActivityRequest) returns (UpdateActivityResponse);
+
+  // 删除活动
+  rpc DeleteActivity(DeleteActivityRequest) returns (DeleteActivityResponse);
+
+  // 获取活动详情
+  rpc GetActivity(GetActivityRequest) returns (GetActivityResponse);
+
+  // 获取活动列表
+  rpc GetActivityList(GetActivityListRequest) returns (GetActivityListResponse);
+
+  // 分发活动优惠券
+  rpc DistributeActivityCoupons(DistributeActivityCouponsRequest) returns (DistributeActivityCouponsResponse);
+}
+
+// 优惠券信息
+message CouponInfo {
+  uint64 id = 1;
+  uint64 user_id = 2;
+  string coupon_type = 3;
+  string coupon_name = 4;
+  string coupon_code = 5;
+  int32 discount_type = 6;
+  double discount_amount = 7;
+  double discount_rate = 8;
+  double min_order_amount = 9;
+  double max_discount_amount = 10;
+  int32 status = 11;
+  string source = 12;
+  string expire_time = 13;
+  string used_time = 14;
+  uint64 order_id = 15;
+  string order_sn = 16;
+  string created_at = 17;
+  string updated_at = 18;
+}
+
+// 发放优惠券请求
+message GrantCouponRequest {
+  uint64 user_id = 1;
+  string activity_code = 2;
+  string source = 3;
+}
+
+// 发放优惠券响应
+message GrantCouponResponse {
+  int64 code = 1;
+  string message = 2;
+  CouponInfo coupon = 3;
+}
+
+// 获取用户优惠券列表请求
+message GetUserCouponsRequest {
+  uint64 user_id = 1;
+  int32 status = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+// 获取用户优惠券列表响应
+message GetUserCouponsResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated CouponInfo coupons = 3;
+  int64 total = 4;
+}
+
+// 获取用户可用优惠券请求
+message GetAvailableCouponsRequest {
+  uint64 user_id = 1;
+  double order_amount = 2;
+}
+
+// 获取用户可用优惠券响应
+message GetAvailableCouponsResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated CouponInfo coupons = 3;
+}
+
+// 验证优惠券请求
+message ValidateCouponRequest {
+  uint64 coupon_id = 1;
+  uint64 user_id = 2;
+  double order_amount = 3;
+}
+
+// 验证优惠券响应
+message ValidateCouponResponse {
+  int64 code = 1;
+  string message = 2;
+  bool is_valid = 3;
+  double discount_amount = 4;
+}
+
+// 使用优惠券请求
+message UseCouponRequest {
+  uint64 coupon_id = 1;
+  uint64 user_id = 2;
+  uint64 order_id = 3;
+  string order_sn = 4;
+  double original_amount = 5;
+  double discount_amount = 6;
+}
+
+// 使用优惠券响应
+message UseCouponResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// ===== 活动管理相关消息 =====
+
+// 活动信息
+message ActivityInfo {
+  uint64 id = 1;
+  string activity_name = 2;
+  string activity_code = 3;
+  string activity_type = 4;
+  string description = 5;
+  int32 discount_type = 6;
+  double discount_amount = 7;
+  double discount_rate = 8;
+  double min_order_amount = 9;
+  double max_discount_amount = 10;
+  int32 valid_days = 11;
+  int32 max_grant_count = 12;
+  int32 total_grant_limit = 13;
+  int32 current_grant_count = 14;
+  string start_time = 15;
+  string end_time = 16;
+  int32 status = 17;
+  string created_at = 18;
+  string updated_at = 19;
+}
+
+// 创建活动请求
+message CreateActivityRequest {
+  string activity_name = 1;
+  string activity_code = 2;
+  string activity_type = 3;
+  string description = 4;
+  int32 discount_type = 5;
+  double discount_amount = 6;
+  double discount_rate = 7;
+  double min_order_amount = 8;
+  double max_discount_amount = 9;
+  int32 valid_days = 10;
+  int32 max_grant_count = 11;
+  int32 total_grant_limit = 12;
+  string start_time = 13;
+  string end_time = 14;
+  int32 status = 15;
+}
+
+// 创建活动响应
+message CreateActivityResponse {
+  int64 code = 1;
+  string message = 2;
+  ActivityInfo activity = 3;
+}
+
+// 更新活动请求
+message UpdateActivityRequest {
+  uint64 id = 1;
+  string activity_name = 2;
+  string activity_type = 3;
+  string description = 4;
+  int32 discount_type = 5;
+  double discount_amount = 6;
+  double discount_rate = 7;
+  double min_order_amount = 8;
+  double max_discount_amount = 9;
+  int32 valid_days = 10;
+  int32 max_grant_count = 11;
+  int32 total_grant_limit = 12;
+  string start_time = 13;
+  string end_time = 14;
+  int32 status = 15;
+}
+
+// 更新活动响应
+message UpdateActivityResponse {
+  int64 code = 1;
+  string message = 2;
+  ActivityInfo activity = 3;
+}
+
+// 删除活动请求
+message DeleteActivityRequest {
+  uint64 id = 1;
+}
+
+// 删除活动响应
+message DeleteActivityResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取活动请求
+message GetActivityRequest {
+  uint64 id = 1;
+}
+
+// 获取活动响应
+message GetActivityResponse {
+  int64 code = 1;
+  string message = 2;
+  ActivityInfo activity = 3;
+}
+
+// 获取活动列表请求
+message GetActivityListRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  int32 status = 3;
+  string keyword = 4;
+}
+
+// 获取活动列表响应
+message GetActivityListResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated ActivityInfo activities = 3;
+  int64 total = 4;
+}
+
+// 分发活动优惠券请求
+message DistributeActivityCouponsRequest {
+  string activity_code = 1;
+  repeated uint64 user_ids = 2;
+  string source = 3;
+}
+
+// 分发活动优惠券响应
+message DistributeActivityCouponsResponse {
+  int64 code = 1;
+  string message = 2;
+  int32 success_count = 3;
+  int32 failed_count = 4;
+  repeated string failed_reasons = 5;
+}

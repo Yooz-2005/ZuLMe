@@ -1,0 +1,236 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = ".;proto_chat";
+
+// 聊天服务
+service ChatService {
+  // 发送消息
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  
+  // 获取房间消息
+  rpc GetRoomMessages(GetRoomMessagesRequest) returns (GetRoomMessagesResponse);
+
+  // 添加好友
+  rpc AddFriend(AddFriendRequest) returns (AddFriendResponse);
+  
+  // 获取好友列表
+  rpc GetFriendList(GetFriendListRequest) returns (GetFriendListResponse);
+  
+  // 检查好友关系
+  rpc IsFriend(IsFriendRequest) returns (IsFriendResponse);
+  
+
+
+  // 创建群聊
+  rpc CreateGroupChat(CreateGroupChatRequest) returns (CreateGroupChatResponse);
+
+  // 获取群聊信息
+  rpc GetGroupChatInfo(GetGroupChatInfoRequest) returns (GetGroupChatInfoResponse);
+
+  // 获取群聊成员列表
+  rpc GetGroupMembers(GetGroupMembersRequest) returns (GetGroupMembersResponse);
+
+  // 邀请用户加入群聊
+  rpc InviteToGroup(InviteToGroupRequest) returns (InviteToGroupResponse);
+
+  // 退出群聊
+  rpc LeaveGroup(LeaveGroupRequest) returns (LeaveGroupResponse);
+
+  // 获取用户参与的群聊列表
+  rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse);
+}
+
+// 消息信息
+message MessageInfo {
+  string id = 1;
+  string room_id = 2;
+  uint32 from_user_id = 3;
+  uint32 to_user_id = 4;
+  int32 message_type = 5;
+  string content = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+// 好友信息
+message FriendInfo {
+  uint32 user_id = 1;
+  uint32 friend_id = 2;
+  int32 status = 3;
+  string created_at = 4;
+}
+
+
+
+// 群聊信息
+message GroupChatInfo {
+  string group_id = 1;
+  string group_name = 2;
+  uint32 creator_id = 3;
+  string description = 4;
+  int32 member_count = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+// 群聊成员信息
+message GroupMemberInfo {
+  string group_id = 1;
+  uint32 user_id = 2;
+  int32 role = 3; // 1: 群主, 2: 管理员, 3: 普通成员
+  string joined_at = 4;
+}
+
+// 发送消息请求
+message SendMessageRequest {
+  string room_id = 1;
+  uint32 from_user_id = 2;
+  uint32 to_user_id = 3;
+  int32 message_type = 4;
+  string content = 5;
+}
+
+// 发送消息响应
+message SendMessageResponse {
+  int64 code = 1;
+  string message = 2;
+  MessageInfo message_info = 3;
+}
+
+// 获取房间消息请求
+message GetRoomMessagesRequest {
+  string room_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+// 获取房间消息响应
+message GetRoomMessagesResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated MessageInfo messages = 3;
+  int64 total = 4;
+}
+
+
+
+// 添加好友请求
+message AddFriendRequest {
+  uint32 user_id = 1;
+  uint32 friend_id = 2;
+}
+
+// 添加好友响应
+message AddFriendResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取好友列表请求
+message GetFriendListRequest {
+  uint32 user_id = 1;
+}
+
+// 获取好友列表响应
+message GetFriendListResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated FriendInfo friends = 3;
+}
+
+// 检查好友关系请求
+message IsFriendRequest {
+  uint32 user_id = 1;
+  uint32 friend_id = 2;
+}
+
+// 检查好友关系响应
+message IsFriendResponse {
+  int64 code = 1;
+  string message = 2;
+  bool is_friend = 3;
+}
+
+
+
+// 创建群聊请求
+message CreateGroupChatRequest {
+  uint32 creator_id = 1;
+  string group_name = 2;
+  string description = 3;
+  repeated uint32 member_ids = 4; // 邀请的好友ID列表
+}
+
+// 创建群聊响应
+message CreateGroupChatResponse {
+  int64 code = 1;
+  string message = 2;
+  GroupChatInfo group_info = 3;
+}
+
+// 获取群聊信息请求
+message GetGroupChatInfoRequest {
+  string group_id = 1;
+  uint32 user_id = 2; // 请求用户ID，用于权限验证
+}
+
+// 获取群聊信息响应
+message GetGroupChatInfoResponse {
+  int64 code = 1;
+  string message = 2;
+  GroupChatInfo group_info = 3;
+}
+
+// 获取群聊成员列表请求
+message GetGroupMembersRequest {
+  string group_id = 1;
+  uint32 user_id = 2; // 请求用户ID，用于权限验证
+}
+
+// 获取群聊成员列表响应
+message GetGroupMembersResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated GroupMemberInfo members = 3;
+}
+
+// 邀请用户加入群聊请求
+message InviteToGroupRequest {
+  string group_id = 1;
+  uint32 inviter_id = 2; // 邀请者ID
+  repeated uint32 user_ids = 3; // 被邀请用户ID列表
+}
+
+// 邀请用户加入群聊响应
+message InviteToGroupResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated uint32 success_user_ids = 3; // 成功邀请的用户ID
+  repeated uint32 failed_user_ids = 4;  // 邀请失败的用户ID
+}
+
+// 退出群聊请求
+message LeaveGroupRequest {
+  string group_id = 1;
+  uint32 user_id = 2;
+}
+
+// 退出群聊响应
+message LeaveGroupResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+// 获取用户参与的群聊列表请求
+message GetUserGroupsRequest {
+  uint32 user_id = 1;
+}
+
+// 获取用户参与的群聊列表响应
+message GetUserGroupsResponse {
+  int64 code = 1;
+  string message = 2;
+  repeated GroupChatInfo groups = 3;
+}

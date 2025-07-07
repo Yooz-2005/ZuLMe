@@ -9,7 +9,7 @@ import (
 type HandlerAdmin func(ctx context.Context, in admin.AdminClient) (interface{}, error)
 
 func AdminClient(ctx context.Context, handlerAdmin HandlerAdmin) (interface{}, error) {
-	dial, err := grpc.Dial("127.0.0.1:8003", grpc.WithInsecure())
+	dial, err := grpc.Dial("127.0.0.1:8008", grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}

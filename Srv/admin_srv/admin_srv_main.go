@@ -28,12 +28,12 @@ func main() {
 	grpc_admin.RegisterAdminServices(gServer)
 
 	// 监听端口
-	lis, err := net.Listen("tcp", ":8003") // 假设Admin服务运行在8003端口
+	lis, err := net.Listen("tcp", ":8008") // 假设Admin服务运行在8003端口
 	if err != nil {
 		panic(fmt.Sprintf("Failed to listen: %v", err))
 	}
 
-	fmt.Println("Admin gRPC Server started on :8003")
+	fmt.Println("Admin gRPC Server started on :8008")
 	// 启动 gRPC 服务器
 	if err := gServer.Serve(lis); err != nil {
 		panic(fmt.Sprintf("Failed to serve gRPC server: %v", err))
