@@ -115,7 +115,7 @@ func (s *AmapService) GetCoordinatesByAddress(address string) (*Coordinates, err
 // parseLocation 解析位置字符串为坐标
 func parseLocation(location string) (*Coordinates, error) {
 	// 高德API返回格式: "longitude,latitude"
-	parts := make([]string, 0, 2)
+	parts := make([]string, 0, 2) // 分割字符串
 	var current string
 	for _, char := range location {
 		if char == ',' {

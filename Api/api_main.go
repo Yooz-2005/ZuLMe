@@ -33,6 +33,9 @@ func main() {
 	router.LoadOrder(r)
 	router.CommentRouter(r)
 	router.RegisterMinioRoutes(r)
+	router.RegisterChatRoutes(r)
+	router.CouponRouter(r)
+	router.ActivityRouter(r) // 活动管理路由
 
 	r.Run(":8888")
 }
